@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💝 Presente pela Cor - Nossa Dinâmica</title>
+    <title>💝 Eullon & Ana Clara - Nossa Dinâmica</title>
     
     <!-- PWA Manifest & iOS Support -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#667eea">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Cor do Mês">
+    <meta name="apple-mobile-web-app-title" content="Eullon & Ana Clara">
     <link rel="apple-touch-icon" href="icon-192.png">
     
     <!-- Tailwind CSS via CDN -->
@@ -454,13 +454,13 @@
                     id="selectHusbandBtn" 
                     class="btn border-2 border-blue-400 hover:bg-blue-50 text-blue-700 py-4 rounded-xl flex items-center justify-center gap-3 text-lg font-bold w-full cursor-pointer justify-center"
                 >
-                    💙 Marido
+                    💙 Eullon
                 </button>
                 <button 
                     id="selectWifeBtn" 
                     class="btn border-2 border-pink-400 hover:bg-pink-50 text-pink-700 py-4 rounded-xl flex items-center justify-center gap-3 text-lg font-bold w-full cursor-pointer justify-center"
                 >
-                    💗 Esposa
+                    💗 Ana Clara
                 </button>
             </div>
             
@@ -477,7 +477,7 @@
             <div class="max-w-6xl mx-auto px-4 flex items-center justify-between gap-4">
                 <div class="w-10 h-10 md:block hidden"></div> <!-- Spacer to keep title centered -->
                 <div class="text-center flex-1">
-                    <h1 class="text-2xl md:text-3xl font-bold">💝 Presente pela Cor 💝</h1>
+                    <h1 class="text-2xl md:text-3xl font-bold">💝 Eullon & Ana Clara 💝</h1>
                     <p class="header-subtitle text-xs md:text-sm opacity-90">Mês de {{ monthName }} • {{ yearDisplay }}</p>
                 </div>
                 <button 
@@ -521,21 +521,36 @@
 
             <!-- Tabs de visualização -->
             <div class="tabs">
-<button class="tab-btn active" onclick="switchTab('my-gifts', this)">
-    <i class="fas fa-gift"></i> Meus Presentes
-</button>
-<button class="tab-btn" onclick="switchTab('partner-gifts', this)">
-    <i class="fas fa-heart"></i> Presentes Recebidos
-</button>
-<button class="tab-btn" onclick="switchTab('calendar', this)">
-    <i class="fas fa-calendar"></i> Calendário
-</button>
+                <button class="tab-btn active" onclick="switchTab('calendar', this)">
+                    <i class="fas fa-calendar-alt"></i> Calendário
+                </button>
+                <button class="tab-btn" onclick="switchTab('my-gifts', this)">
+                    <i class="fas fa-gift"></i> Meus Presentes
+                </button>
+                <button class="tab-btn" onclick="switchTab('partner-gifts', this)">
+                    <i class="fas fa-heart"></i> Presentes Recebidos
+                </button>
+                <button class="tab-btn" onclick="switchTab('wishlist', this)">
+                    <i class="fas fa-magic"></i> Sugestões
+                </button>
             </div>
 
             <!-- Conteúdo das Abas -->
-            <div id="my-gifts" class="tab-content">
+            <div id="calendar" class="tab-content">
                 <div class="mb-6 flex justify-between items-center">
-                    <h2 class="text-2xl font-bold text-white">Meus Presentes por Mês</h2>
+                    <h2 class="text-2xl font-bold text-white">📅 Calendário do Casal</h2>
+                    <button id="newEventBtn" class="btn btn-success" onclick="openAddEventModal()">
+                        <i class="fas fa-plus-circle"></i> Novo Evento
+                    </button>
+                </div>
+                <div id="calendarGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Preenchido por JS -->
+                </div>
+            </div>
+
+            <div id="my-gifts" class="tab-content hidden">
+                <div class="mb-6 flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-white">Meus Presentes Enviados</h2>
                     <button id="newGiftBtn" class="btn btn-success" onclick="openAddGiftModal()">
                         <i class="fas fa-plus-circle"></i> Novo Presente
                     </button>
@@ -554,12 +569,34 @@
                 </div>
             </div>
 
-            <div id="calendar" class="tab-content hidden">
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-white">Calendário de Cores - 2026</h2>
+            <div id="wishlist" class="tab-content hidden">
+                <div class="mb-6 flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-white">✨ Sugestões de Presentes</h2>
+                    <button class="btn btn-success" onclick="openAddWishlistModal()">
+                        <i class="fas fa-plus-circle"></i> Adicionar Sugestão
+                    </button>
                 </div>
-                <div id="calendarGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Preenchido por JS -->
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Meus Desejos -->
+                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20 shadow-xl">
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-star text-yellow-300"></i> Quero Ganhar
+                        </h3>
+                        <div id="myWishlistGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Preenchido por JS -->
+                        </div>
+                    </div>
+
+                    <!-- Desejos do Parceiro -->
+                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20 shadow-xl">
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-heart text-pink-300"></i> Meu Amor Quer Ganhar
+                        </h3>
+                        <div id="partnerWishlistGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Preenchido por JS -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -578,10 +615,10 @@
             <form id="giftForm" onsubmit="handleAddGift(event)">
                 <div class="mb-4">
                     <label class="block text-gray-700 font-bold mb-2">
-                        <i class="fas fa-calendar-alt"></i> Mês do Presente
+                        <i class="fas fa-calendar-alt"></i> Evento do Presente
                     </label>
-                    <select id="giftMonth" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        <option value="">Selecione o mês...</option>
+                    <select id="giftEvent" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="">Selecione o evento...</option>
                     </select>
                 </div>
 
@@ -741,6 +778,135 @@
                     </button>
                 </div>
                 <div id="linkPartnerSpinner" class="spinner flex justify-center mt-4"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar Evento Especial -->
+    <div id="addEventModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">📅 Novo Evento Especial</h2>
+                <button onclick="closeModal('addEventModal')" class="text-gray-500 hover:text-gray-700 text-2xl">
+                    ✕
+                </button>
+            </div>
+
+            <form id="eventForm" onsubmit="handleAddEvent(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-edit"></i> Nome do Evento
+                    </label>
+                    <input 
+                        type="text" 
+                        id="eventName" 
+                        placeholder="Ex: Aniversário de Casamento, Nossa Viagem..." 
+                        required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                </div>
+
+                <div class="flex gap-4 mb-6">
+                    <div class="flex-1">
+                        <label class="block text-gray-700 font-bold mb-2">Dia</label>
+                        <select id="eventDay" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <!-- Preenchido via JS -->
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-gray-700 font-bold mb-2">Mês</label>
+                        <select id="eventMonth" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="1">Janeiro</option>
+                            <option value="2">Fevereiro</option>
+                            <option value="3">Março</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Maio</option>
+                            <option value="6">Junho</option>
+                            <option value="7">Julho</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="submit" class="btn btn-primary flex-1 justify-center">
+                        <i class="fas fa-save"></i> Salvar Evento
+                    </button>
+                    <button type="button" onclick="closeModal('addEventModal')" class="btn btn-secondary flex-1 justify-center">
+                        Cancelar
+                    </button>
+                </div>
+                
+                <div id="eventFormSpinner" class="spinner flex justify-center mt-4"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar Sugestão de Presente (Wishlist) -->
+    <div id="addWishlistModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">✨ Nova Sugestão</h2>
+                <button onclick="closeModal('addWishlistModal')" class="text-gray-500 hover:text-gray-700 text-2xl">
+                    ✕
+                </button>
+            </div>
+
+            <form id="wishlistForm" onsubmit="handleAddWishlistItem(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-box"></i> Nome do Presente
+                    </label>
+                    <input 
+                        type="text" 
+                        id="wishlistName" 
+                        placeholder="Ex: Tênis de corrida, Maquiagem X..." 
+                        required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-link"></i> Link da Loja (Opcional)
+                    </label>
+                    <input 
+                        type="url" 
+                        id="wishlistLink" 
+                        placeholder="https://loja.com/produto" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-image"></i> Foto do Presente
+                    </label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="wishlistImage" accept="image/*" required>
+                        <label for="wishlistImage" class="file-input-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Clique ou arraste para enviar</span>
+                        </label>
+                    </div>
+                    <div id="wishlistFileName" class="file-name"></div>
+                    <img id="wishlistImagePreview" class="image-preview hidden">
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="submit" class="btn btn-primary flex-1 justify-center">
+                        <i class="fas fa-save"></i> Salvar Sugestão
+                    </button>
+                    <button type="button" onclick="closeModal('addWishlistModal')" class="btn btn-secondary flex-1 justify-center">
+                        Cancelar
+                    </button>
+                </div>
+                
+                <div id="wishlistFormSpinner" class="spinner flex justify-center mt-4"></div>
             </form>
         </div>
     </div>

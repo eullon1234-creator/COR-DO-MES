@@ -51,6 +51,25 @@ const MONTHS = [
 // Meses de revelação (a cada 3 meses): 3, 6, 9, 12
 const REVEAL_MONTHS = [3, 6, 9, 12];
 
+const PREDEFINED_EVENTS = [
+    { id: 'month-1', name: 'Janeiro', date: '01/01', day: 1, month: 1, type: 'month', emoji: '🎆', color: '#EF4444', textColor: '#fff' },
+    { id: 'month-2', name: 'Fevereiro', date: '01/02', day: 1, month: 2, type: 'month', emoji: '💘', color: '#FB923C', textColor: '#fff' },
+    { id: 'month-3', name: 'Março', date: '01/03', day: 1, month: 3, type: 'month', emoji: '🌷', color: '#FBBF24', textColor: '#000' },
+    { id: 'month-4', name: 'Abril', date: '01/04', day: 1, month: 4, type: 'month', emoji: '🌱', color: '#4ADE80', textColor: '#000' },
+    { id: 'month-5', name: 'Maio', date: '01/05', day: 1, month: 5, type: 'month', emoji: '🌊', color: '#60A5FA', textColor: '#fff' },
+    { id: 'month-6', name: 'Junho', date: '01/06', day: 1, month: 6, type: 'month', emoji: '👰', color: '#A78BFA', textColor: '#fff' },
+    { id: 'month-7', name: 'Julho', date: '01/07', day: 1, month: 7, type: 'month', emoji: '🎆', color: '#EC4899', textColor: '#fff' },
+    { id: 'month-8', name: 'Agosto', date: '01/08', day: 1, month: 8, type: 'month', emoji: '🌾', color: '#92400E', textColor: '#fff' },
+    { id: 'month-9', name: 'Setembro', date: '01/09', day: 1, month: 9, type: 'month', emoji: '🍂', color: '#F5DEB3', textColor: '#000' },
+    { id: 'month-10', name: 'Outubro', date: '01/10', day: 1, month: 10, type: 'month', emoji: '🎃', color: '#EA580C', textColor: '#fff' },
+    { id: 'month-11', name: 'Novembro', date: '01/11', day: 1, month: 11, type: 'month', emoji: '🦃', color: '#FCD34D', textColor: '#000' },
+    { id: 'month-12', name: 'Dezembro', date: '01/12', day: 1, month: 12, type: 'month', emoji: '🎄', color: '#F8FAFC', textColor: '#000' },
+    { id: 'special-namorados', name: '💑 Dia dos Namorados', date: '12/06', day: 12, month: 6, type: 'special', emoji: '💑', color: '#EC4899', textColor: '#fff' },
+    { id: 'special-eullon-bday', name: '🎂 Aniv. Eullon', date: '07/08', day: 7, month: 8, type: 'special', emoji: '🎂', color: '#60A5FA', textColor: '#fff' },
+    { id: 'special-ana-bday', name: '🎂 Aniv. Ana Clara', date: '29/10', day: 29, month: 10, type: 'special', emoji: '🎂', color: '#FB923C', textColor: '#fff' },
+    { id: 'special-namoro', name: '💕 Aniv. de Namoro', date: '21/07', day: 21, month: 7, type: 'special', emoji: '💍', color: '#A78BFA', textColor: '#fff' },
+];
+
 // ============================================================================
 // 🌍 ESTADO GLOBAL DA APLICAÇÃO
 // ============================================================================
@@ -62,6 +81,8 @@ let currentTabView = "my-gifts"; // "my-gifts", "partner-gifts", "calendar"
 let allGifts = [];
 let currentGiftBeingViewed = null;
 let deferredPrompt = null; // Para instalação do PWA
+let loadedEvents = [];
+let loadedWishlist = [];
 
 // ============================================================================
 // 🎯 INICIALIZAÇÃO
@@ -147,9 +168,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Event listener para preview de imagem
     document.getElementById("giftImage").addEventListener("change", previewImage);
     document.getElementById("memoryImage").addEventListener("change", previewMemoryImage);
+    document.getElementById("wishlistImage").addEventListener("change", previewWishlistImage);
 
-    // Preencher selectores de mês
+    // Preencher selectores
     populateMonthSelects();
+    populateEventDaySelect();
 
     // Atualizar cabeçalho com mês/ano atual
     updateHeaderDate();
@@ -184,7 +207,7 @@ async function checkUserProfile() {
 async function saveUserRole(role) {
     if (!currentUser) return;
     try {
-        const name = role === "husband" ? "💙 Marido" : "💗 Esposa";
+        const name = role === "husband" ? "💙 Eullon" : "💗 Ana Clara";
         
         await db.collection("users").doc(currentUser.uid).set({
             email: currentUser.email,
@@ -230,27 +253,64 @@ async function loadUserData() {
             return;
         }
         
-        const userData = userDoc.data();
-            
-            // Atualizar nome do usuário atual
-            document.getElementById("currentUserName").textContent = userData.name;
-            
-            // Se tem parceiro, carregar dados do parceiro
-            if (userData.partnerUid) {
-                try {
-                    const partnerDoc = await db.collection("users").doc(userData.partnerUid).get();
-                    if (partnerDoc.exists) {
-                        partnerUser = { id: partnerDoc.id, ...partnerDoc.data() };
-                        document.getElementById("partnerUserName").textContent = partnerUser.name;
-                        document.getElementById("linkPartnerBtn").classList.add("hidden");
-                    }
-                } catch (error) {
-                    console.error("Erro ao carregar dados do parceiro:", error);
-                }
-            } else {
-                document.getElementById("linkPartnerBtn").classList.remove("hidden");
-                document.getElementById("partnerUserName").textContent = "Não vinculado";
+        let userData = userDoc.data();
+        
+        // Migração de nomes antigos para Eullon & Ana Clara
+        let nameNeedsUpdate = false;
+        if (userData.name === "💙 Marido" || userData.name === "Marido") {
+            userData.name = "💙 Eullon";
+            nameNeedsUpdate = true;
+        } else if (userData.name === "💗 Esposa" || userData.name === "Esposa") {
+            userData.name = "💗 Ana Clara";
+            nameNeedsUpdate = true;
+        }
+        
+        if (nameNeedsUpdate) {
+            try {
+                await db.collection("users").doc(currentUser.uid).update({ name: userData.name });
+            } catch (err) {
+                console.error("Erro ao migrar nome do usuário:", err);
             }
+        }
+            
+        // Atualizar nome do usuário atual
+        document.getElementById("currentUserName").textContent = userData.name;
+        
+        // Se tem parceiro, carregar dados do parceiro
+        if (userData.partnerUid) {
+            try {
+                const partnerDoc = await db.collection("users").doc(userData.partnerUid).get();
+                if (partnerDoc.exists) {
+                    let partnerData = partnerDoc.data();
+                    let partnerNeedsUpdate = false;
+                    
+                    if (partnerData.name === "💙 Marido" || partnerData.name === "Marido") {
+                        partnerData.name = "💙 Eullon";
+                        partnerNeedsUpdate = true;
+                    } else if (partnerData.name === "💗 Esposa" || partnerData.name === "Esposa") {
+                        partnerData.name = "💗 Ana Clara";
+                        partnerNeedsUpdate = true;
+                    }
+                    
+                    if (partnerNeedsUpdate) {
+                        try {
+                            await db.collection("users").doc(userData.partnerUid).update({ name: partnerData.name });
+                        } catch (err) {
+                            console.error("Erro ao migrar nome do parceiro:", err);
+                        }
+                    }
+                    
+                    partnerUser = { id: partnerDoc.id, ...partnerData };
+                    document.getElementById("partnerUserName").textContent = partnerUser.name;
+                    document.getElementById("linkPartnerBtn").classList.add("hidden");
+                }
+            } catch (error) {
+                console.error("Erro ao carregar dados do parceiro:", error);
+            }
+        } else {
+            document.getElementById("linkPartnerBtn").classList.remove("hidden");
+            document.getElementById("partnerUserName").textContent = "Não vinculado";
+        }
 
         // Sincronizar presentes antigos cadastrados antes do vínculo de parceiro
         await syncOrphanGifts();
@@ -258,10 +318,17 @@ async function loadUserData() {
         // Carregar todos os presentes
         await loadAllGifts();
         
+        // Carregar eventos e wishlist
+        await Promise.all([
+            loadEvents(),
+            loadWishlist()
+        ]);
+        
         // Renderizar interface
         renderMyGiftsGrid();
         renderPartnerGiftsGrid();
         renderCalendarGrid();
+        renderWishlist();
 
     } catch (error) {
         console.error("Erro ao carregar dados do usuário:", error);
@@ -344,6 +411,9 @@ function openAddGiftModal() {
     document.getElementById("fileName").textContent = "";
     document.getElementById("giftImagePreview").classList.add("hidden");
     
+    // Preencher select de eventos dinamicamente
+    populateGiftEventSelect();
+    
     // Mostrar modal
     document.getElementById("addGiftModal").classList.add("active");
 }
@@ -351,23 +421,28 @@ function openAddGiftModal() {
 async function handleAddGift(event) {
     event.preventDefault();
 
-    const month = parseInt(document.getElementById("giftMonth").value);
+    const eventId = document.getElementById("giftEvent").value;
     const name = document.getElementById("giftName").value;
     const imageFile = document.getElementById("giftImage").files[0];
 
-    if (!month || !name || !imageFile) {
+    if (!eventId || !name || !imageFile) {
         showToast("Por favor, preencha todos os campos", "error");
         return;
     }
 
+    // Descobrir mês do evento selecionado
+    const allEvents = getAllEvents();
+    const selectedEvent = allEvents.find(e => e.id === eventId);
+    const month = selectedEvent ? selectedEvent.month : new Date().getMonth() + 1;
+
     // Verificar duplicidade
     const jaExiste = allGifts.find(g =>
-        g.month === month &&
+        g.eventId === eventId &&
         g.year === new Date().getFullYear() &&
         g.giver_uid === currentUser.uid
     );
     if (jaExiste) {
-        showToast("Você já registrou um presente para este mês!", "error");
+        showToast("Você já registrou um presente para este evento!", "error");
         return;
     }
 
@@ -382,6 +457,7 @@ async function handleAddGift(event) {
         await db.collection("gifts").add({
             giver_uid: currentUser.uid,
             recipient_uid: partnerUser ? partnerUser.id : null,
+            eventId: eventId,
             month: month,
             year: new Date().getFullYear(),
             product_name: name,
@@ -397,6 +473,7 @@ async function handleAddGift(event) {
         closeModal("addGiftModal");
         await loadAllGifts();
         renderMyGiftsGrid();
+        renderCalendarGrid();
 
     } catch (error) {
         console.error("Erro ao adicionar presente:", error);
@@ -436,6 +513,7 @@ async function handleAddMemory(event) {
         closeModal("viewMyGiftModal");
         await loadAllGifts();
         renderMyGiftsGrid();
+        renderCalendarGrid();
 
     } catch (error) {
         console.error("Erro ao adicionar recordação:", error);
@@ -542,33 +620,96 @@ function renderPartnerGiftsGrid() {
     });
 }
 
+function getAllEvents() {
+    let events = PREDEFINED_EVENTS.map(e => ({ ...e }));
+
+    loadedEvents.forEach(evt => {
+        events.push({
+            id: evt.id,
+            name: evt.name,
+            date: evt.date,
+            day: parseInt(evt.date.split('/')[0]),
+            month: parseInt(evt.date.split('/')[1]),
+            type: 'custom',
+            emoji: '📌',
+            color: '#667eea',
+            textColor: '#fff'
+        });
+    });
+
+    events.sort((a, b) => {
+        if (a.month !== b.month) return a.month - b.month;
+        return a.day - b.day;
+    });
+
+    return events;
+}
+
+function findGiftForEvent(event, giverUid) {
+    return allGifts.find(g => {
+        if (g.giver_uid !== giverUid) return false;
+        if (g.eventId) return g.eventId === event.id;
+        if (g.month && event.type === 'month') return g.month === event.month;
+        return false;
+    });
+}
+
 function renderCalendarGrid() {
     const grid = document.getElementById("calendarGrid");
     grid.innerHTML = "";
 
-    MONTHS.forEach(month => {
-        const giftForMonth = allGifts.find(g => g.month === month.number);
-        
-        let cardHTML = `
-            <div class="month-card ${giftForMonth ? 'has-gift' : ''}" style="background-color: ${month.color}; color: ${month.textColor};">
-                <div>
-                    <div style="font-size: 40px; margin-bottom: 10px;">${month.emoji}</div>
-                    <h3 class="text-xl font-bold">${month.name}</h3>
-                    <p class="text-sm opacity-80">Cor especial do mês</p>
-                </div>
-                <div>
-                    ${giftForMonth ? `
-                        <div class="gift-badge badge-unrevealed">
-                            <i class="fas fa-lock"></i> Presente registrado
-                        </div>
-                    ` : `
-                        <div class="text-sm opacity-70">Sem presentes ainda</div>
-                    `}
-                </div>
+    const events = getAllEvents();
+    if (!partnerUser) {
+        grid.innerHTML = `
+            <div class="col-span-full empty-state">
+                <i class="fas fa-heart text-5xl mb-4"></i>
+                <p class="text-xl">Vincule seu parceiro para ver o calendário completo</p>
+                <p class="text-sm mt-2">Clique em "Vincular" no menu superior 💕</p>
+            </div>
+        `;
+        return;
+    }
+
+    events.forEach(event => {
+        const myGift = findGiftForEvent(event, currentUser.uid);
+        const partnerGift = findGiftForEvent(event, partnerUser.id);
+
+        const card = document.createElement("div");
+        card.className = "month-card";
+        card.style.backgroundColor = event.color;
+        card.style.color = event.textColor;
+
+        const mySection = myGift
+            ? `<div class="flex items-center gap-2 mt-1">
+                <span class="text-sm">🎁 ${myGift.product_name}</span>
+               </div>`
+            : `<button onclick="event.stopPropagation(); openAddGiftModal()" class="btn btn-secondary text-xs py-1 px-2 mt-1">
+                <i class="fas fa-gift"></i> Registrar Presente
+               </button>`;
+
+        const partnerSection = partnerGift
+            ? `<div class="flex items-center gap-2 mt-1">
+                <img src="${partnerGift.image_url}" alt="Presente" class="w-8 h-8 rounded object-cover ${!partnerGift.revealed_at ? 'gift-blur' : ''}">
+                <span class="text-sm">${partnerGift.revealed_at ? partnerGift.product_name : '*****'}</span>
+                ${!partnerGift.revealed_at ? `<button onclick="event.stopPropagation(); revealGift('${partnerGift.id}')" class="btn btn-success text-xs py-1 px-2">Revelar</button>` : ''}
+               </div>`
+            : `<div class="text-xs opacity-70 mt-1">⏳ Ainda não enviado</div>`;
+
+        card.innerHTML = `
+            <div>
+                <div style="font-size: 32px; margin-bottom: 6px;">${event.emoji}</div>
+                <h3 class="text-base font-bold">${event.name}</h3>
+                <p class="text-xs opacity-80">${event.date}</p>
+            </div>
+            <div class="mt-2 text-xs border-t border-white/20 pt-2">
+                <div class="font-semibold">💙 Meu presente:</div>
+                ${mySection}
+                <div class="font-semibold mt-2">💗 Presente do(a) parceiro(a):</div>
+                ${partnerSection}
             </div>
         `;
 
-        grid.innerHTML += cardHTML;
+        grid.appendChild(card);
     });
 }
 
@@ -778,6 +919,7 @@ async function revealGift(giftId) {
         viewPartnerGift(giftId);
         await loadAllGifts();
         renderPartnerGiftsGrid();
+        renderCalendarGrid();
 
     } catch (error) {
         console.error("Erro ao revelar presente:", error);
@@ -812,10 +954,200 @@ async function deleteGift(giftId) {
         closeModal("viewMyGiftModal");
         await loadAllGifts();
         renderMyGiftsGrid();
+        renderCalendarGrid();
 
     } catch (error) {
         console.error("Erro ao excluir presente:", error);
         showToast("Erro ao excluir presente", "error");
+    }
+}
+
+// ============================================================================
+// 📅 GERENCIAMENTO DE EVENTOS
+// ============================================================================
+
+async function loadEvents() {
+    try {
+        const snapshot = await db.collection("events").get();
+        loadedEvents = [];
+        snapshot.forEach(doc => {
+            loadedEvents.push({ id: doc.id, ...doc.data() });
+        });
+    } catch (error) {
+        console.error("Erro ao carregar eventos:", error);
+    }
+}
+
+function openAddEventModal() {
+    document.getElementById("eventForm").reset();
+    populateEventDaySelect();
+    document.getElementById("addEventModal").classList.add("active");
+}
+
+async function handleAddEvent(event) {
+    event.preventDefault();
+
+    const name = document.getElementById("eventName").value.trim();
+    const day = document.getElementById("eventDay").value;
+    const month = document.getElementById("eventMonth").value;
+
+    if (!name || !day || !month) {
+        showToast("Preencha todos os campos do evento", "error");
+        return;
+    }
+
+    const dateStr = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}`;
+
+    document.getElementById("eventFormSpinner").classList.add("active");
+
+    try {
+        await db.collection("events").add({
+            name: name,
+            date: dateStr,
+            creatorUid: currentUser.uid,
+            createdAt: new Date()
+        });
+
+        showToast("Evento criado com sucesso! 📅", "success");
+        closeModal("addEventModal");
+        await loadEvents();
+        renderCalendarGrid();
+    } catch (error) {
+        console.error("Erro ao criar evento:", error);
+        showToast("Erro ao criar evento: " + error.message, "error");
+    } finally {
+        document.getElementById("eventFormSpinner").classList.remove("active");
+    }
+}
+
+// ============================================================================
+// ✨ GERENCIAMENTO DE WISHLIST (SUGESTÕES DE PRESENTES)
+// ============================================================================
+
+async function loadWishlist() {
+    try {
+        const snapshot = await db.collection("wishlist").get();
+        loadedWishlist = [];
+        snapshot.forEach(doc => {
+            loadedWishlist.push({ id: doc.id, ...doc.data() });
+        });
+    } catch (error) {
+        console.error("Erro ao carregar wishlist:", error);
+    }
+}
+
+function openAddWishlistModal() {
+    document.getElementById("wishlistForm").reset();
+    document.getElementById("wishlistFileName").textContent = "";
+    document.getElementById("wishlistImagePreview").classList.add("hidden");
+    document.getElementById("addWishlistModal").classList.add("active");
+}
+
+async function handleAddWishlistItem(event) {
+    event.preventDefault();
+
+    const name = document.getElementById("wishlistName").value.trim();
+    const link = document.getElementById("wishlistLink").value.trim();
+    const imageFile = document.getElementById("wishlistImage").files[0];
+
+    if (!name || !imageFile) {
+        showToast("Preencha o nome e selecione uma foto", "error");
+        return;
+    }
+
+    document.getElementById("wishlistFormSpinner").classList.add("active");
+
+    try {
+        const imageUrl = await uploadToImgBB(imageFile);
+
+        await db.collection("wishlist").add({
+            name: name,
+            image_url: imageUrl,
+            link: link || null,
+            creatorUid: currentUser.uid,
+            createdAt: new Date()
+        });
+
+        showToast("Sugestão adicionada! ✨", "success");
+        closeModal("addWishlistModal");
+        await loadWishlist();
+        renderWishlist();
+    } catch (error) {
+        console.error("Erro ao adicionar sugestão:", error);
+        showToast("Erro: " + error.message, "error");
+    } finally {
+        document.getElementById("wishlistFormSpinner").classList.remove("active");
+    }
+}
+
+async function deleteWishlistItem(itemId) {
+    if (!confirm("Remover esta sugestão?")) return;
+
+    try {
+        await db.collection("wishlist").doc(itemId).delete();
+        showToast("Sugestão removida", "success");
+        await loadWishlist();
+        renderWishlist();
+    } catch (error) {
+        console.error("Erro ao remover sugestão:", error);
+        showToast("Erro ao remover", "error");
+    }
+}
+
+function renderWishlist() {
+    const myGrid = document.getElementById("myWishlistGrid");
+    const partnerGrid = document.getElementById("partnerWishlistGrid");
+    if (!myGrid || !partnerGrid) return;
+
+    myGrid.innerHTML = "";
+    partnerGrid.innerHTML = "";
+
+    const myItems = loadedWishlist.filter(i => i.creatorUid === currentUser.uid);
+    const partnerItems = partnerUser
+        ? loadedWishlist.filter(i => i.creatorUid === partnerUser.id)
+        : [];
+
+    if (myItems.length === 0) {
+        myGrid.innerHTML = `
+            <div class="col-span-full text-center py-6 text-white/70">
+                <i class="fas fa-star text-3xl mb-2"></i>
+                <p class="text-sm">Nenhum desejo ainda</p>
+            </div>
+        `;
+    } else {
+        myItems.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "bg-white/20 backdrop-blur-sm rounded-xl p-3 border border-white/10";
+            div.innerHTML = `
+                <img src="${item.image_url}" alt="${item.name}" class="w-full h-24 object-cover rounded-lg mb-2">
+                <p class="text-white text-sm font-bold truncate">${item.name}</p>
+                ${item.link ? `<a href="${item.link}" target="_blank" class="text-blue-200 text-xs block truncate mt-1">🔗 Link</a>` : ''}
+                <button onclick="deleteWishlistItem('${item.id}')" class="text-red-300 text-xs mt-2 hover:text-red-100">
+                    <i class="fas fa-trash"></i> Remover
+                </button>
+            `;
+            myGrid.appendChild(div);
+        });
+    }
+
+    if (!partnerUser || partnerItems.length === 0) {
+        partnerGrid.innerHTML = `
+            <div class="col-span-full text-center py-6 text-white/70">
+                <i class="fas fa-heart text-3xl mb-2"></i>
+                <p class="text-sm">${partnerUser ? 'Nenhum desejo ainda 💭' : 'Vincule seu parceiro para ver 💕'}</p>
+            </div>
+        `;
+    } else {
+        partnerItems.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "bg-white/20 backdrop-blur-sm rounded-xl p-3 border border-white/10";
+            div.innerHTML = `
+                <img src="${item.image_url}" alt="${item.name}" class="w-full h-24 object-cover rounded-lg mb-2">
+                <p class="text-white text-sm font-bold truncate">${item.name}</p>
+                ${item.link ? `<a href="${item.link}" target="_blank" class="inline-block mt-2 btn btn-primary text-xs py-1 px-3"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}
+            `;
+            partnerGrid.appendChild(div);
+        });
     }
 }
 
@@ -896,12 +1228,31 @@ function previewMemoryImage() {
     }
 }
 
+function previewWishlistImage() {
+    const file = document.getElementById("wishlistImage").files[0];
+    const preview = document.getElementById("wishlistImagePreview");
+    const fileName = document.getElementById("wishlistFileName");
+
+    if (file) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.classList.remove("hidden");
+        };
+        
+        reader.readAsDataURL(file);
+        fileName.textContent = "Arquivo: " + file.name;
+    }
+}
+
 // ============================================================================
 // 📝 FORMULÁRIOS
 // ============================================================================
 
 function populateMonthSelects() {
     const select = document.getElementById("giftMonth");
+    if (!select) return;
     const currentMonth = new Date().getMonth() + 1;
 
     MONTHS.forEach(month => {
@@ -911,6 +1262,31 @@ function populateMonthSelects() {
         if (month.number === currentMonth) {
             option.selected = true;
         }
+        select.appendChild(option);
+    });
+}
+
+function populateEventDaySelect() {
+    const select = document.getElementById("eventDay");
+    if (!select) return;
+    select.innerHTML = '<option value="">Dia</option>';
+    for (let i = 1; i <= 31; i++) {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = i;
+        select.appendChild(option);
+    }
+}
+
+function populateGiftEventSelect() {
+    const select = document.getElementById("giftEvent");
+    if (!select) return;
+    select.innerHTML = '<option value="">Selecione o evento...</option>';
+    const allEvents = getAllEvents();
+    allEvents.forEach(evt => {
+        const option = document.createElement("option");
+        option.value = evt.id;
+        option.textContent = `${evt.emoji} ${evt.name} (${evt.date})`;
         select.appendChild(option);
     });
 }
