@@ -1,0 +1,32 @@
+# 🔐 CREDENCIAIS E ARQUIVOS SENSÍVEIS - NUNCA COMITAR!
+config.js
+.env
+.env.local
+*.key
+*.pem
+secrets/
+
+# 📦 DEPENDÊNCIAS
+node_modules/
+package-lock.json
+yarn.lock
+
+# 🖥️ IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# 📝 LOGS
+*.log
+npm-debug.log*
+
+# 🔍 CACHE
+dist/
+build/
+.cache/
+
+# 🧪 TESTE
+coverage/
+.nyc_output/

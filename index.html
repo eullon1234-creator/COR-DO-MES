@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💝 Presente pela Cor - Nossa Dinâmica</title>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Estilo customizado -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Efeito de Blur para presentes ocultos */
+        .gift-blur {
+            filter: blur(15px);
+            transition: filter 0.6s ease-in-out;
+        }
+
+        .gift-blur.revealed {
+            filter: blur(0px);
+        }
+
+        /* Ocultação de nome do presente */
+        .gift-name-hidden {
+            user-select: none;
+            color: #999;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        /* Cards de mês com cor específica */
+        .month-card {
+            border-radius: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .month-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .month-card.has-gift::after {
+            content: "💝";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            opacity: 0.8;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Input de arquivo estilizado */
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            background-color: #f0f0f0;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: 500;
+            color: #667eea;
+        }
+
+        .file-input-label:hover {
+            background-color: #e8e8ff;
+        }
+
+        .file-name {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        .spinner.active {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Preview da imagem */
+        .image-preview {
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        /* Badge para status do presente */
+        .gift-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .badge-unrevealed {
+            background-color: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-revealed {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-with-memory {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .month-card {
+                min-height: 150px;
+                padding: 15px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+
+        /* Animação de coração pulsante */
+        .heart-pulse {
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Botões */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background-color: #d0d0d0;
+        }
+
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* User info */
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .user-profile:hover {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #10b981;
+            display: inline-block;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: #999;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            animation: slideInRight 0.3s ease;
+            z-index: 100;
+        }
+
+        .toast.success {
+            background-color: #10b981;
+        }
+
+        .toast.error {
+            background-color: #ef4444;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div id="loginScreen" class="w-full h-screen flex items-center justify-center">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-11/12 text-center">
+            <div style="font-size: 64px; margin-bottom: 20px;" class="heart-pulse">💝</div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Presente pela Cor</h1>
+            <p class="text-gray-600 mb-8">Nossa dinâmica de presentes especiais</p>
+            
+            <input 
+                type="email" 
+                id="loginEmail" 
+                placeholder="seu@email.com" 
+                class="w-full px-4 py-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+            
+            <input 
+                type="password" 
+                id="loginPassword" 
+                placeholder="Senha" 
+                class="w-full px-4 py-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+            
+            <div class="flex gap-3 mb-6">
+                <select id="accountType" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <option value="">Selecione...</option>
+                    <option value="husband">💙 Marido</option>
+                    <option value="wife">💗 Esposa</option>
+                </select>
+            </div>
+            
+            <button 
+                id="loginBtn" 
+                class="btn btn-primary w-full justify-center mb-3"
+            >
+                <i class="fas fa-sign-in-alt"></i> Entrar
+            </button>
+            
+            <button 
+                id="signupBtn" 
+                class="btn btn-secondary w-full justify-center"
+            >
+                <i class="fas fa-user-plus"></i> Criar Conta
+            </button>
+            
+            <p class="text-xs text-gray-500 mt-6">
+                🔐 Seus dados são seguros. Alimentado por Firebase.
+            </p>
+        </div>
+    </div>
+
+    <!-- Tela Principal -->
+    <div id="mainScreen" class="hidden w-full min-h-screen pb-10">
+        <!-- Header -->
+        <div class="header">
+            <h1>💝 Presente pela Cor 💝</h1>
+            <p class="header-subtitle">Mês de {{ monthName }} • {{ yearDisplay }}</p>
+        </div>
+
+        <!-- Container principal -->
+        <div class="max-w-6xl mx-auto px-4 py-6">
+            <!-- User Info -->
+            <div class="user-info">
+                <div class="flex gap-4 flex-wrap">
+                    <div class="user-profile" onclick="toggleViewMode('my-profile')">
+                        <i class="fas fa-user-circle text-2xl"></i>
+                        <div>
+                            <div class="text-sm">Você está em</div>
+                            <div id="currentUserName" class="font-bold">Meu Perfil</div>
+                        </div>
+                    </div>
+                    <div class="user-profile" onclick="toggleViewMode('partner-profile')">
+                        <i class="fas fa-heart text-2xl text-red-300"></i>
+                        <div>
+                            <div class="text-sm">Ver o(a)</div>
+                            <div id="partnerUserName" class="font-bold">Perfil do(a) Parceiro(a)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="linkPartnerBtn" class="btn btn-primary hidden" onclick="openLinkPartnerModal()">
+                        <i class="fas fa-link"></i> Vincular
+                    </button>
+                    <button id="logoutBtn" class="btn btn-secondary">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabs de visualização -->
+            <div class="tabs">
+<button class="tab-btn active" onclick="switchTab('my-gifts', this)">
+    <i class="fas fa-gift"></i> Meus Presentes
+</button>
+<button class="tab-btn" onclick="switchTab('partner-gifts', this)">
+    <i class="fas fa-heart"></i> Presentes Recebidos
+</button>
+<button class="tab-btn" onclick="switchTab('calendar', this)">
+    <i class="fas fa-calendar"></i> Calendário
+</button>
+            </div>
+
+            <!-- Conteúdo das Abas -->
+            <div id="my-gifts" class="tab-content">
+                <div class="mb-6 flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-white">Meus Presentes por Mês</h2>
+                    <button id="newGiftBtn" class="btn btn-success" onclick="openAddGiftModal()">
+                        <i class="fas fa-plus-circle"></i> Novo Presente
+                    </button>
+                </div>
+                <div id="myGiftsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Preenchido por JS -->
+                </div>
+            </div>
+
+            <div id="partner-gifts" class="tab-content hidden">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white">Presentes que Recebi 💖</h2>
+                </div>
+                <div id="partnerGiftsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Preenchido por JS -->
+                </div>
+            </div>
+
+            <div id="calendar" class="tab-content hidden">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white">Calendário de Cores - 2026</h2>
+                </div>
+                <div id="calendarGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Preenchido por JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar Presente -->
+    <div id="addGiftModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">📝 Registrar Novo Presente</h2>
+                <button onclick="closeModal('addGiftModal')" class="text-gray-500 hover:text-gray-700 text-2xl">
+                    ✕
+                </button>
+            </div>
+
+            <form id="giftForm" onsubmit="handleAddGift(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-calendar-alt"></i> Mês do Presente
+                    </label>
+                    <select id="giftMonth" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="">Selecione o mês...</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-box"></i> Nome do Presente
+                    </label>
+                    <input 
+                        type="text" 
+                        id="giftName" 
+                        placeholder="Ex: Perfume, Livro, Relógio..." 
+                        required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-image"></i> Foto do Presente
+                    </label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="giftImage" accept="image/*" required>
+                        <label for="giftImage" class="file-input-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Clique ou arraste para enviar</span>
+                        </label>
+                    </div>
+                    <div id="fileName" class="file-name"></div>
+                    <img id="giftImagePreview" class="image-preview hidden">
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="submit" class="btn btn-primary flex-1 justify-center">
+                        <i class="fas fa-save"></i> Salvar Presente
+                    </button>
+                    <button type="button" onclick="closeModal('addGiftModal')" class="btn btn-secondary flex-1 justify-center">
+                        Cancelar
+                    </button>
+                </div>
+                
+                <div id="giftFormSpinner" class="spinner flex justify-center mt-4"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Ver Presente (Próprio) -->
+    <div id="viewMyGiftModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold" id="viewMyGiftTitle">Meu Presente</h2>
+                <button onclick="closeModal('viewMyGiftModal')" class="text-gray-500 hover:text-gray-700 text-2xl">
+                    ✕
+                </button>
+            </div>
+
+            <div id="viewMyGiftContent">
+                <!-- Preenchido por JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Ver Presente (Do Parceiro) -->
+    <div id="viewPartnerGiftModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold" id="viewPartnerGiftTitle">Presente do(a) Parceiro(a)</h2>
+                <button onclick="closeModal('viewPartnerGiftModal')" class="text-gray-500 hover:text-gray-700 text-2xl">
+                    ✕
+                </button>
+            </div>
+
+            <div id="viewPartnerGiftContent">
+                <!-- Preenchido por JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar Foto de Recordação -->
+    <div id="addMemoryModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">📸 Foto de Recordação</h2>
+                <button onclick="closeModal('addMemoryModal')" class="text-gray-500 hover:text-gray-700 text-2xl">
+                    ✕
+                </button>
+            </div>
+
+            <form id="memoryForm" onsubmit="handleAddMemory(event)">
+                <p class="text-gray-600 mb-4">
+                    Vocês já abriram o presente? Enviem uma foto juntos para ficar de recordação! 📷💕
+                </p>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-image"></i> Foto de Recordação
+                    </label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="memoryImage" accept="image/*" required>
+                        <label for="memoryImage" class="file-input-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Clique ou arraste para enviar</span>
+                        </label>
+                    </div>
+                    <div id="memoryFileName" class="file-name"></div>
+                    <img id="memoryImagePreview" class="image-preview hidden">
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="submit" class="btn btn-primary flex-1 justify-center">
+                        <i class="fas fa-save"></i> Salvar Recordação
+                    </button>
+                    <button type="button" onclick="closeModal('addMemoryModal')" class="btn btn-secondary flex-1 justify-center">
+                        Cancelar
+                    </button>
+                </div>
+
+                <div id="memoryFormSpinner" class="spinner flex justify-center mt-4"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Vincular Parceiro -->
+    <div id="linkPartnerModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">💕 Vincular Parceiro</h2>
+                <button onclick="closeModal('linkPartnerModal')" class="text-gray-500 hover:text-gray-700 text-2xl">
+                    ✕
+                </button>
+            </div>
+
+            <div class="mb-6 p-4 bg-purple-50 rounded-lg text-center">
+                <p class="text-sm text-gray-600 mb-1">Seu email de cadastro:</p>
+                <p id="myEmailDisplay" class="text-lg font-bold text-purple-700"></p>
+                <p class="text-xs text-gray-500 mt-2">Compartilhe com seu(sua) parceiro(a)</p>
+            </div>
+
+            <form id="linkPartnerForm" onsubmit="handleLinkPartner(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-envelope"></i> Email do(a) Parceiro(a)
+                    </label>
+                    <input
+                        type="email"
+                        id="partnerEmailInput"
+                        placeholder="Digite o email do seu parceiro"
+                        required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="btn btn-primary flex-1 justify-center">
+                        <i class="fas fa-link"></i> Vincular
+                    </button>
+                    <button type="button" onclick="closeModal('linkPartnerModal')" class="btn btn-secondary flex-1 justify-center">
+                        Cancelar
+                    </button>
+                </div>
+                <div id="linkPartnerSpinner" class="spinner flex justify-center mt-4"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js"></script>
+
+    <!-- Configuração (Arquivo seguro - não é versionado no Git) -->
+    <script src="config.js"></script>
+
+    <!-- App Script -->
+    <script src="app.js"></script>
+</body>
+</html>
