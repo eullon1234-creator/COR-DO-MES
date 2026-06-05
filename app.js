@@ -7,17 +7,18 @@
 // ============================================================================
 // ⚙️ CONFIGURAÇÃO DO FIREBASE
 // ============================================================================
-// As credenciais estão em config.js (arquivo ignorado no Git - seguro!)
 
-// Carrega configurações do arquivo config.js
-if (!window.appConfig) {
-    console.error("❌ ERRO: Arquivo config.js não encontrado!");
-    console.error("Copie config.example.js para config.js e adicione suas chaves.");
-    alert("Erro de configuração! Veja console.");
-}
+const firebaseConfig = {
+  apiKey: "AIzaSyCYe19nOZ2AwzGAVAfiiFMXcbT-f3ScIGE",
+  authDomain: "cor-do-mes.firebaseapp.com",
+  projectId: "cor-do-mes",
+  storageBucket: "cor-do-mes.firebasestorage.app",
+  messagingSenderId: "1092581438651",
+  appId: "1:1092581438651:web:6f7038e80e6dc3b34f659e",
+  measurementId: "G-5KF26QZYZ5"
+};
 
-const firebaseConfig = window.appConfig?.firebase || {};
-const IMGBB_API_KEY = window.appConfig?.imgbb?.apiKey || "";
+const IMGBB_API_KEY = "849ff64039fc5da756442889c526728a";
 
 // ============================================================================
 // 🔥 INICIALIZAÇÃO DO FIREBASE
@@ -200,6 +201,13 @@ async function loadUserData() {
                         document.getElementById("partnerUserName").textContent = partnerUser.name;
                         document.getElementById("linkPartnerBtn").classList.add("hidden");
                     }
+                } catch (error) {
+                    console.error("Erro ao carregar dados do parceiro:", error);
+                }
+            } else {
+                document.getElementById("linkPartnerBtn").classList.remove("hidden");
+                document.getElementById("partnerUserName").textContent = "Não vinculado";
+            }
                 } catch (error) {
                     console.error("Erro ao carregar dados do parceiro:", error);
                 }
