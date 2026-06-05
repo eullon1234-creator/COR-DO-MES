@@ -68,19 +68,25 @@ let currentGiftBeingViewed = null;
 
 document.addEventListener("DOMContentLoaded", () => {
     // Listeners para autenticação
-    auth.onAuthStateChanged((user) => {
+    auth.onAuthStateChanged(async (user) => {
         if (user) {
             currentUser = user;
-            loadUserData();
-            showMainScreen();
+            const hasProfile = await checkUserProfile();
+            if (hasProfile) {
+                await loadUserData();
+                showMainScreen();
+            } else {
+                showRoleSelectionScreen();
+            }
         } else {
             showLoginScreen();
         }
     });
 
     // Event listeners do login
-    document.getElementById("loginBtn").addEventListener("click", handleLogin);
-    document.getElementById("signupBtn").addEventListener("click", handleSignup);
+    document.getElementById("googleLoginBtn").addEventListener("click", handleGoogleLogin);
+    document.getElementById("selectHusbandBtn").addEventListener("click", () => saveUserRole("husband"));
+    document.getElementById("selectWifeBtn").addEventListener("click", () => saveUserRole("wife"));
     document.getElementById("logoutBtn").addEventListener("click", handleLogout);
 
     // Event listener para preview de imagem
@@ -98,62 +104,55 @@ document.addEventListener("DOMContentLoaded", () => {
 // 🔐 AUTENTICAÇÃO
 // ============================================================================
 
-function handleLogin() {
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
-    const accountType = document.getElementById("accountType").value;
+function handleGoogleLogin() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({
+        prompt: 'select_account'
+    });
 
-    if (!email || !password || !accountType) {
-        showToast("Por favor, preencha todos os campos", "error");
-        return;
-    }
-
-    auth.signInWithEmailAndPassword(email, password)
+    auth.signInWithPopup(provider)
         .then(() => {
-            showToast("Bem-vindo! 💝", "success");
+            showToast("Login efetuado com sucesso! 💝", "success");
         })
         .catch((error) => {
-            showToast("Erro no login: " + error.message, "error");
+            console.error("Erro no login com Google:", error);
+            showToast("Erro ao fazer login: " + error.message, "error");
         });
 }
 
-function handleSignup() {
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
-    const accountType = document.getElementById("accountType").value;
-
-    if (!email || !password || !accountType) {
-        showToast("Por favor, preencha todos os campos", "error");
-        return;
+async function checkUserProfile() {
+    if (!currentUser) return false;
+    try {
+        const userDoc = await db.collection("users").doc(currentUser.uid).get();
+        if (!userDoc.exists) return false;
+        const data = userDoc.data();
+        return data && data.accountType && data.accountType !== "unknown";
+    } catch (error) {
+        console.error("Erro ao verificar perfil do usuário:", error);
+        return false;
     }
+}
 
-    if (password.length < 6) {
-        showToast("A senha deve ter no mínimo 6 caracteres", "error");
-        return;
-    }
-
-    auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            
-            // Salvar dados do novo usuário no Firestore
-            return db.collection("users").doc(user.uid).set({
-                email: email,
-                accountType: accountType,
-                name: accountType === "husband" ? "💙 Marido" : "💗 Esposa",
-                createdAt: new Date(),
-                partnerUid: null
-            });
-        })
-        .then(() => {
-            showToast("Conta criada com sucesso! Por favor, faça login.", "success");
-            // Limpar campos
-            document.getElementById("loginEmail").value = "";
-            document.getElementById("loginPassword").value = "";
-        })
-        .catch((error) => {
-            showToast("Erro ao criar conta: " + error.message, "error");
+async function saveUserRole(role) {
+    if (!currentUser) return;
+    try {
+        const name = role === "husband" ? "💙 Marido" : "💗 Esposa";
+        
+        await db.collection("users").doc(currentUser.uid).set({
+            email: currentUser.email,
+            accountType: role,
+            name: name,
+            createdAt: new Date(),
+            partnerUid: null
         });
+        
+        showToast("Perfil configurado! Bem-vindo(a) 💝", "success");
+        await loadUserData();
+        showMainScreen();
+    } catch (error) {
+        console.error("Erro ao salvar papel do usuário:", error);
+        showToast("Erro ao salvar perfil: " + error.message, "error");
+    }
 }
 
 function handleLogout() {
@@ -178,17 +177,12 @@ async function loadUserData() {
         // Carregar dados do usuário atual
         const userDoc = await db.collection("users").doc(currentUser.uid).get();
         
-        if (!userDoc.exists) {
-            // Usuário novo - criar documento
-            await db.collection("users").doc(currentUser.uid).set({
-                email: currentUser.email,
-                accountType: "unknown",
-                name: "Usuário",
-                createdAt: new Date(),
-                partnerUid: null
-            });
-        } else {
-            const userData = userDoc.data();
+        if (!userDoc.exists || userDoc.data()?.accountType === "unknown") {
+            showRoleSelectionScreen();
+            return;
+        }
+        
+        const userData = userDoc.data();
             
             // Atualizar nome do usuário atual
             document.getElementById("currentUserName").textContent = userData.name;
@@ -890,11 +884,19 @@ function updateHeaderDate() {
 function showLoginScreen() {
     document.getElementById("loginScreen").classList.remove("hidden");
     document.getElementById("mainScreen").classList.add("hidden");
+    document.getElementById("roleSelectionScreen").classList.add("hidden");
 }
 
 function showMainScreen() {
     document.getElementById("loginScreen").classList.add("hidden");
     document.getElementById("mainScreen").classList.remove("hidden");
+    document.getElementById("roleSelectionScreen").classList.add("hidden");
+}
+
+function showRoleSelectionScreen() {
+    document.getElementById("loginScreen").classList.add("hidden");
+    document.getElementById("mainScreen").classList.add("hidden");
+    document.getElementById("roleSelectionScreen").classList.remove("hidden");
 }
 
 // ============================================================================
