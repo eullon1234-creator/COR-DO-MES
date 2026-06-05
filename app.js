@@ -8,7 +8,6 @@
 // ⚙️ CONFIGURAÇÃO DO FIREBASE
 // ============================================================================
 
-// Se houver config.js carregado (ignorado no git), usa as chaves configuradas lá. Caso contrário, usa os valores padrão de fallback.
 const firebaseConfig = window.appConfig?.firebase || {
   apiKey: "AIzaSyCYe19nOZ2AwzGAVAfiiFMXcbT-f3ScIGE",
   authDomain: "cor-do-mes.firebaseapp.com",
@@ -21,13 +20,16 @@ const firebaseConfig = window.appConfig?.firebase || {
 
 const IMGBB_API_KEY = window.appConfig?.imgbb?.apiKey || "849ff64039fc5da756442889c526728a";
 
-// ============================================================================
-// 🔥 INICIALIZAÇÃO DO FIREBASE
-// ============================================================================
-
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db = firebase.firestore();
+
+const FIXED_USERS = {
+  eullon: { id: "eullon", name: "💙 Eullon", accountType: "husband" },
+  ana_clara: { id: "ana_clara", name: "💗 Ana Clara", accountType: "wife" }
+};
+
+let isCreatingPassword = false;
+let selectedUserId = null;
 
 // ============================================================================
 // 📅 DADOS DOS MESES E CORES
@@ -85,6 +87,127 @@ let loadedEvents = [];
 let loadedWishlist = [];
 
 // ============================================================================
+// 🔐 HASH DE SENHA (SHA-256 via Web Crypto)
+// ============================================================================
+
+async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ============================================================================
+// 🔐 LOGIN POR NOME + SENHA
+// ============================================================================
+
+function showLoginNameSelection() {
+    document.getElementById("loginPasswordForm").classList.add("hidden");
+    document.getElementById("loginNameSelection").classList.remove("hidden");
+    document.getElementById("loginPasswordError").classList.add("hidden");
+}
+
+function showLoginError(msg) {
+    const el = document.getElementById("loginPasswordError");
+    el.textContent = msg;
+    el.classList.remove("hidden");
+}
+
+async function startLogin(userId) {
+    selectedUserId = userId;
+    const userData = FIXED_USERS[userId];
+
+    try {
+        const doc = await db.collection("users").doc(userId).get();
+
+        if (doc.exists && doc.data().passwordHash) {
+            document.getElementById("loginPasswordTitle").textContent = `${userData.name}, digite sua senha`;
+            document.getElementById("loginPasswordBtnText").textContent = "Entrar 💝";
+            document.getElementById("loginPasswordConfirmGroup").classList.add("hidden");
+            isCreatingPassword = false;
+        } else {
+            document.getElementById("loginPasswordTitle").textContent = `${userData.name}, crie sua senha`;
+            document.getElementById("loginPasswordBtnText").textContent = "Criar conta 💝";
+            document.getElementById("loginPasswordConfirmGroup").classList.remove("hidden");
+            isCreatingPassword = true;
+        }
+
+        document.getElementById("loginNameSelection").classList.add("hidden");
+        document.getElementById("loginPasswordForm").classList.remove("hidden");
+        document.getElementById("loginPasswordInput").value = "";
+        document.getElementById("loginPasswordConfirm").value = "";
+        document.getElementById("loginPasswordError").classList.add("hidden");
+        document.getElementById("loginPasswordInput").focus();
+    } catch (error) {
+        console.error("Erro ao verificar usuário:", error);
+        showLoginError("Erro ao conectar. Tente novamente.");
+    }
+}
+
+async function handlePasswordSubmit() {
+    const password = document.getElementById("loginPasswordInput").value.trim();
+
+    if (!password) {
+        showLoginError("Digite uma senha");
+        return;
+    }
+
+    if (isCreatingPassword) {
+        const confirm = document.getElementById("loginPasswordConfirm").value.trim();
+        if (password !== confirm) {
+            showLoginError("Senhas não conferem");
+            return;
+        }
+        if (password.length < 4) {
+            showLoginError("A senha deve ter pelo menos 4 caracteres");
+            return;
+        }
+    }
+
+    document.getElementById("loginPasswordSubmitBtn").disabled = true;
+    document.getElementById("loginPasswordBtnText").textContent = "Aguarde...";
+
+    try {
+        const hash = await hashPassword(password);
+        const userData = FIXED_USERS[selectedUserId];
+
+        if (isCreatingPassword) {
+            await db.collection("users").doc(selectedUserId).set({
+                name: userData.name,
+                accountType: userData.accountType,
+                passwordHash: hash,
+                createdAt: new Date(),
+                partnerUid: null
+            });
+        } else {
+            const doc = await db.collection("users").doc(selectedUserId).get();
+            if (!doc.exists || doc.data().passwordHash !== hash) {
+                showLoginError("Senha incorreta");
+                document.getElementById("loginPasswordSubmitBtn").disabled = false;
+                document.getElementById("loginPasswordBtnText").textContent = "Entrar 💝";
+                return;
+            }
+        }
+
+        completeLogin(selectedUserId);
+    } catch (error) {
+        console.error("Erro no login:", error);
+        showLoginError("Erro ao processar login. Tente novamente.");
+        document.getElementById("loginPasswordSubmitBtn").disabled = false;
+        document.getElementById("loginPasswordBtnText").textContent = isCreatingPassword ? "Criar conta 💝" : "Entrar 💝";
+    }
+}
+
+async function completeLogin(userId) {
+    localStorage.setItem("corDoMes_userId", userId);
+    const userData = FIXED_USERS[userId];
+    currentUser = { id: userId, ...userData };
+    await loadUserData();
+    showMainScreen();
+}
+
+// ============================================================================
 // 🎯 INICIALIZAÇÃO
 // ============================================================================
 
@@ -100,27 +223,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Captura o evento de instalação do PWA
     window.addEventListener('beforeinstallprompt', (e) => {
-        // Previne o prompt automático do Chrome
         e.preventDefault();
-        // Salva o evento para uso posterior
         deferredPrompt = e;
-        // Mostra o botão de baixar aplicativo na interface
         const installBtn = document.getElementById("pwaInstallBtn");
         if (installBtn) {
             installBtn.classList.remove("hidden");
         }
     });
 
-    // Lógica para quando o botão de instalar for clicado
     const installBtn = document.getElementById("pwaInstallBtn");
     if (installBtn) {
         installBtn.addEventListener('click', () => {
             if (deferredPrompt) {
-                // Esconde o botão
                 installBtn.classList.add("hidden");
-                // Mostra o prompt nativo
                 deferredPrompt.prompt();
-                // Aguarda a resposta do usuário
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                         showToast("Obrigado por instalar o aplicativo! 💝", "success");
@@ -131,112 +247,48 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Capturar resultado do redirecionamento do Google
-    auth.getRedirectResult()
-        .then((result) => {
-            if (result.user) {
-                showToast("Login efetuado com sucesso! 💝", "success");
-            }
-        })
-        .catch((error) => {
-            console.error("Erro no login com Google:", error);
-            showToast("Erro ao fazer login: " + error.message, "error");
-        });
+    // Verificar sessão salva
+    const savedUserId = localStorage.getItem("corDoMes_userId");
+    if (savedUserId && FIXED_USERS[savedUserId]) {
+        completeLogin(savedUserId);
+    }
 
-    // Listeners para autenticação
-    auth.onAuthStateChanged(async (user) => {
-        if (user) {
-            currentUser = user;
-            const hasProfile = await checkUserProfile();
-            if (hasProfile) {
-                await loadUserData();
-                showMainScreen();
-            } else {
-                showRoleSelectionScreen();
-            }
-        } else {
-            showLoginScreen();
-        }
+    // Event listeners de login
+    document.getElementById("loginEullonBtn").addEventListener("click", () => startLogin("eullon"));
+    document.getElementById("loginAnaBtn").addEventListener("click", () => startLogin("ana_clara"));
+    document.getElementById("loginPasswordSubmitBtn").addEventListener("click", handlePasswordSubmit);
+    document.getElementById("loginPasswordBackBtn").addEventListener("click", showLoginNameSelection);
+    document.getElementById("loginPasswordInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") handlePasswordSubmit();
+    });
+    document.getElementById("loginPasswordConfirm").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") handlePasswordSubmit();
     });
 
-    // Event listeners do login
-    document.getElementById("googleLoginBtn").addEventListener("click", handleGoogleLogin);
-    document.getElementById("selectHusbandBtn").addEventListener("click", () => saveUserRole("husband"));
-    document.getElementById("selectWifeBtn").addEventListener("click", () => saveUserRole("wife"));
     document.getElementById("logoutBtn").addEventListener("click", handleLogout);
 
-    // Event listener para preview de imagem
     document.getElementById("giftImage").addEventListener("change", previewImage);
     document.getElementById("memoryImage").addEventListener("change", previewMemoryImage);
     document.getElementById("wishlistImage").addEventListener("change", previewWishlistImage);
 
-    // Preencher selectores
     populateMonthSelects();
     populateEventDaySelect();
-
-    // Atualizar cabeçalho com mês/ano atual
     updateHeaderDate();
 });
 
 // ============================================================================
-// 🔐 AUTENTICAÇÃO
+// 🔐 LOGOUT
 // ============================================================================
 
-function handleGoogleLogin() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({
-        prompt: 'select_account'
-    });
-
-    auth.signInWithRedirect(provider);
-}
-
-async function checkUserProfile() {
-    if (!currentUser) return false;
-    try {
-        const userDoc = await db.collection("users").doc(currentUser.uid).get();
-        if (!userDoc.exists) return false;
-        const data = userDoc.data();
-        return data && data.accountType && data.accountType !== "unknown";
-    } catch (error) {
-        console.error("Erro ao verificar perfil do usuário:", error);
-        return false;
-    }
-}
-
-async function saveUserRole(role) {
-    if (!currentUser) return;
-    try {
-        const name = role === "husband" ? "💙 Eullon" : "💗 Ana Clara";
-        
-        await db.collection("users").doc(currentUser.uid).set({
-            email: currentUser.email,
-            accountType: role,
-            name: name,
-            createdAt: new Date(),
-            partnerUid: null
-        });
-        
-        showToast("Perfil configurado! Bem-vindo(a) 💝", "success");
-        await loadUserData();
-        showMainScreen();
-    } catch (error) {
-        console.error("Erro ao salvar papel do usuário:", error);
-        showToast("Erro ao salvar perfil: " + error.message, "error");
-    }
-}
-
 function handleLogout() {
-    auth.signOut()
-        .then(() => {
-            currentUser = null;
-            partnerUser = null;
-            allGifts = [];
-            showToast("Você saiu com sucesso 👋", "success");
-        })
-        .catch((error) => {
-            showToast("Erro ao sair: " + error.message, "error");
-        });
+    localStorage.removeItem("corDoMes_userId");
+    currentUser = null;
+    partnerUser = null;
+    allGifts = [];
+    loadedEvents = [];
+    loadedWishlist = [];
+    showLoginScreen();
+    showToast("Você saiu com sucesso 👋", "success");
 }
 
 // ============================================================================
@@ -245,86 +297,55 @@ function handleLogout() {
 
 async function loadUserData() {
     try {
-        // Carregar dados do usuário atual
-        const userDoc = await db.collection("users").doc(currentUser.uid).get();
-        
-        if (!userDoc.exists || userDoc.data()?.accountType === "unknown") {
-            showRoleSelectionScreen();
+        if (!currentUser || !currentUser.id) {
+            showLoginScreen();
             return;
         }
-        
+
+        const userDoc = await db.collection("users").doc(currentUser.id).get();
+
+        if (!userDoc.exists) {
+            showLoginScreen();
+            return;
+        }
+
         let userData = userDoc.data();
-        
-        // Migração de nomes antigos para Eullon & Ana Clara
-        let nameNeedsUpdate = false;
-        if (userData.name === "💙 Marido" || userData.name === "Marido") {
-            userData.name = "💙 Eullon";
-            nameNeedsUpdate = true;
-        } else if (userData.name === "💗 Esposa" || userData.name === "Esposa") {
-            userData.name = "💗 Ana Clara";
-            nameNeedsUpdate = true;
-        }
-        
-        if (nameNeedsUpdate) {
-            try {
-                await db.collection("users").doc(currentUser.uid).update({ name: userData.name });
-            } catch (err) {
-                console.error("Erro ao migrar nome do usuário:", err);
-            }
-        }
-            
-        // Atualizar nome do usuário atual
         document.getElementById("currentUserName").textContent = userData.name;
-        
-        // Se tem parceiro, carregar dados do parceiro
-        if (userData.partnerUid) {
-            try {
-                const partnerDoc = await db.collection("users").doc(userData.partnerUid).get();
-                if (partnerDoc.exists) {
-                    let partnerData = partnerDoc.data();
-                    let partnerNeedsUpdate = false;
-                    
-                    if (partnerData.name === "💙 Marido" || partnerData.name === "Marido") {
-                        partnerData.name = "💙 Eullon";
-                        partnerNeedsUpdate = true;
-                    } else if (partnerData.name === "💗 Esposa" || partnerData.name === "Esposa") {
-                        partnerData.name = "💗 Ana Clara";
-                        partnerNeedsUpdate = true;
-                    }
-                    
-                    if (partnerNeedsUpdate) {
-                        try {
-                            await db.collection("users").doc(userData.partnerUid).update({ name: partnerData.name });
-                        } catch (err) {
-                            console.error("Erro ao migrar nome do parceiro:", err);
-                        }
-                    }
-                    
-                    partnerUser = { id: partnerDoc.id, ...partnerData };
-                    document.getElementById("partnerUserName").textContent = partnerUser.name;
-                    document.getElementById("linkPartnerBtn").classList.add("hidden");
+
+        // Descobrir parceiro pelo ID fixo
+        const partnerId = currentUser.id === "eullon" ? "ana_clara" : "eullon";
+        try {
+            const partnerDoc = await db.collection("users").doc(partnerId).get();
+            if (partnerDoc.exists) {
+                let partnerData = partnerDoc.data();
+                partnerUser = { id: partnerDoc.id, ...partnerData };
+                document.getElementById("partnerUserName").textContent = partnerUser.name;
+
+                // Auto-vincular se necessário
+                if (!userData.partnerUid) {
+                    await db.collection("users").doc(currentUser.id).update({ partnerUid: partnerId });
                 }
-            } catch (error) {
-                console.error("Erro ao carregar dados do parceiro:", error);
+                if (!partnerData.partnerUid) {
+                    await db.collection("users").doc(partnerId).update({ partnerUid: currentUser.id });
+                }
+            } else {
+                partnerUser = null;
+                document.getElementById("partnerUserName").textContent = "Parceiro ainda não criou conta";
             }
-        } else {
-            document.getElementById("linkPartnerBtn").classList.remove("hidden");
-            document.getElementById("partnerUserName").textContent = "Não vinculado";
+        } catch (error) {
+            console.error("Erro ao carregar dados do parceiro:", error);
+            partnerUser = null;
+            document.getElementById("partnerUserName").textContent = "Erro ao carregar";
         }
 
-        // Sincronizar presentes antigos cadastrados antes do vínculo de parceiro
         await syncOrphanGifts();
-
-        // Carregar todos os presentes
         await loadAllGifts();
-        
-        // Carregar eventos e wishlist
+
         await Promise.all([
             loadEvents(),
             loadWishlist()
         ]);
-        
-        // Renderizar interface
+
         renderMyGiftsGrid();
         renderPartnerGiftsGrid();
         renderCalendarGrid();
@@ -347,7 +368,7 @@ async function loadAllGifts() {
         // Consulta 1: Presentes que eu dei
         const giverQuery = db.collection("gifts")
             .where("year", "==", year)
-            .where("giver_uid", "==", currentUser.uid)
+            .where("giver_uid", "==", currentUser.id)
             .get();
 
         // Consulta 2: Presentes que eu recebi (apenas se parceiro estiver vinculado)
@@ -355,7 +376,7 @@ async function loadAllGifts() {
         if (partnerUser) {
             recipientQuery = db.collection("gifts")
                 .where("year", "==", year)
-                .where("recipient_uid", "==", currentUser.uid)
+                .where("recipient_uid", "==", currentUser.id)
                 .get();
         }
 
@@ -388,7 +409,7 @@ async function syncOrphanGifts() {
     if (!partnerUser) return;
     try {
         const snapshot = await db.collection("gifts")
-            .where("giver_uid", "==", currentUser.uid)
+            .where("giver_uid", "==", currentUser.id)
             .where("recipient_uid", "==", null)
             .get();
 
@@ -439,7 +460,7 @@ async function handleAddGift(event) {
     const jaExiste = allGifts.find(g =>
         g.eventId === eventId &&
         g.year === new Date().getFullYear() &&
-        g.giver_uid === currentUser.uid
+        g.giver_uid === currentUser.id
     );
     if (jaExiste) {
         showToast("Você já registrou um presente para este evento!", "error");
@@ -455,7 +476,7 @@ async function handleAddGift(event) {
 
         // 2. Salvar presente no Firestore
         await db.collection("gifts").add({
-            giver_uid: currentUser.uid,
+            giver_uid: currentUser.id,
             recipient_uid: partnerUser ? partnerUser.id : null,
             eventId: eventId,
             month: month,
@@ -564,7 +585,7 @@ function renderMyGiftsGrid() {
     grid.innerHTML = "";
 
     // Filtrar presentes do usuário atual
-    const myGifts = allGifts.filter(g => g.giver_uid === currentUser.uid);
+    const myGifts = allGifts.filter(g => g.giver_uid === currentUser.id);
 
     if (myGifts.length === 0) {
         grid.innerHTML = `
@@ -671,7 +692,7 @@ function renderCalendarGrid() {
     }
 
     events.forEach(event => {
-        const myGift = findGiftForEvent(event, currentUser.uid);
+        const myGift = findGiftForEvent(event, currentUser.id);
         const partnerGift = findGiftForEvent(event, partnerUser.id);
 
         const card = document.createElement("div");
@@ -1004,7 +1025,7 @@ async function handleAddEvent(event) {
         await db.collection("events").add({
             name: name,
             date: dateStr,
-            creatorUid: currentUser.uid,
+            creatorUid: currentUser.id,
             createdAt: new Date()
         });
 
@@ -1064,7 +1085,7 @@ async function handleAddWishlistItem(event) {
             name: name,
             image_url: imageUrl,
             link: link || null,
-            creatorUid: currentUser.uid,
+            creatorUid: currentUser.id,
             createdAt: new Date()
         });
 
@@ -1102,7 +1123,7 @@ function renderWishlist() {
     myGrid.innerHTML = "";
     partnerGrid.innerHTML = "";
 
-    const myItems = loadedWishlist.filter(i => i.creatorUid === currentUser.uid);
+    const myItems = loadedWishlist.filter(i => i.creatorUid === currentUser.id);
     const partnerItems = partnerUser
         ? loadedWishlist.filter(i => i.creatorUid === partnerUser.id)
         : [];
@@ -1307,19 +1328,12 @@ function updateHeaderDate() {
 function showLoginScreen() {
     document.getElementById("loginScreen").classList.remove("hidden");
     document.getElementById("mainScreen").classList.add("hidden");
-    document.getElementById("roleSelectionScreen").classList.add("hidden");
+    showLoginNameSelection();
 }
 
 function showMainScreen() {
     document.getElementById("loginScreen").classList.add("hidden");
     document.getElementById("mainScreen").classList.remove("hidden");
-    document.getElementById("roleSelectionScreen").classList.add("hidden");
-}
-
-function showRoleSelectionScreen() {
-    document.getElementById("loginScreen").classList.add("hidden");
-    document.getElementById("mainScreen").classList.add("hidden");
-    document.getElementById("roleSelectionScreen").classList.remove("hidden");
 }
 
 // ============================================================================
@@ -1339,65 +1353,4 @@ function showToast(message, type = "info") {
     }, 3000);
 }
 
-// ============================================================================
-// 💕 VÍNCULO DE PARCEIROS
-// ============================================================================
-
-function openLinkPartnerModal() {
-    document.getElementById("myEmailDisplay").textContent = currentUser.email;
-    document.getElementById("linkPartnerForm").reset();
-    document.getElementById("linkPartnerModal").classList.add("active");
-}
-
-async function handleLinkPartner(event) {
-    event.preventDefault();
-
-    const partnerEmail = document.getElementById("partnerEmailInput").value.trim();
-    if (!partnerEmail) {
-        showToast("Digite o email do seu parceiro", "error");
-        return;
-    }
-
-    if (partnerEmail === currentUser.email) {
-        showToast("Você não pode vincular a si mesmo!", "error");
-        return;
-    }
-
-    document.getElementById("linkPartnerSpinner").classList.add("active");
-
-    try {
-        const snapshot = await db.collection("users")
-            .where("email", "==", partnerEmail)
-            .get();
-
-        if (snapshot.empty) {
-            showToast("Nenhum usuário encontrado com este email", "error");
-            document.getElementById("linkPartnerSpinner").classList.remove("active");
-            return;
-        }
-
-        const partnerDoc = snapshot.docs[0];
-        const partnerId = partnerDoc.id;
-
-        // Atualizar os dois documentos
-        await db.collection("users").doc(currentUser.uid).update({
-            partnerUid: partnerId
-        });
-        await db.collection("users").doc(partnerId).update({
-            partnerUid: currentUser.uid
-        });
-
-        showToast("Parceiro vinculado com sucesso! 💕", "success");
-        closeModal("linkPartnerModal");
-
-        await loadUserData();
-
-    } catch (error) {
-        console.error("Erro ao vincular parceiro:", error);
-        showToast("Erro ao vincular: " + error.message, "error");
-    } finally {
-        document.getElementById("linkPartnerSpinner").classList.remove("active");
-    }
-}
-
-console.log("💝 Presente pela Cor - App Carregado!");
+console.log("💝 Eullon & Ana Clara - App Carregado!");
