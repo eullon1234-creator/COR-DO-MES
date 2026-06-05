@@ -110,6 +110,18 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Capturar resultado do redirecionamento do Google
+    auth.getRedirectResult()
+        .then((result) => {
+            if (result.user) {
+                showToast("Login efetuado com sucesso! 💝", "success");
+            }
+        })
+        .catch((error) => {
+            console.error("Erro no login com Google:", error);
+            showToast("Erro ao fazer login: " + error.message, "error");
+        });
+
     // Listeners para autenticação
     auth.onAuthStateChanged(async (user) => {
         if (user) {
@@ -153,14 +165,7 @@ function handleGoogleLogin() {
         prompt: 'select_account'
     });
 
-    auth.signInWithPopup(provider)
-        .then(() => {
-            showToast("Login efetuado com sucesso! 💝", "success");
-        })
-        .catch((error) => {
-            console.error("Erro no login com Google:", error);
-            showToast("Erro ao fazer login: " + error.message, "error");
-        });
+    auth.signInWithRedirect(provider);
 }
 
 async function checkUserProfile() {
