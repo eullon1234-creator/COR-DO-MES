@@ -8,17 +8,18 @@
 // ⚙️ CONFIGURAÇÃO DO FIREBASE
 // ============================================================================
 
-// Se houver config.js carregado (ignorado no git), usa as chaves configuradas lá. Caso contrário, usa placeholders.
+// Se houver config.js carregado (ignorado no git), usa as chaves configuradas lá. Caso contrário, usa os valores padrão de fallback.
 const firebaseConfig = window.appConfig?.firebase || {
-  apiKey: "SUA_API_KEY_AQUI",
-  authDomain: "seu-projeto.firebaseapp.com",
-  projectId: "seu-projeto",
-  storageBucket: "seu-projeto.appspot.com",
-  messagingSenderId: "seu-id",
-  appId: "seu-app-id"
+  apiKey: "AIzaSyCYe19nOZ2AwzGAVAfiiFMXcbT-f3ScIGE",
+  authDomain: "cor-do-mes.firebaseapp.com",
+  projectId: "cor-do-mes",
+  storageBucket: "cor-do-mes.firebasestorage.app",
+  messagingSenderId: "1092581438651",
+  appId: "1:1092581438651:web:6f7038e80e6dc3b34f659e",
+  measurementId: "G-5KF26QZYZ5"
 };
 
-const IMGBB_API_KEY = window.appConfig?.imgbb?.apiKey || "SUA_CHAVE_IMGBB_AQUI";
+const IMGBB_API_KEY = window.appConfig?.imgbb?.apiKey || "849ff64039fc5da756442889c526728a";
 
 // ============================================================================
 // 🔥 INICIALIZAÇÃO DO FIREBASE
