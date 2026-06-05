@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💝 Presente pela Cor - Nossa Dinâmica</title>
     
+    <!-- PWA Manifest & iOS Support -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Cor do Mês">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -466,8 +474,19 @@
     <div id="mainScreen" class="hidden w-full min-h-screen pb-10">
         <!-- Header -->
         <div class="header">
-            <h1>💝 Presente pela Cor 💝</h1>
-            <p class="header-subtitle">Mês de {{ monthName }} • {{ yearDisplay }}</p>
+            <div class="max-w-6xl mx-auto px-4 flex items-center justify-between gap-4">
+                <div class="w-10 h-10 md:block hidden"></div> <!-- Spacer to keep title centered -->
+                <div class="text-center flex-1">
+                    <h1 class="text-2xl md:text-3xl font-bold">💝 Presente pela Cor 💝</h1>
+                    <p class="header-subtitle text-xs md:text-sm opacity-90">Mês de {{ monthName }} • {{ yearDisplay }}</p>
+                </div>
+                <button 
+                    id="pwaInstallBtn" 
+                    class="hidden bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-xl text-xs flex items-center gap-2 transition duration-300 shadow-md cursor-pointer border-none"
+                >
+                    <i class="fas fa-download"></i> Baixar App
+                </button>
+            </div>
         </div>
 
         <!-- Container principal -->

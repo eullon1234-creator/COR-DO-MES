@@ -61,12 +61,55 @@ let currentViewMode = "my-profile"; // "my-profile" ou "partner-profile"
 let currentTabView = "my-gifts"; // "my-gifts", "partner-gifts", "calendar"
 let allGifts = [];
 let currentGiftBeingViewed = null;
+let deferredPrompt = null; // Para instalação do PWA
 
 // ============================================================================
 // 🎯 INICIALIZAÇÃO
 // ============================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Registro do Service Worker para o PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker registrado com sucesso! Scope:', reg.scope))
+                .catch(err => console.error('Erro ao registrar Service Worker:', err));
+        });
+    }
+
+    // Captura o evento de instalação do PWA
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Previne o prompt automático do Chrome
+        e.preventDefault();
+        // Salva o evento para uso posterior
+        deferredPrompt = e;
+        // Mostra o botão de baixar aplicativo na interface
+        const installBtn = document.getElementById("pwaInstallBtn");
+        if (installBtn) {
+            installBtn.classList.remove("hidden");
+        }
+    });
+
+    // Lógica para quando o botão de instalar for clicado
+    const installBtn = document.getElementById("pwaInstallBtn");
+    if (installBtn) {
+        installBtn.addEventListener('click', () => {
+            if (deferredPrompt) {
+                // Esconde o botão
+                installBtn.classList.add("hidden");
+                // Mostra o prompt nativo
+                deferredPrompt.prompt();
+                // Aguarda a resposta do usuário
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        showToast("Obrigado por instalar o aplicativo! 💝", "success");
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        });
+    }
+
     // Listeners para autenticação
     auth.onAuthStateChanged(async (user) => {
         if (user) {
