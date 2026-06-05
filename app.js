@@ -8,17 +8,17 @@
 // ⚙️ CONFIGURAÇÃO DO FIREBASE
 // ============================================================================
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCYe19nOZ2AwzGAVAfiiFMXcbT-f3ScIGE",
-  authDomain: "cor-do-mes.firebaseapp.com",
-  projectId: "cor-do-mes",
-  storageBucket: "cor-do-mes.firebasestorage.app",
-  messagingSenderId: "1092581438651",
-  appId: "1:1092581438651:web:6f7038e80e6dc3b34f659e",
-  measurementId: "G-5KF26QZYZ5"
+// Se houver config.js carregado (ignorado no git), usa as chaves configuradas lá. Caso contrário, usa placeholders.
+const firebaseConfig = window.appConfig?.firebase || {
+  apiKey: "SUA_API_KEY_AQUI",
+  authDomain: "seu-projeto.firebaseapp.com",
+  projectId: "seu-projeto",
+  storageBucket: "seu-projeto.appspot.com",
+  messagingSenderId: "seu-id",
+  appId: "seu-app-id"
 };
 
-const IMGBB_API_KEY = "849ff64039fc5da756442889c526728a";
+const IMGBB_API_KEY = window.appConfig?.imgbb?.apiKey || "SUA_CHAVE_IMGBB_AQUI";
 
 // ============================================================================
 // 🔥 INICIALIZAÇÃO DO FIREBASE
@@ -210,8 +210,11 @@ async function loadUserData() {
             }
         }
 
+        // Sincronizar presentes antigos cadastrados antes do vínculo de parceiro
+        await syncOrphanGifts();
+
         // Carregar todos os presentes
-        loadAllGifts();
+        await loadAllGifts();
         
         // Renderizar interface
         renderMyGiftsGrid();
@@ -230,20 +233,66 @@ async function loadUserData() {
 
 async function loadAllGifts() {
     try {
-        const snapshot = await db.collection("gifts")
-            .where("year", "==", new Date().getFullYear())
+        const year = new Date().getFullYear();
+        
+        // Consulta 1: Presentes que eu dei
+        const giverQuery = db.collection("gifts")
+            .where("year", "==", year)
+            .where("giver_uid", "==", currentUser.uid)
             .get();
 
-        allGifts = [];
-        snapshot.forEach(doc => {
-            allGifts.push({
+        // Consulta 2: Presentes que eu recebi (apenas se parceiro estiver vinculado)
+        let recipientQuery = Promise.resolve({ empty: true, forEach: () => {} });
+        if (partnerUser) {
+            recipientQuery = db.collection("gifts")
+                .where("year", "==", year)
+                .where("recipient_uid", "==", currentUser.uid)
+                .get();
+        }
+
+        const [giverSnapshot, recipientSnapshot] = await Promise.all([giverQuery, recipientQuery]);
+
+        const giftsMap = new Map();
+        
+        giverSnapshot.forEach(doc => {
+            giftsMap.set(doc.id, {
                 id: doc.id,
                 ...doc.data()
             });
         });
 
+        recipientSnapshot.forEach(doc => {
+            giftsMap.set(doc.id, {
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        allGifts = Array.from(giftsMap.values());
+
     } catch (error) {
         console.error("Erro ao carregar presentes:", error);
+    }
+}
+
+async function syncOrphanGifts() {
+    if (!partnerUser) return;
+    try {
+        const snapshot = await db.collection("gifts")
+            .where("giver_uid", "==", currentUser.uid)
+            .where("recipient_uid", "==", null)
+            .get();
+
+        if (!snapshot.empty) {
+            const batch = db.batch();
+            snapshot.forEach(doc => {
+                batch.update(doc.ref, { recipient_uid: partnerUser.id });
+            });
+            await batch.commit();
+            console.log(`${snapshot.size} presentes órfãos vinculados ao parceiro.`);
+        }
+    } catch (error) {
+        console.error("Erro ao sincronizar presentes órfãos:", error);
     }
 }
 
