@@ -208,13 +208,6 @@ async function loadUserData() {
                 document.getElementById("linkPartnerBtn").classList.remove("hidden");
                 document.getElementById("partnerUserName").textContent = "Não vinculado";
             }
-                } catch (error) {
-                    console.error("Erro ao carregar dados do parceiro:", error);
-                }
-            } else {
-                document.getElementById("linkPartnerBtn").classList.remove("hidden");
-                document.getElementById("partnerUserName").textContent = "Não vinculado";
-            }
         }
 
         // Carregar todos os presentes
