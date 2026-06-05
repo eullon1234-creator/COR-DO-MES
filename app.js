@@ -203,7 +203,6 @@ async function loadUserData() {
                 document.getElementById("linkPartnerBtn").classList.remove("hidden");
                 document.getElementById("partnerUserName").textContent = "Não vinculado";
             }
-        }
 
         // Sincronizar presentes antigos cadastrados antes do vínculo de parceiro
         await syncOrphanGifts();
