@@ -2,6 +2,10 @@
 
 Bem-vindo ao **Presente pela Cor**, um aplicativo romántico e interativo para casais gerenciarem uma dinâmica especial de presentes por cor!
 
+🔗 **Acesse o app:** [https://eullon1234-creator.github.io/COR-DO-MES/](https://eullon1234-creator.github.io/COR-DO-MES/)
+
+---
+
 ## 📋 Requisitos Iniciais
 
 Você vai precisar de:
