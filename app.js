@@ -446,7 +446,7 @@ function openAddGiftModal() {
     // Limpar formulário
     document.getElementById("giftForm").reset();
     document.getElementById("fileName").textContent = "";
-    document.getElementById("giftImagePreview").classList.add("hidden");
+    document.getElementById("giftImagePreviews").innerHTML = "";
     
     // Preencher select de eventos dinamicamente
     populateGiftEventSelect();
@@ -460,9 +460,9 @@ async function handleAddGift(event) {
 
     const eventId = document.getElementById("giftEvent").value;
     const name = document.getElementById("giftName").value;
-    const imageFile = document.getElementById("giftImage").files[0];
+    const imageFiles = document.getElementById("giftImage").files;
 
-    if (!eventId || !name || !imageFile) {
+    if (!eventId || !name || imageFiles.length === 0) {
         showToast("Por favor, preencha todos os campos", "error");
         return;
     }
@@ -487,8 +487,8 @@ async function handleAddGift(event) {
     document.getElementById("giftFormSpinner").classList.add("active");
 
     try {
-        // 1. Enviar imagem para ImgBB
-        const imageUrl = await uploadToImgBB(imageFile);
+        // 1. Enviar imagens para ImgBB (paralelo)
+        const imageUrls = await uploadMultipleToImgBB(imageFiles);
 
         // 2. Salvar presente no Firestore
         await db.collection("gifts").add({
@@ -498,10 +498,10 @@ async function handleAddGift(event) {
             month: month,
             year: new Date().getFullYear(),
             product_name: name,
-            image_url: imageUrl,
+            image_urls: imageUrls,
             created_at: new Date(),
             revealed_at: null,
-            memory_photo_url: null
+            memory_photo_urls: []
         });
 
         showToast("Presente registrado com sucesso! 🎁", "success");
@@ -523,9 +523,9 @@ async function handleAddGift(event) {
 async function handleAddMemory(event) {
     event.preventDefault();
 
-    const imageFile = document.getElementById("memoryImage").files[0];
+    const imageFiles = document.getElementById("memoryImage").files;
 
-    if (!imageFile || !currentGiftBeingViewed) {
+    if (imageFiles.length === 0 || !currentGiftBeingViewed) {
         showToast("Erro ao processar imagem de recordação", "error");
         return;
     }
@@ -534,20 +534,29 @@ async function handleAddMemory(event) {
     document.getElementById("memoryFormSpinner").classList.add("active");
 
     try {
-        // 1. Enviar imagem para ImgBB
-        const memoryUrl = await uploadToImgBB(imageFile);
+        // 1. Enviar imagens para ImgBB (paralelo)
+        const memoryUrls = await uploadMultipleToImgBB(imageFiles);
 
-        // 2. Atualizar documento do presente no Firestore
-        await db.collection("gifts").doc(currentGiftBeingViewed.id).update({
-            memory_photo_url: memoryUrl,
+        // 2. Buscar URLs existentes e concatenar
+        const giftRef = db.collection("gifts").doc(currentGiftBeingViewed.id);
+        const existingMemories = getMemoryImages(currentGiftBeingViewed);
+        const allUrls = [...existingMemories, ...memoryUrls];
+
+        await giftRef.update({
+            memory_photo_urls: allUrls,
             revealed_at: new Date()
         });
 
-        showToast("Foto de recordação salva! 📸💕", "success");
+        showToast("Fotos de recordação salvas! 📸💕", "success");
         
         // 3. Fechar modals e recarregar
         closeModal("addMemoryModal");
-        closeModal("viewMyGiftModal");
+        if (document.getElementById("viewMyGiftModal").classList.contains("active")) {
+            closeModal("viewMyGiftModal");
+        }
+        if (document.getElementById("viewPartnerGiftModal").classList.contains("active")) {
+            closeModal("viewPartnerGiftModal");
+        }
         await loadAllGifts();
         renderMyGiftsGrid();
         renderCalendarGrid();
@@ -590,6 +599,29 @@ async function uploadToImgBB(file) {
         console.error("Erro no upload para ImgBB:", error);
         throw error;
     }
+}
+
+async function uploadMultipleToImgBB(files) {
+    const uploads = Array.from(files).map(file => uploadToImgBB(file));
+    return Promise.all(uploads);
+}
+
+function getGiftImages(gift) {
+    if (gift.image_urls && Array.isArray(gift.image_urls)) return gift.image_urls;
+    if (gift.image_url) return [gift.image_url];
+    return [];
+}
+
+function getMemoryImages(gift) {
+    if (gift.memory_photo_urls && Array.isArray(gift.memory_photo_urls)) return gift.memory_photo_urls;
+    if (gift.memory_photo_url) return [gift.memory_photo_url];
+    return [];
+}
+
+function openFullscreenImage(url) {
+    const img = document.getElementById("fullscreenImage");
+    img.src = url;
+    document.getElementById("fullscreenModal").classList.add("active");
 }
 
 // ============================================================================
@@ -724,11 +756,18 @@ function renderCalendarGrid() {
                 <i class="fas fa-gift"></i> Registrar Presente
                </button>`;
 
+        const partnerImages = partnerGift ? getGiftImages(partnerGift) : [];
+        const partnerThumb = partnerImages.length > 0
+            ? `<img src="${partnerImages[0]}" alt="Presente" class="w-16 h-16 rounded object-cover ${!partnerGift.revealed_at ? 'gift-blur' : ''}">`
+            : '';
         const partnerSection = partnerGift
             ? `<div class="flex items-center gap-2 mt-1">
-                <img src="${partnerGift.image_url}" alt="Presente" class="w-16 h-16 rounded object-cover ${!partnerGift.revealed_at ? 'gift-blur' : ''}">
-                <span class="text-sm">${partnerGift.revealed_at ? partnerGift.product_name : '*****'}</span>
-                ${!partnerGift.revealed_at ? `<button onclick="event.stopPropagation(); revealGift('${partnerGift.id}')" class="btn btn-success text-xs py-1 px-2">Revelar</button>` : ''}
+                ${partnerThumb}
+                <div>
+                    <span class="text-sm">${partnerGift.revealed_at ? partnerGift.product_name : '*****'}</span>
+                    ${partnerImages.length > 1 ? `<span class="text-xs opacity-70">+${partnerImages.length - 1} fotos</span>` : ''}
+                </div>
+                ${!partnerGift.revealed_at ? `<button onclick="event.stopPropagation(); revealGift('${partnerGift.id}')" class="btn btn-success text-xs py-1 px-2 ml-1">Revelar</button>` : ''}
                </div>`
             : `<div class="text-xs opacity-70 mt-1">⏳ Ainda não enviado</div>`;
 
@@ -752,7 +791,7 @@ function renderCalendarGrid() {
 
 function createGiftCard(gift, month, type) {
     const isRevealed = gift.revealed_at !== null;
-    const hasMemory = gift.memory_photo_url !== null;
+    const hasMemory = getMemoryImages(gift).length > 0;
 
     let cardHTML = document.createElement("div");
     cardHTML.className = `month-card has-gift ${hasMemory ? '' : ''}`;
@@ -831,8 +870,28 @@ function viewMyGift(giftId) {
 
     const content = document.getElementById("viewMyGiftContent");
     const isRevealed = gift.revealed_at !== null;
-    const hasMemory = gift.memory_photo_url !== null;
-    const isRevealable = REVEAL_MONTHS.includes(gift.month);
+
+    const giftImages = getGiftImages(gift);
+    const memoryImages = getMemoryImages(gift);
+    const hasMemory = memoryImages.length > 0;
+
+    const imagesHtml = giftImages.map(url =>
+        `<img src="${url}" alt="Presente" class="image-preview cursor-pointer" onclick="openFullscreenImage('${url}')">`
+    ).join("");
+
+    const memoryHtml = memoryImages.map(url =>
+        `<img src="${url}" alt="Recordação" class="image-preview cursor-pointer" onclick="openFullscreenImage('${url}')">`
+    ).join("");
+
+    const addMemoryBtn = isRevealed && !hasMemory
+        ? `<button onclick="openAddMemoryModalForGift('${gift.id}')" class="btn btn-primary flex-1 justify-center">
+            <i class="fas fa-camera"></i> Adicionar Recordação
+           </button>`
+        : (isRevealed && hasMemory
+            ? `<button onclick="openAddMemoryModalForGift('${gift.id}')" class="btn btn-primary flex-1 justify-center">
+                <i class="fas fa-plus-circle"></i> + Fotos Recordação
+               </button>`
+            : ``);
 
     let html = `
         <div style="background-color: ${month.color}; padding: 20px; border-radius: 10px; color: ${month.textColor}; margin-bottom: 20px; text-align: center;">
@@ -846,14 +905,14 @@ function viewMyGift(giftId) {
         </div>
 
         <div class="mb-4">
-            <label class="block text-gray-700 font-bold mb-2">Foto do Presente:</label>
-            <img src="${gift.image_url}" alt="Presente" class="image-preview">
+            <label class="block text-gray-700 font-bold mb-2">Fotos do Presente (${giftImages.length}):</label>
+            ${imagesHtml}
         </div>
 
         ${hasMemory ? `
             <div class="mb-4">
-                <label class="block text-gray-700 font-bold mb-2">📸 Foto de Recordação:</label>
-                <img src="${gift.memory_photo_url}" alt="Recordação" class="image-preview">
+                <label class="block text-gray-700 font-bold mb-2">📸 Fotos de Recordação (${memoryImages.length}):</label>
+                ${memoryHtml}
             </div>
         ` : ''}
 
@@ -862,7 +921,8 @@ function viewMyGift(giftId) {
             ${isRevealed ? `<p>Revelado em: ${new Date(gift.revealed_at.toDate()).toLocaleDateString('pt-BR')}</p>` : ''}
         </div>
 
-        <div class="flex gap-3">
+        <div class="flex gap-3 flex-wrap">
+            ${addMemoryBtn}
             <button onclick="deleteGift('${gift.id}')" class="btn btn-danger flex-1 justify-center">
                 <i class="fas fa-trash"></i> Excluir
             </button>
@@ -886,8 +946,25 @@ function viewPartnerGift(giftId) {
 
     const content = document.getElementById("viewPartnerGiftContent");
     const isRevealed = gift.revealed_at !== null;
-    const hasMemory = gift.memory_photo_url !== null;
-    const isRevealable = REVEAL_MONTHS.includes(gift.month);
+
+    const giftImages = getGiftImages(gift);
+    const memoryImages = getMemoryImages(gift);
+    const hasMemory = memoryImages.length > 0;
+
+    const blurClass = !isRevealed ? 'gift-blur' : '';
+    const imagesHtml = giftImages.map(url =>
+        `<img src="${url}" alt="Presente" class="image-preview ${blurClass} cursor-pointer" onclick="openFullscreenImage('${url}')">`
+    ).join("");
+
+    const memoryHtml = memoryImages.map(url =>
+        `<img src="${url}" alt="Recordação" class="image-preview cursor-pointer" onclick="openFullscreenImage('${url}')">`
+    ).join("");
+
+    const addMemoryBtn = isRevealed
+        ? `<button onclick="openAddMemoryModalForGift('${gift.id}')" class="btn btn-primary flex-1 justify-center">
+            <i class="fas fa-plus-circle"></i> ${hasMemory ? '+ Fotos Recordação' : 'Adicionar Recordação'}
+           </button>`
+        : '';
 
     let html = `
         <div style="background-color: ${month.color}; padding: 20px; border-radius: 10px; color: ${month.textColor}; margin-bottom: 20px; text-align: center;">
@@ -901,14 +978,14 @@ function viewPartnerGift(giftId) {
         </div>
 
         <div class="mb-4">
-            <label class="block text-gray-700 font-bold mb-2">Foto do Presente:</label>
-            <img src="${gift.image_url}" alt="Presente" class="image-preview ${!isRevealed ? 'gift-blur' : ''}">
+            <label class="block text-gray-700 font-bold mb-2">Fotos do Presente (${giftImages.length}):</label>
+            ${imagesHtml}
         </div>
 
         ${hasMemory ? `
             <div class="mb-4">
-                <label class="block text-gray-700 font-bold mb-2">📸 Foto de Recordação:</label>
-                <img src="${gift.memory_photo_url}" alt="Recordação" class="image-preview">
+                <label class="block text-gray-700 font-bold mb-2">📸 Fotos de Recordação (${memoryImages.length}):</label>
+                ${memoryHtml}
             </div>
         ` : ''}
 
@@ -917,17 +994,13 @@ function viewPartnerGift(giftId) {
             ${isRevealed ? `<p>Revelado em: ${new Date(gift.revealed_at.toDate()).toLocaleDateString('pt-BR')}</p>` : ''}
         </div>
 
-        <div class="flex gap-3">
-            ${isRevealable && !isRevealed ? `
+        <div class="flex gap-3 flex-wrap">
+            ${!isRevealed ? `
                 <button onclick="revealGift('${gift.id}')" class="btn btn-success flex-1 justify-center">
-                    <i class="fas fa-unlock"></i> Revelar Mês
+                    <i class="fas fa-unlock"></i> Revelar Presente
                 </button>
             ` : ''}
-            ${isRevealed && !hasMemory ? `
-                <button onclick="openAddMemoryModalForGift('${gift.id}')" class="btn btn-primary flex-1 justify-center">
-                    <i class="fas fa-camera"></i> Adicionar Recordação
-                </button>
-            ` : ''}
+            ${addMemoryBtn}
             <button onclick="closeModal('viewPartnerGiftModal')" class="btn btn-secondary flex-1 justify-center">
                 Fechar
             </button>
@@ -970,7 +1043,7 @@ function openAddMemoryModalForGift(giftId) {
     // Limpar formulário
     document.getElementById("memoryForm").reset();
     document.getElementById("memoryFileName").textContent = "";
-    document.getElementById("memoryImagePreview").classList.add("hidden");
+    document.getElementById("memoryImagePreviews").innerHTML = "";
     
     // Fechar modal anterior
     closeModal("viewPartnerGiftModal");
@@ -1230,38 +1303,46 @@ function toggleViewMode(mode) {
 // ============================================================================
 
 function previewImage() {
-    const file = document.getElementById("giftImage").files[0];
-    const preview = document.getElementById("giftImagePreview");
+    const files = document.getElementById("giftImage").files;
+    const container = document.getElementById("giftImagePreviews");
     const fileName = document.getElementById("fileName");
 
-    if (file) {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.classList.remove("hidden");
-        };
-        
-        reader.readAsDataURL(file);
-        fileName.textContent = "Arquivo: " + file.name;
+    container.innerHTML = "";
+
+    if (files.length > 0) {
+        fileName.textContent = files.length + " arquivo(s) selecionado(s)";
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.className = "w-16 h-16 rounded object-cover border border-gray-300";
+                container.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
     }
 }
 
 function previewMemoryImage() {
-    const file = document.getElementById("memoryImage").files[0];
-    const preview = document.getElementById("memoryImagePreview");
+    const files = document.getElementById("memoryImage").files;
+    const container = document.getElementById("memoryImagePreviews");
     const fileName = document.getElementById("memoryFileName");
 
-    if (file) {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.classList.remove("hidden");
-        };
-        
-        reader.readAsDataURL(file);
-        fileName.textContent = "Arquivo: " + file.name;
+    container.innerHTML = "";
+
+    if (files.length > 0) {
+        fileName.textContent = files.length + " arquivo(s) selecionado(s)";
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.className = "w-16 h-16 rounded object-cover border border-gray-300";
+                container.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
     }
 }
 

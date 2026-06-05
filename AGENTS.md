@@ -34,10 +34,13 @@ email (opcional), accountType ("husband"|"wife"), name, createdAt, partnerUid, p
 ### `gifts` / `{docId}`
 ```
 giver_uid, recipient_uid, eventId, month, year, product_name,
-image_url, created_at, revealed_at, memory_photo_url
+image_urls (array), created_at, revealed_at, memory_photo_urls (array)
 ```
 - `eventId`: string — ID do evento (ex: `"month-6"`, `"special-namorados"`, ou ID de documento do Firestore)
 - `month`: número — mantido para compatibilidade com dados antigos
+- `image_urls`: array de URLs — suporta múltiplas fotos por presente
+- `memory_photo_urls`: array de URLs — suporta múltiplas fotos de recordação
+- Compatibilidade com dados antigos: `image_url` (string) e `memory_photo_url` (string)
 
 ### `events` / `{docId}`
 ```
@@ -137,6 +140,14 @@ Matching de gifts para eventos via `findGiftForEvent(event, giverUid)`:
 Todas as fotos (presentes, recordações, wishlist) usam `uploadToImgBB(file)`.
 Retorna URL pública da imagem.
 
+Para múltiplas fotos: `uploadMultipleToImgBB(files)` — faz upload paralelo de vários arquivos.
+
+Helper de compatibilidade:
+- `getGiftImages(gift)` — retorna array de URLs do presente (lida com `image_urls` e `image_url`)
+- `getMemoryImages(gift)` — retorna array de URLs de recordação (lida com `memory_photo_urls` e `memory_photo_url`)
+
+Visualização em tela cheia: `openFullscreenImage(url)` — abre modal escuro com a foto.
+
 ---
 
 ## ✅ Checklist do que já foi implementado
@@ -144,7 +155,8 @@ Retorna URL pública da imagem.
 - [x] Login por nome + senha (SHA-256) (substituiu Google)
 - [x] Seleção de perfil (Eullon / Ana Clara)
 - [x] Vincular parceiro (automático pelos IDs fixos)
-- [x] CRUD de presentes com foto
+- [x] CRUD de presentes com foto (múltiplas fotos)
+- [x] Visualização de foto em tela cheia
 - [x] Efeito blur em presentes não revelados
 - [x] Revelar presente (manual)
 - [x] Foto de recordação

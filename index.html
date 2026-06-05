@@ -625,17 +625,17 @@
 
                 <div class="mb-4">
                     <label class="block text-gray-700 font-bold mb-2">
-                        <i class="fas fa-image"></i> Foto do Presente
+                        <i class="fas fa-image"></i> Fotos do Presente
                     </label>
                     <div class="file-input-wrapper">
-                        <input type="file" id="giftImage" accept="image/*" required>
+                        <input type="file" id="giftImage" accept="image/*" multiple required>
                         <label for="giftImage" class="file-input-label">
                             <i class="fas fa-cloud-upload-alt"></i>
-                            <span>Clique ou arraste para enviar</span>
+                            <span>Clique para selecionar várias fotos</span>
                         </label>
                     </div>
                     <div id="fileName" class="file-name"></div>
-                    <img id="giftImagePreview" class="image-preview hidden">
+                    <div id="giftImagePreviews" class="flex flex-wrap gap-2 mt-2"></div>
                 </div>
 
                 <div class="flex gap-3">
@@ -701,17 +701,17 @@
 
                 <div class="mb-4">
                     <label class="block text-gray-700 font-bold mb-2">
-                        <i class="fas fa-image"></i> Foto de Recordação
+                        <i class="fas fa-image"></i> Fotos de Recordação
                     </label>
                     <div class="file-input-wrapper">
-                        <input type="file" id="memoryImage" accept="image/*" required>
+                        <input type="file" id="memoryImage" accept="image/*" multiple required>
                         <label for="memoryImage" class="file-input-label">
                             <i class="fas fa-cloud-upload-alt"></i>
-                            <span>Clique ou arraste para enviar</span>
+                            <span>Clique para selecionar várias fotos</span>
                         </label>
                     </div>
                     <div id="memoryFileName" class="file-name"></div>
-                    <img id="memoryImagePreview" class="image-preview hidden">
+                    <div id="memoryImagePreviews" class="flex flex-wrap gap-2 mt-2"></div>
                 </div>
 
                 <div class="flex gap-3">
@@ -855,6 +855,16 @@
                 
                 <div id="wishlistFormSpinner" class="spinner flex justify-center mt-4"></div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal: Visualizar Foto em Tela Cheia -->
+    <div id="fullscreenModal" class="modal" onclick="closeModal('fullscreenModal')">
+        <div style="width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.95);position:relative;">
+            <img id="fullscreenImage" src="" alt="Foto" style="max-width:95vw;max-height:95vh;object-fit:contain;border-radius:8px;">
+            <button onclick="event.stopPropagation();closeModal('fullscreenModal')" style="position:absolute;top:20px;right:20px;font-size:32px;color:white;background:none;border:none;cursor:pointer;z-index:10;">
+                ✕
+            </button>
         </div>
     </div>
 
