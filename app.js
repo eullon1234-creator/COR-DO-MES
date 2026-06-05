@@ -460,6 +460,7 @@ async function handleAddGift(event) {
 
     const eventId = document.getElementById("giftEvent").value;
     const name = document.getElementById("giftName").value;
+    const link = document.getElementById("giftLink").value.trim();
     const imageFiles = document.getElementById("giftImage").files;
 
     if (!eventId || !name || imageFiles.length === 0) {
@@ -498,6 +499,7 @@ async function handleAddGift(event) {
             month: month,
             year: new Date().getFullYear(),
             product_name: name,
+            gift_link: link || null,
             image_urls: imageUrls,
             created_at: new Date(),
             revealed_at: null,
@@ -767,7 +769,7 @@ function renderCalendarGrid() {
                     <span class="text-sm">${partnerGift.revealed_at ? partnerGift.product_name : '*****'}</span>
                     ${partnerImages.length > 1 ? `<span class="text-xs opacity-70">+${partnerImages.length - 1} fotos</span>` : ''}
                 </div>
-                ${!partnerGift.revealed_at ? `<button onclick="event.stopPropagation(); revealGift('${partnerGift.id}')" class="btn btn-success text-xs py-1 px-2 ml-1">Revelar</button>` : ''}
+                ${!partnerGift.revealed_at ? `<span class="text-xs text-gray-500">⏳ Aguardando liberação</span>` : ''}
                </div>`
             : `<div class="text-xs opacity-70 mt-1">⏳ Ainda não enviado</div>`;
 
@@ -904,6 +906,13 @@ function viewMyGift(giftId) {
             <p class="text-xl">${gift.product_name}</p>
         </div>
 
+        ${gift.gift_link ? `
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">Link:</label>
+            <a href="${gift.gift_link}" target="_blank" class="text-blue-600 underline text-sm break-all">${gift.gift_link}</a>
+        </div>
+        ` : ''}
+
         <div class="mb-4">
             <label class="block text-gray-700 font-bold mb-2">Fotos do Presente (${giftImages.length}):</label>
             ${imagesHtml}
@@ -922,6 +931,11 @@ function viewMyGift(giftId) {
         </div>
 
         <div class="flex gap-3 flex-wrap">
+            ${!isRevealed ? `
+                <button onclick="revealGift('${gift.id}')" class="btn btn-success flex-1 justify-center">
+                    <i class="fas fa-unlock"></i> Liberar para ${partnerUser ? partnerUser.name : 'Parceiro'} ver
+                </button>
+            ` : ''}
             ${addMemoryBtn}
             <button onclick="deleteGift('${gift.id}')" class="btn btn-danger flex-1 justify-center">
                 <i class="fas fa-trash"></i> Excluir
@@ -977,6 +991,13 @@ function viewPartnerGift(giftId) {
             <p class="text-xl ${!isRevealed ? 'gift-name-hidden' : ''}">${isRevealed ? gift.product_name : "*****"}</p>
         </div>
 
+        ${gift.gift_link && isRevealed ? `
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2">Link:</label>
+            <a href="${gift.gift_link}" target="_blank" class="text-blue-600 underline text-sm break-all">${gift.gift_link}</a>
+        </div>
+        ` : ''}
+
         <div class="mb-4">
             <label class="block text-gray-700 font-bold mb-2">Fotos do Presente (${giftImages.length}):</label>
             ${imagesHtml}
@@ -995,11 +1016,7 @@ function viewPartnerGift(giftId) {
         </div>
 
         <div class="flex gap-3 flex-wrap">
-            ${!isRevealed ? `
-                <button onclick="revealGift('${gift.id}')" class="btn btn-success flex-1 justify-center">
-                    <i class="fas fa-unlock"></i> Revelar Presente
-                </button>
-            ` : ''}
+            ${!isRevealed ? `<p class="text-sm text-gray-500 w-full text-center py-2">⏳ ${partnerUser.name} ainda não liberou este presente</p>` : ''}
             ${addMemoryBtn}
             <button onclick="closeModal('viewPartnerGiftModal')" class="btn btn-secondary flex-1 justify-center">
                 Fechar
@@ -1013,7 +1030,7 @@ function viewPartnerGift(giftId) {
 }
 
 async function revealGift(giftId) {
-    if (!confirm("Tem certeza que deseja revelar este presente? 🎁")) {
+    if (!confirm("Liberar este presente para seu amor ver? 🎁")) {
         return;
     }
 
@@ -1022,14 +1039,14 @@ async function revealGift(giftId) {
             revealed_at: new Date()
         });
 
-        showToast("Presente revelado! 🎉", "success");
+        showToast("Presente liberado! Agora seu amor pode ver 🎉", "success");
         
-        // Atualizar view
-        const gift = allGifts.find(g => g.id === giftId);
-        viewPartnerGift(giftId);
         await loadAllGifts();
+        renderMyGiftsGrid();
         renderPartnerGiftsGrid();
         renderCalendarGrid();
+        closeModal("viewMyGiftModal");
+        closeModal("viewPartnerGiftModal");
 
     } catch (error) {
         console.error("Erro ao revelar presente:", error);
