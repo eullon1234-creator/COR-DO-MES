@@ -118,6 +118,16 @@ async function startLogin(userId) {
     selectedUserId = userId;
     const userData = FIXED_USERS[userId];
 
+    // Mostrar formulário primeiro com estado "carregando"
+    document.getElementById("loginNameSelection").classList.add("hidden");
+    document.getElementById("loginPasswordForm").classList.remove("hidden");
+    document.getElementById("loginPasswordTitle").textContent = `${userData.name}, aguarde...`;
+    document.getElementById("loginPasswordBtnText").textContent = "Carregando...";
+    document.getElementById("loginPasswordInput").value = "";
+    document.getElementById("loginPasswordConfirm").value = "";
+    document.getElementById("loginPasswordError").classList.add("hidden");
+    document.getElementById("loginPasswordSubmitBtn").disabled = true;
+
     try {
         const doc = await db.collection("users").doc(userId).get();
 
@@ -133,15 +143,17 @@ async function startLogin(userId) {
             isCreatingPassword = true;
         }
 
-        document.getElementById("loginNameSelection").classList.add("hidden");
-        document.getElementById("loginPasswordForm").classList.remove("hidden");
-        document.getElementById("loginPasswordInput").value = "";
-        document.getElementById("loginPasswordConfirm").value = "";
-        document.getElementById("loginPasswordError").classList.add("hidden");
+        document.getElementById("loginPasswordSubmitBtn").disabled = false;
         document.getElementById("loginPasswordInput").focus();
     } catch (error) {
         console.error("Erro ao verificar usuário:", error);
-        showLoginError("Erro ao conectar. Tente novamente.");
+        document.getElementById("loginPasswordTitle").textContent = `${userData.name}, erro de conexão`;
+        document.getElementById("loginPasswordBtnText").textContent = "Carregando...";
+        document.getElementById("loginPasswordSubmitBtn").disabled = true;
+        const msg = error.code === "permission-denied"
+            ? "Firestore bloqueado. Publique as regras de segurança em: https://console.firebase.google.com"
+            : "Erro ao conectar. Clique em ← Voltar e tente novamente.";
+        showLoginError(msg);
     }
 }
 
@@ -193,7 +205,11 @@ async function handlePasswordSubmit() {
         completeLogin(selectedUserId);
     } catch (error) {
         console.error("Erro no login:", error);
-        showLoginError("Erro ao processar login. Tente novamente.");
+        if (error.code === "permission-denied") {
+            showLoginError("Firestore bloqueado. Publique as regras de segurança (veja firestore.rules).");
+        } else {
+            showLoginError("Erro ao processar login. Tente novamente.");
+        }
         document.getElementById("loginPasswordSubmitBtn").disabled = false;
         document.getElementById("loginPasswordBtnText").textContent = isCreatingPassword ? "Criar conta 💝" : "Entrar 💝";
     }
@@ -710,7 +726,7 @@ function renderCalendarGrid() {
 
         const partnerSection = partnerGift
             ? `<div class="flex items-center gap-2 mt-1">
-                <img src="${partnerGift.image_url}" alt="Presente" class="w-8 h-8 rounded object-cover ${!partnerGift.revealed_at ? 'gift-blur' : ''}">
+                <img src="${partnerGift.image_url}" alt="Presente" class="w-16 h-16 rounded object-cover ${!partnerGift.revealed_at ? 'gift-blur' : ''}">
                 <span class="text-sm">${partnerGift.revealed_at ? partnerGift.product_name : '*****'}</span>
                 ${!partnerGift.revealed_at ? `<button onclick="event.stopPropagation(); revealGift('${partnerGift.id}')" class="btn btn-success text-xs py-1 px-2">Revelar</button>` : ''}
                </div>`

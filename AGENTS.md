@@ -60,6 +60,7 @@ name, image_url, link, creatorUid, createdAt
 | `config.js` | Chaves Firebase/ImgBB (ignorado no git) |
 | `sw.js` | Service Worker para PWA |
 | `manifest.json` | Manifest PWA |
+| `firestore.rules` | Regras de segurança do Firestore (público) |
 | `AGENTS.md` | **Este arquivo — memória do projeto** |
 
 ---
