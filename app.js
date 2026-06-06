@@ -421,31 +421,6 @@ function updateProfilePhotos() {
     }
 }
 
-    // User profile area - minha foto
-    const userAvatar = document.getElementById("userProfileAvatar");
-    const userIcon = document.getElementById("userProfileIcon");
-    if (myPhotoUrl) {
-        userAvatar.src = myPhotoUrl;
-        userAvatar.classList.remove("hidden");
-        userIcon.classList.add("hidden");
-    } else {
-        userAvatar.classList.add("hidden");
-        userIcon.classList.remove("hidden");
-    }
-
-    // User profile area - foto do parceiro
-    const partnerAvatar = document.getElementById("partnerProfileAvatar");
-    const partnerIcon = document.getElementById("partnerProfileIcon");
-    if (partnerUser && partnerUser.photo_url) {
-        partnerAvatar.src = partnerUser.photo_url;
-        partnerAvatar.classList.remove("hidden");
-        partnerIcon.classList.add("hidden");
-    } else {
-        partnerAvatar.classList.add("hidden");
-        partnerIcon.classList.remove("hidden");
-    }
-}
-
 async function uploadProfilePhoto(file, type) {
     if (!file) return;
     const userId = type === "my" ? currentUser.id : (partnerUser ? partnerUser.id : null);
