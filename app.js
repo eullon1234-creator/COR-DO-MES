@@ -54,22 +54,22 @@ const MONTHS = [
 const REVEAL_MONTHS = [3, 6, 9, 12];
 
 const PREDEFINED_EVENTS = [
-    { id: 'month-1', name: 'Janeiro', date: '01/01', day: 1, month: 1, type: 'month', emoji: '🎆', color: '#EF4444', textColor: '#fff' },
-    { id: 'month-2', name: 'Fevereiro', date: '01/02', day: 1, month: 2, type: 'month', emoji: '💘', color: '#FB923C', textColor: '#fff' },
-    { id: 'month-3', name: 'Março', date: '01/03', day: 1, month: 3, type: 'month', emoji: '🌷', color: '#FBBF24', textColor: '#000' },
-    { id: 'month-4', name: 'Abril', date: '01/04', day: 1, month: 4, type: 'month', emoji: '🌱', color: '#4ADE80', textColor: '#000' },
-    { id: 'month-5', name: 'Maio', date: '01/05', day: 1, month: 5, type: 'month', emoji: '🌊', color: '#60A5FA', textColor: '#fff' },
-    { id: 'month-6', name: 'Junho', date: '01/06', day: 1, month: 6, type: 'month', emoji: '👰', color: '#A78BFA', textColor: '#fff' },
-    { id: 'month-7', name: 'Julho', date: '01/07', day: 1, month: 7, type: 'month', emoji: '🎆', color: '#EC4899', textColor: '#fff' },
-    { id: 'month-8', name: 'Agosto', date: '01/08', day: 1, month: 8, type: 'month', emoji: '🌾', color: '#92400E', textColor: '#fff' },
-    { id: 'month-9', name: 'Setembro', date: '01/09', day: 1, month: 9, type: 'month', emoji: '🍂', color: '#F5DEB3', textColor: '#000' },
-    { id: 'month-10', name: 'Outubro', date: '01/10', day: 1, month: 10, type: 'month', emoji: '🎃', color: '#EA580C', textColor: '#fff' },
-    { id: 'month-11', name: 'Novembro', date: '01/11', day: 1, month: 11, type: 'month', emoji: '🦃', color: '#FCD34D', textColor: '#000' },
-    { id: 'month-12', name: 'Dezembro', date: '01/12', day: 1, month: 12, type: 'month', emoji: '🎄', color: '#F8FAFC', textColor: '#000' },
-    { id: 'special-namorados', name: '💑 Dia dos Namorados', date: '12/06', day: 12, month: 6, type: 'special', emoji: '💑', color: '#EC4899', textColor: '#fff' },
-    { id: 'special-eullon-bday', name: '🎂 Aniv. Eullon', date: '07/08', day: 7, month: 8, type: 'special', emoji: '🎂', color: '#60A5FA', textColor: '#fff' },
-    { id: 'special-ana-bday', name: '🎂 Aniv. Ana Clara', date: '29/10', day: 29, month: 10, type: 'special', emoji: '🎂', color: '#FB923C', textColor: '#fff' },
-    { id: 'special-namoro', name: '💕 Aniv. de Namoro', date: '21/07', day: 21, month: 7, type: 'special', emoji: '💍', color: '#A78BFA', textColor: '#fff' },
+    { id: 'month-1', name: 'Janeiro', date: '01/01', day: 1, month: 1, type: 'month', emoji: '🎆', color: '#ef9a9a', textColor: '#fff' },
+    { id: 'month-2', name: 'Fevereiro', date: '01/02', day: 1, month: 2, type: 'month', emoji: '💘', color: '#ffcc80', textColor: '#fff' },
+    { id: 'month-3', name: 'Março', date: '01/03', day: 1, month: 3, type: 'month', emoji: '🌷', color: '#fff59d', textColor: '#666' },
+    { id: 'month-4', name: 'Abril', date: '01/04', day: 1, month: 4, type: 'month', emoji: '🌱', color: '#a5d6a7', textColor: '#fff' },
+    { id: 'month-5', name: 'Maio', date: '01/05', day: 1, month: 5, type: 'month', emoji: '🌊', color: '#90caf9', textColor: '#fff' },
+    { id: 'month-6', name: 'Junho', date: '01/06', day: 1, month: 6, type: 'month', emoji: '👰', color: '#ce93d8', textColor: '#fff' },
+    { id: 'month-7', name: 'Julho', date: '01/07', day: 1, month: 7, type: 'month', emoji: '🎆', color: '#f48fb1', textColor: '#fff' },
+    { id: 'month-8', name: 'Agosto', date: '01/08', day: 1, month: 8, type: 'month', emoji: '🌾', color: '#bcaaa4', textColor: '#fff' },
+    { id: 'month-9', name: 'Setembro', date: '01/09', day: 1, month: 9, type: 'month', emoji: '🍂', color: '#e0e0e0', textColor: '#666' },
+    { id: 'month-10', name: 'Outubro', date: '01/10', day: 1, month: 10, type: 'month', emoji: '🎃', color: '#ffab91', textColor: '#fff' },
+    { id: 'month-11', name: 'Novembro', date: '01/11', day: 1, month: 11, type: 'month', emoji: '🦃', color: '#e6ee9c', textColor: '#666' },
+    { id: 'month-12', name: 'Dezembro', date: '01/12', day: 1, month: 12, type: 'month', emoji: '🎄', color: '#f5f5f5', textColor: '#666' },
+    { id: 'special-namorados', name: '💑 Dia dos Namorados', date: '12/06', day: 12, month: 6, type: 'special', emoji: '💑', color: '#f48fb1', textColor: '#fff' },
+    { id: 'special-eullon-bday', name: '🎂 Aniv. Eullon', date: '07/08', day: 7, month: 8, type: 'special', emoji: '🎂', color: '#90caf9', textColor: '#fff' },
+    { id: 'special-ana-bday', name: '🎂 Aniv. Ana Clara', date: '29/10', day: 29, month: 10, type: 'special', emoji: '🎂', color: '#ffcc80', textColor: '#fff' },
+    { id: 'special-namoro', name: '💕 Aniv. de Namoro', date: '21/07', day: 21, month: 7, type: 'special', emoji: '💍', color: '#ce93d8', textColor: '#fff' },
 ];
 
 // ============================================================================
@@ -442,16 +442,51 @@ async function syncOrphanGifts() {
     }
 }
 
-function openAddGiftModal() {
+function openAddGiftModal(giftData = null) {
     // Limpar formulário
     document.getElementById("giftForm").reset();
     document.getElementById("fileName").textContent = "";
     document.getElementById("giftImagePreviews").innerHTML = "";
     document.getElementById("fetchStatus").textContent = "";
-    
+
     // Preencher select de eventos dinamicamente
     populateGiftEventSelect();
-    
+
+    const modalTitle = document.querySelector("#addGiftModal h2");
+    const submitBtn = document.querySelector("#giftForm button[type='submit']");
+    const editingIdInput = document.getElementById("editingGiftId");
+
+    if (giftData) {
+        // Modo edição
+        editingIdInput.value = giftData.id;
+        modalTitle.textContent = "✏️ Editar Presente";
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Atualizar Presente';
+
+        document.getElementById("giftEvent").value = giftData.eventId || `month-${giftData.month}`;
+        document.getElementById("giftName").value = giftData.product_name;
+        document.getElementById("giftLink").value = giftData.gift_link || "";
+
+        // Fotos existentes: mostra previews mas não permite re-enviar
+        const existingImages = getGiftImages(giftData);
+        if (existingImages.length > 0) {
+            const previews = document.getElementById("giftImagePreviews");
+            existingImages.forEach(url => {
+                const img = document.createElement("img");
+                img.src = url;
+                img.className = "w-20 h-20 object-cover rounded-lg border-2 border-green-300";
+                img.title = "Foto existente";
+                img.onclick = () => openFullscreenImage(url);
+                previews.appendChild(img);
+            });
+            document.getElementById("fetchStatus").textContent = `${existingImages.length} foto(s) existente(s) (faça novo upload se quiser trocar)`;
+        }
+    } else {
+        // Modo criação
+        editingIdInput.value = "";
+        modalTitle.textContent = "📝 Registrar Novo Presente";
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Presente';
+    }
+
     // Mostrar modal
     document.getElementById("addGiftModal").classList.add("active");
 }
@@ -523,12 +558,13 @@ async function handleFetchProduct() {
 async function handleAddGift(event) {
     event.preventDefault();
 
+    const editingId = document.getElementById("editingGiftId").value;
     const eventId = document.getElementById("giftEvent").value;
     const name = document.getElementById("giftName").value;
     const link = document.getElementById("giftLink").value.trim();
     const imageFiles = document.getElementById("giftImage").files;
 
-    if (!eventId || !name || imageFiles.length === 0) {
+    if (!eventId || !name) {
         showToast("Por favor, preencha todos os campos", "error");
         return;
     }
@@ -538,50 +574,80 @@ async function handleAddGift(event) {
     const selectedEvent = allEvents.find(e => e.id === eventId);
     const month = selectedEvent ? selectedEvent.month : new Date().getMonth() + 1;
 
-    // Verificar duplicidade
-    const jaExiste = allGifts.find(g =>
-        g.eventId === eventId &&
-        g.year === new Date().getFullYear() &&
-        g.giver_uid === currentUser.id
-    );
-    if (jaExiste) {
-        showToast("Você já registrou um presente para este evento!", "error");
-        return;
+    // Verificar duplicidade (só para criação)
+    if (!editingId) {
+        if (imageFiles.length === 0) {
+            showToast("Selecione ao menos uma foto", "error");
+            return;
+        }
+        const jaExiste = allGifts.find(g =>
+            g.eventId === eventId &&
+            g.year === new Date().getFullYear() &&
+            g.giver_uid === currentUser.id
+        );
+        if (jaExiste) {
+            showToast("Você já registrou um presente para este evento!", "error");
+            return;
+        }
     }
 
     // Mostrar spinner
     document.getElementById("giftFormSpinner").classList.add("active");
 
     try {
-        // 1. Enviar imagens para ImgBB (paralelo)
-        const imageUrls = await uploadMultipleToImgBB(imageFiles);
+        let imageUrls = [];
 
-        // 2. Salvar presente no Firestore
-        await db.collection("gifts").add({
-            giver_uid: currentUser.id,
-            recipient_uid: partnerUser ? partnerUser.id : null,
-            eventId: eventId,
-            month: month,
-            year: new Date().getFullYear(),
-            product_name: name,
-            gift_link: link || null,
-            image_urls: imageUrls,
-            created_at: new Date(),
-            revealed_at: null,
-            memory_photo_urls: []
-        });
+        if (editingId) {
+            // Modo edição: mantém fotos existentes, adiciona novas se houver
+            const existingGift = allGifts.find(g => g.id === editingId);
+            if (existingGift) {
+                imageUrls = [...getGiftImages(existingGift)];
+            }
+        }
 
-        showToast("Presente registrado com sucesso! 🎁", "success");
-        
-        // 3. Fechar modal e recarregar dados
+        if (imageFiles.length > 0) {
+            const newUrls = await uploadMultipleToImgBB(imageFiles);
+            imageUrls = [...imageUrls, ...newUrls];
+        }
+
+        if (editingId) {
+            // Atualizar presente existente
+            await db.collection("gifts").doc(editingId).update({
+                eventId: eventId,
+                month: month,
+                product_name: name,
+                gift_link: link || null,
+                image_urls: imageUrls
+            });
+            showToast("Presente atualizado com sucesso! ✏️", "success");
+        } else {
+            // Criar novo presente
+            await db.collection("gifts").add({
+                giver_uid: currentUser.id,
+                recipient_uid: partnerUser ? partnerUser.id : null,
+                eventId: eventId,
+                month: month,
+                year: new Date().getFullYear(),
+                product_name: name,
+                gift_link: link || null,
+                image_urls: imageUrls,
+                created_at: new Date(),
+                revealed_at: null,
+                memory_photo_urls: []
+            });
+            showToast("Presente registrado com sucesso! 🎁", "success");
+        }
+
+        // Fechar modal e recarregar dados
         closeModal("addGiftModal");
         await loadAllGifts();
         renderMyGiftsGrid();
         renderCalendarGrid();
+        renderPartnerGiftsGrid();
 
     } catch (error) {
-        console.error("Erro ao adicionar presente:", error);
-        showToast("Erro ao enviar presente: " + error.message, "error");
+        console.error("Erro ao salvar presente:", error);
+        showToast("Erro ao salvar presente: " + error.message, "error");
     } finally {
         document.getElementById("giftFormSpinner").classList.remove("active");
     }
@@ -768,7 +834,7 @@ function getAllEvents() {
             month: parseInt(evt.date.split('/')[1]),
             type: 'custom',
             emoji: '📌',
-            color: '#667eea',
+            color: '#b39ddb',
             textColor: '#fff'
         });
     });
@@ -790,6 +856,75 @@ function findGiftForEvent(event, giverUid) {
     });
 }
 
+function renderMemories() {
+    const grid = document.getElementById("memoriesGrid");
+    const empty = document.getElementById("memoriesEmpty");
+    grid.innerHTML = "";
+
+    // Coletar todas as memórias de todos os presentes
+    const allMemories = [];
+    allGifts.forEach(gift => {
+        const memImages = getMemoryImages(gift);
+        const gifImages = getGiftImages(gift);
+        if (memImages.length > 0) {
+            memImages.forEach((url, idx) => {
+                const event = getAllEvents().find(e => e.id === gift.eventId)
+                    || { emoji: '🎁', name: `Mês ${gift.month}` };
+                allMemories.push({
+                    imageUrl: url,
+                    caption: `${event.emoji} ${gift.product_name}`,
+                    date: gift.revealed_at || gift.created_at,
+                    index: idx
+                });
+            });
+        }
+    });
+
+    if (allMemories.length === 0) {
+        grid.innerHTML = "";
+        empty.classList.remove("hidden");
+        return;
+    }
+    empty.classList.add("hidden");
+
+    // Ordenar do mais recente para o mais antigo
+    allMemories.sort((a, b) => {
+        const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+        const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+        return dateB - dateA;
+    });
+
+    allMemories.forEach((memory, i) => {
+        const dateStr = memory.date?.toDate
+            ? memory.date.toDate().toLocaleDateString('pt-BR')
+            : new Date(memory.date).toLocaleDateString('pt-BR');
+
+        const item = document.createElement("div");
+        item.className = `mural-item bounce-in stagger-${Math.min(i + 1, 5)}`;
+        item.innerHTML = `
+            <img src="${memory.imageUrl}" alt="${memory.caption}" loading="lazy" onclick="openFullscreenImage('${memory.imageUrl}')">
+            <div class="mural-caption">
+                ${memory.caption}
+                <span class="mural-date"> • ${dateStr}</span>
+            </div>
+        `;
+        grid.appendChild(item);
+    });
+}
+
+function getDaysUntilEvent(event) {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    let eventDate = new Date(currentYear, event.month - 1, event.day);
+
+    if (eventDate < now) {
+        eventDate = new Date(currentYear + 1, event.month - 1, event.day);
+    }
+
+    const diff = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
+    return diff;
+}
+
 function renderCalendarGrid() {
     const grid = document.getElementById("calendarGrid");
     grid.innerHTML = "";
@@ -806,14 +941,28 @@ function renderCalendarGrid() {
         return;
     }
 
-    events.forEach(event => {
+    events.forEach((event, index) => {
         const myGift = findGiftForEvent(event, currentUser.id);
         const partnerGift = findGiftForEvent(event, partnerUser.id);
 
         const card = document.createElement("div");
-        card.className = "month-card";
+        card.className = `month-card bounce-in stagger-${Math.min(index + 1, 5)}`;
         card.style.backgroundColor = event.color;
         card.style.color = event.textColor;
+
+        const daysUntil = getDaysUntilEvent(event);
+        let dayCounterText = '';
+        if (daysUntil === 0) {
+            dayCounterText = `<span class="day-counter">🎉 É hoje!</span>`;
+        } else if (daysUntil === 1) {
+            dayCounterText = `<span class="day-counter">⏰ Amanhã!</span>`;
+        } else if (daysUntil <= 7) {
+            dayCounterText = `<span class="day-counter">📅 Em ${daysUntil} dias</span>`;
+        } else if (daysUntil <= 30) {
+            dayCounterText = `<span class="day-counter">📅 Em ${daysUntil} dias</span>`;
+        } else {
+            dayCounterText = `<span class="day-counter">📅 Daqui ${daysUntil} dias</span>`;
+        }
 
         const mySection = myGift
             ? `<div class="flex items-center gap-2 mt-1">
@@ -840,9 +989,10 @@ function renderCalendarGrid() {
 
         card.innerHTML = `
             <div>
-                <div style="font-size: 32px; margin-bottom: 6px;">${event.emoji}</div>
+                <div class="event-emoji">${event.emoji}</div>
                 <h3 class="text-base font-bold">${event.name}</h3>
                 <p class="text-xs opacity-80">${event.date}</p>
+                <div class="mt-1">${dayCounterText}</div>
             </div>
             <div class="mt-2 text-xs border-t border-white/20 pt-2">
                 <div class="font-semibold">💙 Meu presente:</div>
@@ -861,7 +1011,7 @@ function createGiftCard(gift, month, type) {
     const hasMemory = getMemoryImages(gift).length > 0;
 
     let cardHTML = document.createElement("div");
-    cardHTML.className = `month-card has-gift ${hasMemory ? '' : ''}`;
+    cardHTML.className = `month-card has-gift bounce-in stagger-${Math.floor(Math.random() * 5) + 1}`;
     cardHTML.style.backgroundColor = month.color;
     cardHTML.style.color = month.textColor;
 
@@ -880,33 +1030,31 @@ function createGiftCard(gift, month, type) {
     }
 
     if (type === "my") {
-        // Cartão do próprio usuário (vê tudo normalmente)
         cardHTML.innerHTML = `
             <div>
-                <div style="font-size: 36px; margin-bottom: 10px;">${month.emoji}</div>
+                <div class="event-emoji">${month.emoji}</div>
                 <h3 class="text-lg font-bold">${month.name}</h3>
                 <p class="text-sm opacity-90">${gift.product_name}</p>
             </div>
             <div class="flex justify-between items-center">
-                <span class="gift-badge ${badgeClass}">${badgeIcon} ${badgeText}</span>
+                <span class="gift-badge ${badgeClass} gift-emoji">${badgeIcon} ${badgeText}</span>
                 <button onclick="viewMyGift('${gift.id}')" class="btn btn-secondary">
                     <i class="fas fa-eye"></i>
                 </button>
             </div>
         `;
     } else {
-        // Cartão do parceiro (com blur se não revelado)
         const imageClass = isRevealed ? "" : "gift-blur";
         const productName = isRevealed ? gift.product_name : "*****";
         
         cardHTML.innerHTML = `
             <div>
-                <div style="font-size: 36px; margin-bottom: 10px;">${month.emoji}</div>
+                <div class="event-emoji">${month.emoji}</div>
                 <h3 class="text-lg font-bold">${month.name}</h3>
                 <p class="text-sm opacity-90 ${!isRevealed ? 'gift-name-hidden' : ''}">${productName}</p>
             </div>
             <div class="flex justify-between items-center">
-                <span class="gift-badge ${badgeClass}">${badgeIcon} ${badgeText}</span>
+                <span class="gift-badge ${badgeClass} gift-emoji">${badgeIcon} ${badgeText}</span>
                 <button onclick="viewPartnerGift('${gift.id}')" class="btn btn-secondary">
                     <i class="fas fa-eye"></i>
                 </button>
@@ -1002,6 +1150,9 @@ function viewMyGift(giftId) {
                 </button>
             ` : ''}
             ${addMemoryBtn}
+            <button onclick="editGift('${gift.id}')" class="btn btn-primary flex-1 justify-center">
+                <i class="fas fa-edit"></i> Editar
+            </button>
             <button onclick="deleteGift('${gift.id}')" class="btn btn-danger flex-1 justify-center">
                 <i class="fas fa-trash"></i> Excluir
             </button>
@@ -1094,6 +1245,43 @@ function viewPartnerGift(giftId) {
     document.getElementById("viewPartnerGiftModal").classList.add("active");
 }
 
+function launchConfetti() {
+    const container = document.createElement("div");
+    container.className = "confetti-container";
+    document.body.appendChild(container);
+
+    const colors = ["#f48fb1", "#ce93d8", "#90caf9", "#a5d6a7", "#fff59d", "#ffcc80", "#ef9a9a", "#b39ddb"];
+    const emojis = ["💖", "🎉", "✨", "💕", "🌟", "🎊", "💗", "⭐"];
+
+    for (let i = 0; i < 60; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+
+        const useEmoji = Math.random() > 0.7;
+        if (useEmoji) {
+            piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            piece.style.fontSize = (14 + Math.random() * 16) + "px";
+            piece.style.width = "auto";
+            piece.style.height = "auto";
+            piece.style.background = "none";
+        } else {
+            piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+            piece.style.width = (6 + Math.random() * 8) + "px";
+            piece.style.height = (6 + Math.random() * 8) + "px";
+            piece.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+        }
+
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.top = "-5vh";
+        piece.style.animationDuration = (2 + Math.random() * 2) + "s";
+        piece.style.animationDelay = Math.random() * 0.5 + "s";
+
+        container.appendChild(piece);
+    }
+
+    setTimeout(() => container.remove(), 4000);
+}
+
 async function revealGift(giftId) {
     if (!confirm("Liberar este presente para seu amor ver? 🎁")) {
         return;
@@ -1104,6 +1292,7 @@ async function revealGift(giftId) {
             revealed_at: new Date()
         });
 
+        launchConfetti();
         showToast("Presente liberado! Agora seu amor pode ver 🎉", "success");
         
         await loadAllGifts();
@@ -1152,6 +1341,14 @@ async function deleteGift(giftId) {
         console.error("Erro ao excluir presente:", error);
         showToast("Erro ao excluir presente", "error");
     }
+}
+
+function editGift(giftId) {
+    const gift = allGifts.find(g => g.id === giftId);
+    if (!gift) return;
+
+    closeModal("viewMyGiftModal");
+    openAddGiftModal(gift);
 }
 
 // ============================================================================
@@ -1428,19 +1625,32 @@ function switchTab(tabName, btn) {
     btn.classList.add("active");
 
     currentTabView = tabName;
+
+    if (tabName === "memories") {
+        renderMemories();
+    }
 }
 
 function toggleViewMode(mode) {
     currentViewMode = mode;
     
-    // Atualizar visibilidade das abas
+    document.querySelectorAll(".tab-content").forEach(tab => {
+        tab.classList.add("hidden");
+    });
+    document.querySelectorAll(".tab-btn").forEach(b => {
+        b.classList.remove("active");
+    });
+    
     if (mode === "my-profile") {
         document.getElementById("my-gifts").classList.remove("hidden");
-        document.getElementById("partner-gifts").classList.add("hidden");
     } else {
-        document.getElementById("my-gifts").classList.add("hidden");
         document.getElementById("partner-gifts").classList.remove("hidden");
     }
+    document.getElementById("calendar").classList.remove("hidden");
+    document.getElementById("wishlist").classList.remove("hidden");
+
+    document.querySelector(".tab-btn").classList.add("active");
+    currentTabView = "calendar";
 }
 
 // ============================================================================

@@ -75,7 +75,7 @@ currentUser       // Objeto com { id, name, accountType } - NÃO é mais Firebas
 partnerUser       // { id, name, email, ... } do Firestore
 partnerUser       // { id, name, email, ... } do Firestore
 currentViewMode   // "my-profile" | "partner-profile"
-currentTabView    // "my-gifts" | "partner-gifts" | "calendar" | "wishlist"
+currentTabView    // "my-gifts" | "partner-gifts" | "calendar" | "wishlist" | "memories"
 allGifts          // Array de gifts do ano atual
 currentGiftBeingViewed  // Gift aberto no modal
 deferredPrompt    // Evento de instalação PWA
@@ -99,6 +99,10 @@ Adicionados via modal "Novo Evento".
 
 ### Ordenação
 `getAllEvents()` mescla predefinidos + customizados e ordena por mês/dia.
+
+### Contador de Dias (`getDaysUntilEvent`)
+Exibe "Faltam X dias", "Amanhã!", "É hoje!" nos cards do calendário.
+Calcula a próxima ocorrência do evento (se já passou este ano, pega o ano que vem).
 
 ---
 
@@ -166,6 +170,12 @@ Visualização em tela cheia: `openFullscreenImage(url)` — abre modal escuro c
 - [x] PWA (Service Worker + manifest + botão instalar)
 - [x] Migração de nomes antigos ("Marido" → "Eullon", "Esposa" → "Ana Clara")
 - [x] Sincronização de presentes órfãos ao vincular parceiro
+- [x] Editar presente (reaproveita modal com dados preenchidos)
+- [x] Contador de dias nos cards do calendário
+- [x] Mural de Memórias (aba 📸 Memórias com timeline de fotos de recordação)
+- [x] Tema pastel (gradientes suaves, cores pastel nos meses e botões)
+- [x] Emojis maiores nos cards de evento/presente
+- [x] Animações bounce-in nos cards + confete ao liberar presente
 
 ---
 
