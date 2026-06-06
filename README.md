@@ -315,4 +315,14 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 
 **Desenvolvido com ❤️ para casais especiais** 
 
-*Versão 1.0 - Junho 2026*
+---
+
+## 📜 Changelog
+
+### v1 — 06/06/2026
+- 🎁 **Múltiplos presentes por evento** — agora você pode adicionar quantos presentes quiser no mesmo evento
+- 🔢 **Contagem nos cards** — o calendário mostra quantos presentes cada um tem em cada evento
+- 🏷️ **Nome do evento nos cards** — presente exibe o nome do evento (ex: "💑 Dia dos Namorados") em vez de só o mês
+- ⚡ **Registrar Presente pré-selecionado** — clicar no botão no calendário já abre o modal com o evento correto
+
+*Versão 1.0 — Junho 2026*

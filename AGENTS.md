@@ -34,6 +34,26 @@
 
 ---
 
+## 📦 Fluxo de Git Push
+
+A partir de **06/06/2026**, todo ciclo de alteração segue este fluxo:
+
+1. Implementar as mudanças no código
+2. Atualizar `README.md` — adicionar entry no `## 📜 Changelog` com:
+   - `### v<N> — DD/MM/AAAA`
+   - Lista de bullet points com o que foi feito
+   - Atualizar o rodapé com `*Versão <N>.0 — Mês AAAA*`
+3. `git add -A`
+4. `git commit -m "v<N>: descricao resumida"`
+5. `git tag v<N>`
+6. `git push origin main --tags`
+7. Atualizar `AGENTS.md` com as novidades (se relevante)
+
+### Versão atual
+- **v1** — Múltiplos presentes por evento + contagem nos cards + nome do evento nos cards
+
+---
+
 ## 🎯 Propósito
 
 App de casal personalizado para gerenciar a dinâmica de presentes. Cada parceiro registra fotos de presentes associados a eventos (meses, datas especiais, eventos customizados). O presente do parceiro aparece **borrado** até ser "revelado".
