@@ -598,29 +598,39 @@ function applySplashConfig() {
     const customVideo = document.getElementById("customSplashVideo");
     if (!defaultSvg || !customGif || !customVideo) return;
     
-    const url = coupleConfig.splashGifUrl;
+    const urlString = coupleConfig.splashGifUrl;
     
-    if (url) {
-        const isVideo = url.toLowerCase().endsWith(".mp4") || url.toLowerCase().endsWith(".webm") || url.toLowerCase().endsWith(".mov");
-        if (isVideo) {
-            customVideo.src = url;
-            customVideo.classList.remove("hidden");
-            customGif.classList.add("hidden");
-            defaultSvg.classList.add("hidden");
-            customVideo.play().catch(e => console.log("Erro ao reproduzir vídeo de splash:", e));
-        } else {
-            customGif.src = url;
-            customGif.classList.remove("hidden");
-            customVideo.classList.add("hidden");
-            defaultSvg.classList.add("hidden");
+    if (urlString) {
+        // Separar caminhos por vírgula e selecionar um aleatoriamente
+        const items = urlString.split(',').map(item => item.trim()).filter(item => item);
+        if (items.length > 0) {
+            const selectedUrl = items[Math.floor(Math.random() * items.length)];
+            const isVideo = selectedUrl.toLowerCase().endsWith(".mp4") || 
+                            selectedUrl.toLowerCase().endsWith(".webm") || 
+                            selectedUrl.toLowerCase().endsWith(".mov");
+                            
+            if (isVideo) {
+                customVideo.src = selectedUrl;
+                customVideo.classList.remove("hidden");
+                customGif.classList.add("hidden");
+                defaultSvg.classList.add("hidden");
+                customVideo.play().catch(e => console.log("Erro ao reproduzir vídeo de splash:", e));
+            } else {
+                customGif.src = selectedUrl;
+                customGif.classList.remove("hidden");
+                customVideo.classList.add("hidden");
+                defaultSvg.classList.add("hidden");
+            }
+            return;
         }
-    } else {
-        customGif.src = "";
-        customVideo.src = "";
-        customGif.classList.add("hidden");
-        customVideo.classList.add("hidden");
-        defaultSvg.classList.remove("hidden");
     }
+    
+    // Fallback se estiver vazio ou com erro
+    customGif.src = "";
+    customVideo.src = "";
+    customGif.classList.add("hidden");
+    customVideo.classList.add("hidden");
+    defaultSvg.classList.remove("hidden");
 }
 
 function applyCoupleCover() {

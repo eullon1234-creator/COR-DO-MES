@@ -319,6 +319,9 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 
 ## 📜 Changelog
 
+### v6 — 06/06/2026
+- 📸 **Fotos Rotativas na Entrada** — Adicionado suporte para múltiplas imagens/GIFs na Splash Screen. É possível digitar caminhos separados por vírgula nas configurações (ex: `./eullon/foto1.jpg, ./eullon/foto2.jpg`) e o app escolherá uma aleatoriamente a cada abertura.
+
 ### v5 — 06/06/2026
 - 📹 **Suporte a Vídeo na Abertura** — Adicionado suporte para reprodução de vídeos (`.mp4`, `.webm`, `.mov`) em loop e silenciados na tela de abertura (Splash Screen)
 - 📂 **Arquivos Locais** — Possibilidade de usar arquivos salvos diretamente na pasta do app (ex: `./eullon/entrada.mp4`) informando o caminho nas configurações
@@ -343,4 +346,4 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 - 🏷️ **Nome do evento nos cards** — presente exibe o nome do evento (ex: "💑 Dia dos Namorados") em vez de só o mês
 - ⚡ **Registrar Presente pré-selecionado** — clicar no botão no calendário já abre o modal com o evento correto
 
-*Versão 5.0 — Junho 2026*
+*Versão 6.0 — Junho 2026*
