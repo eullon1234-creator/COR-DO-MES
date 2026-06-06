@@ -19,6 +19,11 @@
     <!-- FontAwesome para ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Google Fonts: Outfit (limpo/moderno) e Playfair Display (elegante/romântico) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+    
     <!-- Estilo customizado -->
     <style>
         * {
@@ -28,7 +33,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Outfit', sans-serif;
             background: linear-gradient(135deg, #f3e5f5 0%, #fce4ec 50%, #fff8e1 100%);
             min-height: 100vh;
             overflow-x: hidden;
@@ -362,16 +367,20 @@
             background: none;
             border: none;
             cursor: pointer;
-            font-weight: bold;
-            color: #999;
+            font-weight: 700;
+            color: #6b7280;
             border-bottom: 3px solid transparent;
             transition: all 0.3s ease;
             white-space: nowrap;
         }
 
+        .tab-btn:hover {
+            color: #4b5563;
+        }
+
         .tab-btn.active {
-            color: #b39ddb;
-            border-bottom-color: #b39ddb;
+            color: #7c3aed;
+            border-bottom-color: #7c3aed;
         }
 
         /* Toast notifications */
@@ -752,18 +761,18 @@
             </div>
 
             <!-- Painel do Casal ("Nosso Espaço") -->
-            <div id="coupleDashboard" class="mb-8 bg-white/20 backdrop-blur-md p-6 rounded-3xl border border-white/20 shadow-xl flex flex-col md:flex-row gap-6 items-center">
+            <div id="coupleDashboard" class="mb-8 bg-white/60 backdrop-blur-md p-6 rounded-3xl border border-purple-200/50 shadow-xl flex flex-col md:flex-row gap-6 items-center">
                 <!-- Polaroid de Foto do Casal -->
                 <div class="relative w-full md:w-64 flex-shrink-0 flex justify-center">
                     <div class="bg-white p-3 pb-6 rounded-xl shadow-lg border border-gray-200 transform -rotate-2 hover:rotate-0 transition duration-300 cursor-pointer max-w-[240px] w-full" onclick="openSettingsModal()">
-                        <div class="relative overflow-hidden rounded bg-gray-100 flex items-center justify-center aspect-[4/3] w-full">
+                        <div class="relative overflow-hidden rounded bg-gray-100 flex items-center justify-center aspect-[4/3] w-full border border-gray-150">
                             <img id="coupleCoverImg" src="" class="hidden w-full h-full object-cover" alt="Foto do Casal">
                             <div id="coupleCoverPlaceholder" class="flex flex-col items-center justify-center p-3 text-center text-gray-400">
-                                <i class="fas fa-camera text-3xl mb-1 text-purple-300"></i>
-                                <span class="text-xs font-semibold">Clique para colocar nossa foto 💝</span>
+                                <i class="fas fa-camera text-3xl mb-1 text-purple-400"></i>
+                                <span class="text-xs font-bold text-purple-700/60">Clique para colocar nossa foto 💝</span>
                             </div>
                         </div>
-                        <div class="text-center mt-3 font-semibold text-gray-700 text-sm tracking-wide">
+                        <div class="text-center mt-3 font-bold text-gray-700 text-sm tracking-wide">
                             Eullon & Ana Clara 💕
                         </div>
                     </div>
@@ -773,20 +782,20 @@
                 <div class="flex-1 text-center md:text-left flex flex-col justify-between h-full py-2">
                     <div>
                         <div class="flex items-center justify-center md:justify-start gap-3 flex-wrap">
-                            <h2 class="text-2xl font-bold text-white drop-shadow-md">Nosso Espaço 💙💗</h2>
-                            <button onclick="openSettingsModal()" class="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-1.5 px-3 rounded-full text-xs transition duration-300 flex items-center gap-1.5 border-none cursor-pointer">
+                            <h2 class="text-3xl font-extrabold text-purple-900 tracking-tight">Nosso Espaço 💙💗</h2>
+                            <button onclick="openSettingsModal()" class="text-purple-800 hover:text-purple-900 bg-purple-100/80 hover:bg-purple-200/90 border border-purple-200/60 p-1.5 px-4 rounded-full text-xs font-bold transition duration-300 flex items-center gap-1.5 cursor-pointer">
                                 <i class="fas fa-cog"></i> Personalizar
                             </button>
                         </div>
                         <!-- Contador de dias -->
-                        <div id="daysCounterContainer" class="mt-3 text-white">
-                            <span class="text-3xl font-extrabold tracking-tight drop-shadow" id="daysCounterValue">...</span>
-                            <span class="text-lg font-medium opacity-90 block md:inline md:ml-2">dias de puro amor! 🥰</span>
+                        <div id="daysCounterContainer" class="mt-3 text-purple-950 font-semibold">
+                            <span class="text-4xl font-black tracking-tight text-purple-900" id="daysCounterValue">...</span>
+                            <span class="text-lg opacity-90 block md:inline md:ml-1">dias de puro amor! 🥰</span>
                         </div>
                     </div>
                     <!-- Frase Romântica do Dia -->
-                    <div class="mt-4 p-3 bg-white/10 rounded-2xl border border-white/5 max-w-2xl">
-                        <p class="text-white italic text-xs md:text-sm" id="romanticQuote">
+                    <div class="mt-4 p-4 bg-purple-100/40 rounded-2xl border border-purple-200/30 max-w-2xl">
+                        <p class="text-purple-950 italic text-xs md:text-sm font-medium leading-relaxed" id="romanticQuote">
                             "O amor não consiste em olhar um para o outro, mas sim em olhar juntos na mesma direção."
                         </p>
                     </div>
@@ -815,7 +824,7 @@
             <!-- Conteúdo das Abas -->
             <div id="calendar" class="tab-content">
                 <div class="mb-6 flex justify-between items-center">
-                    <h2 class="text-2xl font-bold text-white">📅 Calendário do Casal</h2>
+                    <h2 class="text-2xl font-extrabold text-purple-900 tracking-tight flex items-center gap-2">📅 Calendário do Casal</h2>
                     <button id="newEventBtn" class="btn btn-success" onclick="openAddEventModal()">
                         <i class="fas fa-plus-circle"></i> Novo Evento
                     </button>
@@ -827,7 +836,7 @@
 
             <div id="my-gifts" class="tab-content hidden">
                 <div class="mb-6 flex justify-between items-center">
-                    <h2 class="text-2xl font-bold text-white">Meus Presentes Enviados</h2>
+                    <h2 class="text-2xl font-extrabold text-purple-900 tracking-tight flex items-center gap-2">🎁 Meus Presentes Enviados</h2>
                     <button id="newGiftBtn" class="btn btn-success" onclick="openAddGiftModal()">
                         <i class="fas fa-plus-circle"></i> Novo Presente
                     </button>
@@ -839,7 +848,7 @@
 
             <div id="partner-gifts" class="tab-content hidden">
                 <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-white">Presentes que Recebi 💖</h2>
+                    <h2 class="text-2xl font-extrabold text-purple-900 tracking-tight flex items-center gap-2">💖 Presentes que Recebi</h2>
                 </div>
                 <div id="partnerGiftsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Preenchido por JS -->
@@ -848,7 +857,7 @@
 
             <div id="wishlist" class="tab-content hidden">
                 <div class="mb-6 flex justify-between items-center">
-                    <h2 class="text-2xl font-bold text-white">✨ Sugestões de Presentes</h2>
+                    <h2 class="text-2xl font-extrabold text-purple-900 tracking-tight flex items-center gap-2">✨ Sugestões de Presentes</h2>
                     <button class="btn btn-success" onclick="openAddWishlistModal()">
                         <i class="fas fa-plus-circle"></i> Adicionar Sugestão
                     </button>
@@ -880,7 +889,7 @@
             <!-- Aba: Mural de Memórias -->
             <div id="memories" class="tab-content hidden">
                 <div class="mb-6 flex items-center gap-3">
-                    <h2 class="text-2xl font-bold text-white">📸 Mural de Memórias</h2>
+                    <h2 class="text-2xl font-extrabold text-purple-900 tracking-tight flex items-center gap-2">📸 Mural de Memórias</h2>
                 </div>
                 <div id="memoriesGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <!-- Preenchido por JS -->

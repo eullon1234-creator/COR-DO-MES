@@ -54,22 +54,22 @@ const MONTHS = [
 const REVEAL_MONTHS = [3, 6, 9, 12];
 
 const PREDEFINED_EVENTS = [
-    { id: 'month-1', name: 'Janeiro', date: '01/01', day: 1, month: 1, type: 'month', emoji: '🎆', color: '#ef9a9a', textColor: '#fff' },
-    { id: 'month-2', name: 'Fevereiro', date: '01/02', day: 1, month: 2, type: 'month', emoji: '💘', color: '#ffcc80', textColor: '#fff' },
-    { id: 'month-3', name: 'Março', date: '01/03', day: 1, month: 3, type: 'month', emoji: '🌷', color: '#fff59d', textColor: '#666' },
-    { id: 'month-4', name: 'Abril', date: '01/04', day: 1, month: 4, type: 'month', emoji: '🌱', color: '#a5d6a7', textColor: '#fff' },
-    { id: 'month-5', name: 'Maio', date: '01/05', day: 1, month: 5, type: 'month', emoji: '🌊', color: '#90caf9', textColor: '#fff' },
-    { id: 'month-6', name: 'Junho', date: '01/06', day: 1, month: 6, type: 'month', emoji: '👰', color: '#ce93d8', textColor: '#fff' },
-    { id: 'month-7', name: 'Julho', date: '01/07', day: 1, month: 7, type: 'month', emoji: '🎆', color: '#f48fb1', textColor: '#fff' },
-    { id: 'month-8', name: 'Agosto', date: '01/08', day: 1, month: 8, type: 'month', emoji: '🌾', color: '#bcaaa4', textColor: '#fff' },
-    { id: 'month-9', name: 'Setembro', date: '01/09', day: 1, month: 9, type: 'month', emoji: '🍂', color: '#e0e0e0', textColor: '#666' },
-    { id: 'month-10', name: 'Outubro', date: '01/10', day: 1, month: 10, type: 'month', emoji: '🎃', color: '#ffab91', textColor: '#fff' },
-    { id: 'month-11', name: 'Novembro', date: '01/11', day: 1, month: 11, type: 'month', emoji: '🦃', color: '#e6ee9c', textColor: '#666' },
-    { id: 'month-12', name: 'Dezembro', date: '01/12', day: 1, month: 12, type: 'month', emoji: '🎄', color: '#f5f5f5', textColor: '#666' },
-    { id: 'special-namorados', name: '💑 Dia dos Namorados', date: '12/06', day: 12, month: 6, type: 'special', emoji: '💑', color: '#f48fb1', textColor: '#fff' },
-    { id: 'special-eullon-bday', name: '🎂 Aniv. Eullon', date: '07/08', day: 7, month: 8, type: 'special', emoji: '🎂', color: '#90caf9', textColor: '#fff' },
-    { id: 'special-ana-bday', name: '🎂 Aniv. Ana Clara', date: '29/10', day: 29, month: 10, type: 'special', emoji: '🎂', color: '#ffcc80', textColor: '#fff' },
-    { id: 'special-namoro', name: '💕 Aniv. de Namoro', date: '21/07', day: 21, month: 7, type: 'special', emoji: '💍', color: '#ce93d8', textColor: '#fff' },
+    { id: 'month-1', name: 'Janeiro', date: '01/01', day: 1, month: 1, type: 'month', emoji: '🎆', color: '#ef9a9a', textColor: '#7f1d1d' },
+    { id: 'month-2', name: 'Fevereiro', date: '01/02', day: 1, month: 2, type: 'month', emoji: '💘', color: '#ffcc80', textColor: '#7c2d12' },
+    { id: 'month-3', name: 'Março', date: '01/03', day: 1, month: 3, type: 'month', emoji: '🌷', color: '#fff59d', textColor: '#78350f' },
+    { id: 'month-4', name: 'Abril', date: '01/04', day: 1, month: 4, type: 'month', emoji: '🌱', color: '#a5d6a7', textColor: '#064e3b' },
+    { id: 'month-5', name: 'Maio', date: '01/05', day: 1, month: 5, type: 'month', emoji: '🌊', color: '#90caf9', textColor: '#0c4a6e' },
+    { id: 'month-6', name: 'Junho', date: '01/06', day: 1, month: 6, type: 'month', emoji: '👰', color: '#ce93d8', textColor: '#4c1d95' },
+    { id: 'month-7', name: 'Julho', date: '01/07', day: 1, month: 7, type: 'month', emoji: '🎆', color: '#f48fb1', textColor: '#4c0519' },
+    { id: 'month-8', name: 'Agosto', date: '01/08', day: 1, month: 8, type: 'month', emoji: '🌾', color: '#bcaaa4', textColor: '#451a03' },
+    { id: 'month-9', name: 'Setembro', date: '01/09', day: 1, month: 9, type: 'month', emoji: '🍂', color: '#e0e0e0', textColor: '#1f2937' },
+    { id: 'month-10', name: 'Outubro', date: '01/10', day: 1, month: 10, type: 'month', emoji: '🎃', color: '#ffab91', textColor: '#7c2d12' },
+    { id: 'month-11', name: 'Novembro', date: '01/11', day: 1, month: 11, type: 'month', emoji: '🦃', color: '#e6ee9c', textColor: '#3f6212' },
+    { id: 'month-12', name: 'Dezembro', date: '01/12', day: 1, month: 12, type: 'month', emoji: '🎄', color: '#f5f5f5', textColor: '#1f2937' },
+    { id: 'special-namorados', name: 'Dia dos Namorados', date: '12/06', day: 12, month: 6, type: 'special', emoji: '💑', color: '#f48fb1', textColor: '#4c0519' },
+    { id: 'special-eullon-bday', name: 'Aniv. Eullon', date: '07/08', day: 7, month: 8, type: 'special', emoji: '🎂', color: '#90caf9', textColor: '#0c4a6e' },
+    { id: 'special-ana-bday', name: 'Aniv. Ana Clara', date: '29/10', day: 29, month: 10, type: 'special', emoji: '🎂', color: '#ffcc80', textColor: '#7c2d12' },
+    { id: 'special-namoro', name: 'Aniv. de Namoro', date: '21/07', day: 21, month: 7, type: 'special', emoji: '💍', color: '#ce93d8', textColor: '#4c1d95' },
 ];
 
 // ============================================================================

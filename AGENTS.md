@@ -11,7 +11,8 @@
 - Tela de abertura (Splash Screen) romântica com GIF/coração pulsante e mensagem de carregamento.
 - Painel do Casal ("Nosso Espaço") com foto do casal estilo polaroid, frase romântica do dia (que muda diariamente de forma sincronizada) e contador de dias de relacionamento.
 - Modal de Configurações do Casal para definir a música de fundo, GIF de abertura, foto de capa do casal e data de início do relacionamento, tudo sincronizado no Firestore na coleção `settings/couple_config`.
-- Atualização das rotinas de build e fluxo de versionamento PWA para v3.0.
+- Melhorias de visual e legibilidade: adição de Google Fonts (Outfit e Playfair Display) e aumento de contraste (letras escuras em títulos e cards do calendário).
+- Atualização das rotinas de build e fluxo de versionamento PWA para v4.0.
 
 ### Bugs corrigidos durante a sessão
 - `previewImage()` limpava previews de fotos existentes no modo edição — corrigido com `data-existing="true"`
@@ -46,7 +47,7 @@ A partir de **06/06/2026**, todo ciclo de alteração segue este fluxo:
 7. Atualizar `AGENTS.md` com as novidades (se relevante)
 
 ### Versão atual
-- **v3** — Música de fundo + Tela de abertura (Splash Screen) com GIF + Painel do Casal (Polaroid, contador de dias, frase do dia) + Modal de Configurações do Casal
+- **v4** — Melhorias de contraste e visual (Google Fonts, cores de alta visibilidade) + Música de fundo + Splash Screen com GIF + Painel do Casal + Configurações Compartilhadas
 
 ---
 

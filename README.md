@@ -319,6 +319,11 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 
 ## 📜 Changelog
 
+### v4 — 06/06/2026
+- 🎨 **Melhorias de Visual e Contraste** — Integração de fontes modernas do Google (Outfit e Playfair Display) e aumento do contraste de cores
+- 👁️ **Legibilidade de Textos** — Substituição de títulos claros por tons escuros de roxo, tornando todos os elementos muito mais visíveis sobre os gradientes pastéis
+- 📅 **Cards do Calendário Legíveis** — Substituição da cor branca das letras nos cards do calendário por tons escuros complementares, garantindo contraste total
+
 ### v3 — 06/06/2026
 - 🎵 **Música de fundo** — Adicionada música instrumental romântica (Nocturne de Chopin) em loop com botão flutuante interativo (vinil giratório) para ativar/desativar
 - ⏳ **Tela de abertura (Splash Screen)** — Nova tela de carregamento romântica com GIF/coração pulsante e mensagens especiais ao abrir o aplicativo
@@ -334,4 +339,4 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 - 🏷️ **Nome do evento nos cards** — presente exibe o nome do evento (ex: "💑 Dia dos Namorados") em vez de só o mês
 - ⚡ **Registrar Presente pré-selecionado** — clicar no botão no calendário já abre o modal com o evento correto
 
-*Versão 3.0 — Junho 2026*
+*Versão 4.0 — Junho 2026*
