@@ -640,7 +640,7 @@
 
     <!-- Splash Screen -->
     <div id="splashScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-br from-[#f3e5f5] via-[#fce4ec] to-[#fff8e1] transition-opacity duration-700">
-        <div class="text-center p-6">
+        <div class="text-center p-6 bg-white/45 backdrop-blur-md rounded-3xl border border-white/40 shadow-xl max-w-sm w-11/12 flex flex-col items-center justify-center">
             <div id="splashMediaContainer" class="mb-6 flex justify-center items-center">
                 <!-- SVG do Coração Pulsante Padrão -->
                 <svg id="defaultHeartSvg" class="w-32 h-32 text-pink-500 heart-pulse" viewBox="0 0 24 24" fill="currentColor">
@@ -648,9 +648,11 @@
                 </svg>
                 <!-- GIF Customizado (Injetado via JS se houver) -->
                 <img id="customSplashGif" class="hidden max-w-[200px] max-h-[200px] object-contain rounded-2xl shadow-md" src="" alt="Splash GIF">
+                <!-- Vídeo Customizado (Injetado via JS se houver) -->
+                <video id="customSplashVideo" class="hidden max-w-[220px] max-h-[220px] object-cover rounded-2xl shadow-md" autoplay loop muted playsinline></video>
             </div>
-            <h2 class="text-3xl font-extrabold text-purple-800 mb-2 tracking-wide drop-shadow-sm">Eullon & Ana Clara</h2>
-            <p id="splashMessage" class="text-gray-600 font-medium animate-pulse">Carregando o nosso amor...</p>
+            <h2 class="text-3xl font-extrabold text-purple-900 mb-2 tracking-wide drop-shadow-sm">Eullon & Ana Clara</h2>
+            <p id="splashMessage" class="text-purple-950 font-semibold animate-pulse">Carregando o nosso amor...</p>
         </div>
     </div>
 

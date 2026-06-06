@@ -319,6 +319,10 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 
 ## 📜 Changelog
 
+### v5 — 06/06/2026
+- 📹 **Suporte a Vídeo na Abertura** — Adicionado suporte para reprodução de vídeos (`.mp4`, `.webm`, `.mov`) em loop e silenciados na tela de abertura (Splash Screen)
+- 📂 **Arquivos Locais** — Possibilidade de usar arquivos salvos diretamente na pasta do app (ex: `./eullon/entrada.mp4`) informando o caminho nas configurações
+
 ### v4 — 06/06/2026
 - 🎨 **Melhorias de Visual e Contraste** — Integração de fontes modernas do Google (Outfit e Playfair Display) e aumento do contraste de cores
 - 👁️ **Legibilidade de Textos** — Substituição de títulos claros por tons escuros de roxo, tornando todos os elementos muito mais visíveis sobre os gradientes pastéis
@@ -339,4 +343,4 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 - 🏷️ **Nome do evento nos cards** — presente exibe o nome do evento (ex: "💑 Dia dos Namorados") em vez de só o mês
 - ⚡ **Registrar Presente pré-selecionado** — clicar no botão no calendário já abre o modal com o evento correto
 
-*Versão 4.0 — Junho 2026*
+*Versão 5.0 — Junho 2026*

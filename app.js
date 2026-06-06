@@ -595,15 +595,30 @@ async function loadCoupleConfig() {
 function applySplashConfig() {
     const defaultSvg = document.getElementById("defaultHeartSvg");
     const customGif = document.getElementById("customSplashGif");
-    if (!defaultSvg || !customGif) return;
+    const customVideo = document.getElementById("customSplashVideo");
+    if (!defaultSvg || !customGif || !customVideo) return;
     
-    if (coupleConfig.splashGifUrl) {
-        customGif.src = coupleConfig.splashGifUrl;
-        customGif.classList.remove("hidden");
-        defaultSvg.classList.add("hidden");
+    const url = coupleConfig.splashGifUrl;
+    
+    if (url) {
+        const isVideo = url.toLowerCase().endsWith(".mp4") || url.toLowerCase().endsWith(".webm") || url.toLowerCase().endsWith(".mov");
+        if (isVideo) {
+            customVideo.src = url;
+            customVideo.classList.remove("hidden");
+            customGif.classList.add("hidden");
+            defaultSvg.classList.add("hidden");
+            customVideo.play().catch(e => console.log("Erro ao reproduzir vídeo de splash:", e));
+        } else {
+            customGif.src = url;
+            customGif.classList.remove("hidden");
+            customVideo.classList.add("hidden");
+            defaultSvg.classList.add("hidden");
+        }
     } else {
         customGif.src = "";
+        customVideo.src = "";
         customGif.classList.add("hidden");
+        customVideo.classList.add("hidden");
         defaultSvg.classList.remove("hidden");
     }
 }
