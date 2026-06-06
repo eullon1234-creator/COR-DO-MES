@@ -536,6 +536,84 @@
             font-size: 12px;
             font-weight: bold;
         }
+
+        /* Profile photos */
+        .profile-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.6);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+        }
+        .profile-avatar-sm {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+        .profile-avatar-lg {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.7);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+        }
+        .profile-avatar-placeholder {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .avatar-upload-btn {
+            position: relative;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+        .avatar-upload-btn:hover {
+            opacity: 0.8;
+        }
+        .avatar-upload-btn input[type="file"]:not(.hidden) {
+            position: absolute;
+            left: -9999px;
+        }
+        .avatar-upload-overlay {
+            position: absolute;
+            bottom: -2px;
+            right: -4px;
+            width: 22px;
+            height: 22px;
+            background: #b39ddb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: white;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        /* Header with profile photos */
+        .header-photos {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-title-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
     </style>
 </head>
 <body>
@@ -582,11 +660,25 @@
     <div id="mainScreen" class="hidden w-full min-h-screen pb-10">
         <!-- Header -->
         <div class="header">
-            <div class="max-w-6xl mx-auto px-4 flex items-center justify-between gap-4">
-                <div class="w-10 h-10 md:block hidden"></div> <!-- Spacer to keep title centered -->
-                <div class="text-center flex-1">
-                    <h1 class="text-2xl md:text-3xl font-bold">💝 Eullon & Ana Clara 💝</h1>
+            <div class="max-w-6xl mx-auto px-4 flex items-center justify-between gap-3">
+                <div class="header-photos">
+                    <div class="avatar-upload-btn relative" onclick="document.getElementById('myPhotoInput').click()">
+                        <img id="headerMyPhotoImg" src="" class="profile-avatar-sm hidden" alt="Minha foto">
+                        <div id="headerMyPhotoPlaceholder" class="profile-avatar-placeholder">💙</div>
+                        <div class="avatar-upload-overlay"><i class="fas fa-camera"></i></div>
+                    </div>
+                    <input type="file" id="myPhotoInput" accept="image/*" class="hidden" onchange="uploadProfilePhoto(this.files[0], 'my')">
+                </div>
+                <div class="header-title-area">
+                    <h1 class="text-xl md:text-2xl font-bold">💝 Eullon & Ana Clara 💝</h1>
                     <p class="header-subtitle text-xs md:text-sm opacity-90">Mês de {{ monthName }} • {{ yearDisplay }}</p>
+                </div>
+                <div class="header-photos justify-end">
+                    <div class="avatar-upload-btn relative" onclick="if(partnerUser){document.getElementById('partnerPhotoInput').click()}">
+                        <img id="headerPartnerPhotoImg" src="" class="profile-avatar-sm hidden" alt="Foto do parceiro">
+                        <div id="headerPartnerPhotoPlaceholder" class="profile-avatar-placeholder">💗</div>
+                    </div>
+                    <input type="file" id="partnerPhotoInput" accept="image/*" class="hidden" onchange="uploadProfilePhoto(this.files[0], 'partner')">
                 </div>
                 <button 
                     id="pwaInstallBtn" 
@@ -603,14 +695,21 @@
             <div class="user-info">
                 <div class="flex gap-4 flex-wrap">
                     <div class="user-profile" onclick="toggleViewMode('my-profile')">
-                        <i class="fas fa-user-circle text-2xl"></i>
+                        <img id="userProfileAvatar" src="" class="profile-avatar hidden" alt="Minha foto">
+                        <i id="userProfileIcon" class="fas fa-user-circle text-2xl"></i>
                         <div>
                             <div class="text-sm">Você está em</div>
-                            <div id="currentUserName" class="font-bold">Meu Perfil</div>
+                            <div class="font-bold flex items-center gap-2">
+                                <span id="currentUserName">Meu Perfil</span>
+                                <button id="changeMyPhotoBtn" class="text-xs text-purple-300 hover:text-white transition cursor-pointer bg-transparent border-none" onclick="document.getElementById('myPhotoInput').click()">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="user-profile" onclick="toggleViewMode('partner-profile')">
-                        <i class="fas fa-heart text-2xl text-red-300"></i>
+                        <img id="partnerProfileAvatar" src="" class="profile-avatar hidden" alt="Foto do parceiro">
+                        <i id="partnerProfileIcon" class="fas fa-heart text-2xl text-red-300"></i>
                         <div>
                             <div class="text-sm">Ver o(a)</div>
                             <div id="partnerUserName" class="font-bold">Perfil do(a) Parceiro(a)</div>

@@ -327,6 +327,7 @@ async function loadUserData() {
 
         let userData = userDoc.data();
         document.getElementById("currentUserName").textContent = userData.name;
+        currentUser.photo_url = userData.photo_url || null;
 
         // Descobrir parceiro pelo ID fixo
         const partnerId = currentUser.id === "eullon" ? "ana_clara" : "eullon";
@@ -362,6 +363,7 @@ async function loadUserData() {
             loadWishlist()
         ]);
 
+        updateProfilePhotos();
         renderMyGiftsGrid();
         renderPartnerGiftsGrid();
         renderCalendarGrid();
@@ -370,6 +372,103 @@ async function loadUserData() {
     } catch (error) {
         console.error("Erro ao carregar dados do usuário:", error);
         showToast("Erro ao carregar dados", "error");
+    }
+}
+
+// ============================================================================
+// 📸 FOTOS DE PERFIL
+// ============================================================================
+
+function updateProfilePhotos() {
+    const myPhotoUrl = currentUser.photo_url;
+
+    const myHeaderImg = document.getElementById("headerMyPhotoImg");
+    const myHeaderPlaceholder = document.getElementById("headerMyPhotoPlaceholder");
+    const userAvatar = document.getElementById("userProfileAvatar");
+    const userIcon = document.getElementById("userProfileIcon");
+
+    if (myPhotoUrl) {
+        myHeaderImg.src = myPhotoUrl;
+        myHeaderImg.classList.remove("hidden");
+        myHeaderPlaceholder.classList.add("hidden");
+        userAvatar.src = myPhotoUrl;
+        userAvatar.classList.remove("hidden");
+        userIcon.classList.add("hidden");
+    } else {
+        myHeaderImg.classList.add("hidden");
+        myHeaderPlaceholder.classList.remove("hidden");
+        userAvatar.classList.add("hidden");
+        userIcon.classList.remove("hidden");
+    }
+
+    const partnerHeaderImg = document.getElementById("headerPartnerPhotoImg");
+    const partnerHeaderPlaceholder = document.getElementById("headerPartnerPhotoPlaceholder");
+    const partnerAvatar = document.getElementById("partnerProfileAvatar");
+    const partnerIcon = document.getElementById("partnerProfileIcon");
+
+    if (partnerUser && partnerUser.photo_url) {
+        partnerHeaderImg.src = partnerUser.photo_url;
+        partnerHeaderImg.classList.remove("hidden");
+        partnerHeaderPlaceholder.classList.add("hidden");
+        partnerAvatar.src = partnerUser.photo_url;
+        partnerAvatar.classList.remove("hidden");
+        partnerIcon.classList.add("hidden");
+    } else {
+        partnerHeaderImg.classList.add("hidden");
+        partnerHeaderPlaceholder.classList.remove("hidden");
+        partnerAvatar.classList.add("hidden");
+        partnerIcon.classList.remove("hidden");
+    }
+}
+
+    // User profile area - minha foto
+    const userAvatar = document.getElementById("userProfileAvatar");
+    const userIcon = document.getElementById("userProfileIcon");
+    if (myPhotoUrl) {
+        userAvatar.src = myPhotoUrl;
+        userAvatar.classList.remove("hidden");
+        userIcon.classList.add("hidden");
+    } else {
+        userAvatar.classList.add("hidden");
+        userIcon.classList.remove("hidden");
+    }
+
+    // User profile area - foto do parceiro
+    const partnerAvatar = document.getElementById("partnerProfileAvatar");
+    const partnerIcon = document.getElementById("partnerProfileIcon");
+    if (partnerUser && partnerUser.photo_url) {
+        partnerAvatar.src = partnerUser.photo_url;
+        partnerAvatar.classList.remove("hidden");
+        partnerIcon.classList.add("hidden");
+    } else {
+        partnerAvatar.classList.add("hidden");
+        partnerIcon.classList.remove("hidden");
+    }
+}
+
+async function uploadProfilePhoto(file, type) {
+    if (!file) return;
+    const userId = type === "my" ? currentUser.id : (partnerUser ? partnerUser.id : null);
+    if (!userId) {
+        showToast("Parceiro não vinculado", "error");
+        return;
+    }
+
+    try {
+        const url = await uploadToImgBB(file);
+        await db.collection("users").doc(userId).update({ photo_url: url });
+
+        if (type === "my") {
+            currentUser.photo_url = url;
+        } else if (partnerUser) {
+            partnerUser.photo_url = url;
+        }
+
+        updateProfilePhotos();
+        showToast("Foto atualizada! 📸", "success");
+    } catch (error) {
+        console.error("Erro ao enviar foto:", error);
+        showToast("Erro ao enviar foto", "error");
     }
 }
 

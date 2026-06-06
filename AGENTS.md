@@ -27,7 +27,7 @@ App de casal personalizado para gerenciar a dinâmica de presentes. Cada parceir
 
 ### `users` / `{docId}` (IDs fixos: `"eullon"` / `"ana_clara"`)
 ```
-email (opcional), accountType ("husband"|"wife"), name, createdAt, partnerUid, passwordHash
+email (opcional), accountType ("husband"|"wife"), name, createdAt, partnerUid, passwordHash, photo_url
 ```
 - Nomes: `"💙 Eullon"` / `"💗 Ana Clara"`
 
@@ -176,6 +176,9 @@ Visualização em tela cheia: `openFullscreenImage(url)` — abre modal escuro c
 - [x] Tema pastel (gradientes suaves, cores pastel nos meses e botões)
 - [x] Emojis maiores nos cards de evento/presente
 - [x] Animações bounce-in nos cards + confete ao liberar presente
+- [x] Foto de perfil (upload ImgBB, armazenada em `photo_url` no Firestore)
+- [x] Fotos de perfil exibidas no header e na área de usuário
+- [x] Botão de câmera no avatar para alterar foto
 
 ---
 
