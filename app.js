@@ -516,7 +516,7 @@ async function syncOrphanGifts() {
     }
 }
 
-function openAddGiftModal(giftData = null) {
+function openAddGiftModal(giftData = null, preSelectEventId = null) {
     // Limpar formulário
     document.getElementById("giftForm").reset();
     document.getElementById("fileName").textContent = "";
@@ -566,8 +566,16 @@ function openAddGiftModal(giftData = null) {
         fileInput.setAttribute("required", "");
     }
 
+    if (preSelectEventId) {
+        document.getElementById("giftEvent").value = preSelectEventId;
+    }
+
     // Mostrar modal
     document.getElementById("addGiftModal").classList.add("active");
+}
+
+function openAddGiftModalForEvent(eventId) {
+    openAddGiftModal(null, eventId);
 }
 
 async function handleFetchProduct() {
@@ -657,15 +665,6 @@ async function handleAddGift(event) {
     if (!editingId) {
         if (imageFiles.length === 0) {
             showToast("Selecione ao menos uma foto", "error");
-            return;
-        }
-        const jaExiste = allGifts.find(g =>
-            g.eventId === eventId &&
-            g.year === new Date().getFullYear() &&
-            g.giver_uid === currentUser.id
-        );
-        if (jaExiste) {
-            showToast("Você já registrou um presente para este evento!", "error");
             return;
         }
     }
@@ -926,13 +925,21 @@ function getAllEvents() {
     return events;
 }
 
-function findGiftForEvent(event, giverUid) {
-    return allGifts.find(g => {
+function findGiftsForEvent(event, giverUid) {
+    return allGifts.filter(g => {
         if (g.giver_uid !== giverUid) return false;
         if (g.eventId) return g.eventId === event.id;
         if (g.month && event.type === 'month') return g.month === event.month;
         return false;
     });
+}
+
+function getEventForGift(gift) {
+    if (!gift) return null;
+    const events = getAllEvents();
+    if (gift.eventId) return events.find(e => e.id === gift.eventId) || null;
+    if (gift.month) return events.find(e => e.type === 'month' && e.month === gift.month) || null;
+    return null;
 }
 
 function renderMemories() {
@@ -1021,8 +1028,10 @@ function renderCalendarGrid() {
     }
 
     events.forEach((event, index) => {
-        const myGift = findGiftForEvent(event, currentUser.id);
-        const partnerGift = findGiftForEvent(event, partnerUser.id);
+        const myGifts = findGiftsForEvent(event, currentUser.id);
+        const partnerGifts = findGiftsForEvent(event, partnerUser.id);
+        const myGiftCount = myGifts.length;
+        const partnerGiftCount = partnerGifts.length;
 
         const card = document.createElement("div");
         card.className = `month-card bounce-in stagger-${Math.min(index + 1, 5)}`;
@@ -1041,28 +1050,58 @@ function renderCalendarGrid() {
             dayCounterText = `<span class="day-counter">📅 Daqui ${daysUntil} dias</span>`;
         }
 
-        const mySection = myGift
-            ? `<div class="flex items-center gap-2 mt-1">
-                <span class="text-sm">🎁 ${myGift.product_name}</span>
-               </div>`
-            : `<button onclick="event.stopPropagation(); openAddGiftModal()" class="btn btn-secondary text-xs py-1 px-2 mt-1">
+        // Seção "Meu presente"
+        let mySection = '';
+        if (myGiftCount === 0) {
+            mySection = `<button onclick="event.stopPropagation(); openAddGiftModalForEvent('${event.id}')" class="btn btn-secondary text-xs py-1 px-2 mt-1">
                 <i class="fas fa-gift"></i> Registrar Presente
                </button>`;
+        } else if (myGiftCount === 1) {
+            const g = myGifts[0];
+            mySection = `<div class="flex items-center gap-2 mt-1">
+                <span class="text-sm">🎁 ${g.product_name}</span>
+               </div>`;
+        } else {
+            mySection = `<div class="mt-1">
+                <span class="text-sm font-semibold">🎁 ${myGiftCount} presentes:</span>
+                ${myGifts.map(g => `<div class="text-xs ml-2">• ${g.product_name}</div>`).join('')}
+               </div>`;
+        }
 
-        const partnerImages = partnerGift ? getGiftImages(partnerGift) : [];
-        const partnerThumb = partnerImages.length > 0
-            ? `<img src="${partnerImages[0]}" alt="Presente" class="w-16 h-16 rounded object-cover ${!partnerGift.revealed_at ? 'gift-blur' : ''}">`
-            : '';
-        const partnerSection = partnerGift
-            ? `<div class="flex items-center gap-2 mt-1">
+        // Seção "Presente do(a) parceiro(a)"
+        let partnerSection = '';
+        if (partnerGiftCount === 0) {
+            partnerSection = `<div class="text-xs opacity-70 mt-1">⏳ Ainda não enviado</div>`;
+        } else if (partnerGiftCount === 1) {
+            const g = partnerGifts[0];
+            const partnerImages = getGiftImages(g);
+            const partnerThumb = partnerImages.length > 0
+                ? `<img src="${partnerImages[0]}" alt="Presente" class="w-16 h-16 rounded object-cover ${!g.revealed_at ? 'gift-blur' : ''}">`
+                : '';
+            partnerSection = `<div class="flex items-center gap-2 mt-1">
                 ${partnerThumb}
                 <div>
-                    <span class="text-sm">${partnerGift.revealed_at ? partnerGift.product_name : '*****'}</span>
+                    <span class="text-sm">${g.revealed_at ? g.product_name : '*****'}</span>
                     ${partnerImages.length > 1 ? `<span class="text-xs opacity-70">+${partnerImages.length - 1} fotos</span>` : ''}
                 </div>
-                ${!partnerGift.revealed_at ? `<span class="text-xs text-gray-500">⏳ Aguardando liberação</span>` : ''}
-               </div>`
-            : `<div class="text-xs opacity-70 mt-1">⏳ Ainda não enviado</div>`;
+                ${!g.revealed_at ? `<span class="text-xs text-gray-500">⏳ Aguardando liberação</span>` : ''}
+               </div>`;
+        } else {
+            const allRevealed = partnerGifts.every(g => g.revealed_at);
+            const firstGift = partnerGifts[0];
+            const firstImages = getGiftImages(firstGift);
+            const partnerThumb = firstImages.length > 0
+                ? `<img src="${firstImages[0]}" alt="Presente" class="w-16 h-16 rounded object-cover ${!firstGift.revealed_at ? 'gift-blur' : ''}">`
+                : '';
+            partnerSection = `<div class="flex items-center gap-2 mt-1">
+                ${partnerThumb}
+                <div>
+                    <span class="text-sm">${allRevealed ? partnerGifts.map(g => g.product_name).join(', ') : '*****'}</span>
+                    <span class="text-xs opacity-70 block">🎁 ${partnerGiftCount} presentes</span>
+                </div>
+                ${!allRevealed ? `<span class="text-xs text-gray-500">⏳ Aguardando liberação</span>` : ''}
+               </div>`;
+        }
 
         card.innerHTML = `
             <div>
@@ -1072,9 +1111,9 @@ function renderCalendarGrid() {
                 <div class="mt-1">${dayCounterText}</div>
             </div>
             <div class="mt-2 text-xs border-t border-white/20 pt-2">
-                <div class="font-semibold">💙 Meu presente:</div>
+                <div class="font-semibold">💙 Meu presente${myGiftCount > 1 ? ' (' + myGiftCount + ')' : ''}:</div>
                 ${mySection}
-                <div class="font-semibold mt-2">💗 Presente do(a) parceiro(a):</div>
+                <div class="font-semibold mt-2">💗 Presente do(a) parceiro(a)${partnerGiftCount > 1 ? ' (' + partnerGiftCount + ')' : ''}:</div>
                 ${partnerSection}
             </div>
         `;
@@ -1086,6 +1125,9 @@ function renderCalendarGrid() {
 function createGiftCard(gift, month, type) {
     const isRevealed = gift.revealed_at !== null;
     const hasMemory = getMemoryImages(gift).length > 0;
+    const eventInfo = getEventForGift(gift);
+    const displayEmoji = eventInfo ? eventInfo.emoji : month.emoji;
+    const displayName = eventInfo ? eventInfo.name : month.name;
 
     let cardHTML = document.createElement("div");
     cardHTML.className = `month-card has-gift bounce-in stagger-${Math.floor(Math.random() * 5) + 1}`;
@@ -1109,8 +1151,8 @@ function createGiftCard(gift, month, type) {
     if (type === "my") {
         cardHTML.innerHTML = `
             <div>
-                <div class="event-emoji">${month.emoji}</div>
-                <h3 class="text-lg font-bold">${month.name}</h3>
+                <div class="event-emoji">${displayEmoji}</div>
+                <h3 class="text-lg font-bold">${displayName}</h3>
                 <p class="text-sm opacity-90">${gift.product_name}</p>
             </div>
             <div class="flex justify-between items-center">
@@ -1126,8 +1168,8 @@ function createGiftCard(gift, month, type) {
         
         cardHTML.innerHTML = `
             <div>
-                <div class="event-emoji">${month.emoji}</div>
-                <h3 class="text-lg font-bold">${month.name}</h3>
+                <div class="event-emoji">${displayEmoji}</div>
+                <h3 class="text-lg font-bold">${displayName}</h3>
                 <p class="text-sm opacity-90 ${!isRevealed ? 'gift-name-hidden' : ''}">${productName}</p>
             </div>
             <div class="flex justify-between items-center">
@@ -1159,6 +1201,11 @@ function viewMyGift(giftId) {
 
     currentGiftBeingViewed = gift;
     const month = MONTHS[gift.month - 1];
+    const eventInfo = getEventForGift(gift);
+    const displayEmoji = eventInfo ? eventInfo.emoji : month.emoji;
+    const displayName = eventInfo ? eventInfo.name : month.name;
+    const displayColor = eventInfo ? eventInfo.color : month.color;
+    const displayTextColor = eventInfo ? eventInfo.textColor : month.textColor;
 
     const content = document.getElementById("viewMyGiftContent");
     const isRevealed = gift.revealed_at !== null;
@@ -1186,9 +1233,9 @@ function viewMyGift(giftId) {
             : ``);
 
     let html = `
-        <div style="background-color: ${month.color}; padding: 20px; border-radius: 10px; color: ${month.textColor}; margin-bottom: 20px; text-align: center;">
-            <div style="font-size: 50px; margin-bottom: 10px;">${month.emoji}</div>
-            <h3 class="text-2xl font-bold">${month.name}</h3>
+        <div style="background-color: ${displayColor}; padding: 20px; border-radius: 10px; color: ${displayTextColor}; margin-bottom: 20px; text-align: center;">
+            <div style="font-size: 50px; margin-bottom: 10px;">${displayEmoji}</div>
+            <h3 class="text-2xl font-bold">${displayName}</h3>
         </div>
 
         <div class="mb-4">
@@ -1240,7 +1287,7 @@ function viewMyGift(giftId) {
     `;
 
     content.innerHTML = html;
-    document.getElementById("viewMyGiftTitle").textContent = `${month.name} - Meu Presente`;
+    document.getElementById("viewMyGiftTitle").textContent = `${displayName} - Meu Presente`;
     document.getElementById("viewMyGiftModal").classList.add("active");
 }
 
@@ -1250,6 +1297,11 @@ function viewPartnerGift(giftId) {
 
     currentGiftBeingViewed = gift;
     const month = MONTHS[gift.month - 1];
+    const eventInfo = getEventForGift(gift);
+    const displayEmoji = eventInfo ? eventInfo.emoji : month.emoji;
+    const displayName = eventInfo ? eventInfo.name : month.name;
+    const displayColor = eventInfo ? eventInfo.color : month.color;
+    const displayTextColor = eventInfo ? eventInfo.textColor : month.textColor;
 
     const content = document.getElementById("viewPartnerGiftContent");
     const isRevealed = gift.revealed_at !== null;
@@ -1274,9 +1326,9 @@ function viewPartnerGift(giftId) {
         : '';
 
     let html = `
-        <div style="background-color: ${month.color}; padding: 20px; border-radius: 10px; color: ${month.textColor}; margin-bottom: 20px; text-align: center;">
-            <div style="font-size: 50px; margin-bottom: 10px;">${month.emoji}</div>
-            <h3 class="text-2xl font-bold">${month.name}</h3>
+        <div style="background-color: ${displayColor}; padding: 20px; border-radius: 10px; color: ${displayTextColor}; margin-bottom: 20px; text-align: center;">
+            <div style="font-size: 50px; margin-bottom: 10px;">${displayEmoji}</div>
+            <h3 class="text-2xl font-bold">${displayName}</h3>
         </div>
 
         <div class="mb-4">
@@ -1318,7 +1370,7 @@ function viewPartnerGift(giftId) {
     `;
 
     content.innerHTML = html;
-    document.getElementById("viewPartnerGiftTitle").textContent = `${month.name} - Presente de ${partnerUser.name}`;
+    document.getElementById("viewPartnerGiftTitle").textContent = `${displayName} - Presente de ${partnerUser.name}`;
     document.getElementById("viewPartnerGiftModal").classList.add("active");
 }
 

@@ -203,6 +203,10 @@ Foto de perfil: `uploadProfilePhoto(file, type)` — faz upload para ImgBB e sal
 - [x] Tema pastel (gradientes suaves, cores pastel nos meses e botões)
 - [x] Emojis maiores nos cards de evento/presente
 - [x] Animações bounce-in nos cards + confete ao liberar presente
+- [x] Múltiplos presentes por evento (sem limite de 1 por evento)
+- [x] Contagem de presentes exibida no card do calendário
+- [x] Botão "Registrar Presente" no calendário já pré-seleciona o evento (`openAddGiftModalForEvent`)
+- [x] Nome do evento (não só mês) nos cards de presente e modais de visualização
 - [x] Foto de perfil (upload ImgBB, armazenada em `photo_url` no Firestore)
 - [x] Fotos de perfil exibidas no header e na área de usuário
 - [x] Botão de câmera no avatar para alterar foto
