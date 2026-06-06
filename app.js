@@ -86,6 +86,29 @@ let deferredPrompt = null; // Para instalação do PWA
 let loadedEvents = [];
 let loadedWishlist = [];
 
+// Configurações do Casal (Música, GIF, Capa e Data de Início)
+let coupleConfig = {
+    anniversaryDate: "2025-07-21",
+    musicUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e5/Chopin_Nocturne_No._2_in_E_Flat_Major%2C_Op._9.ogg",
+    splashGifUrl: "",
+    coverUrl: ""
+};
+let isMusicPlaying = false;
+let hasInteractedForMusic = false;
+
+const ROMANTIC_QUOTES = [
+    "O amor não consiste em olhar um para o outro, mas sim em olhar juntos na mesma direção.",
+    "Você é a cor mais bonita de todos os meus meses. 💙💗",
+    "Amar não é apenas dizer 'eu te amo', é provar isso todos os dias nos pequenos gestos.",
+    "O melhor lugar do mundo é sempre dentro do seu abraço.",
+    "Que o nosso amor continue sendo nossa maior e mais bonita aventura.",
+    "A vida é muito mais bonita desde que você chegou para colorir ela.",
+    "Com você, cada detalhe do dia a dia vira um momento especial.",
+    "Cada dia ao seu lado é uma nova página da nossa linda história de amor.",
+    "Você é o meu hoje e todos os meus amanhãs.",
+    "Nosso amor é feito de pequenos instantes que se tornam eternos."
+];
+
 // ============================================================================
 // 🔐 HASH DE SENHA (SHA-256 via Web Crypto)
 // ============================================================================
@@ -267,6 +290,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const savedUserId = localStorage.getItem("corDoMes_userId");
     if (savedUserId && FIXED_USERS[savedUserId]) {
         completeLogin(savedUserId);
+    } else {
+        showLoginScreen();
+        hideSplashScreen();
     }
 
     // Event listeners de login
@@ -290,6 +316,13 @@ document.addEventListener("DOMContentLoaded", () => {
     populateMonthSelects();
     populateEventDaySelect();
     updateHeaderDate();
+
+    // Música de fundo - iniciar ao interagir com a tela
+    document.addEventListener("click", initAutoplayMusic);
+    document.addEventListener("touchstart", initAutoplayMusic);
+    
+    // Atualizar estado inicial do botão de música se o localStorage já indicar habilitado
+    updateMusicToggleButton();
 });
 
 // ============================================================================
@@ -360,7 +393,8 @@ async function loadUserData() {
 
         await Promise.all([
             loadEvents(),
-            loadWishlist()
+            loadWishlist(),
+            loadCoupleConfig()
         ]);
 
         updateProfilePhotos();
@@ -368,10 +402,13 @@ async function loadUserData() {
         renderPartnerGiftsGrid();
         renderCalendarGrid();
         renderWishlist();
+        
+        hideSplashScreen();
 
     } catch (error) {
         console.error("Erro ao carregar dados do usuário:", error);
         showToast("Erro ao carregar dados", "error");
+        hideSplashScreen();
     }
 }
 
@@ -444,6 +481,276 @@ async function uploadProfilePhoto(file, type) {
     } catch (error) {
         console.error("Erro ao enviar foto:", error);
         showToast("Erro ao enviar foto", "error");
+    }
+}
+
+// ============================================================================
+// 🎵 MÚSICA, SPLASH SCREEN E CONFIGURAÇÕES DO CASAL
+// ============================================================================
+
+function initAutoplayMusic() {
+    if (hasInteractedForMusic) return;
+    const musicEnabled = localStorage.getItem("corDoMes_musicEnabled") !== "false";
+    if (musicEnabled) {
+        playMusic();
+    }
+    hasInteractedForMusic = true;
+    document.removeEventListener("click", initAutoplayMusic);
+    document.removeEventListener("touchstart", initAutoplayMusic);
+}
+
+function playMusic() {
+    const audio = document.getElementById("bgMusic");
+    if (!audio) return;
+    
+    const currentSrc = audio.src;
+    const targetSrc = coupleConfig.musicUrl || "https://upload.wikimedia.org/wikipedia/commons/e/e5/Chopin_Nocturne_No._2_in_E_Flat_Major%2C_Op._9.ogg";
+    if (!currentSrc || currentSrc !== targetSrc) {
+        audio.src = targetSrc;
+    }
+    
+    audio.play().then(() => {
+        isMusicPlaying = true;
+        localStorage.setItem("corDoMes_musicEnabled", "true");
+        updateMusicToggleButton();
+    }).catch(err => {
+        console.log("Autoplay bloqueado pelo navegador, aguardando interação.", err);
+    });
+}
+
+function pauseMusic() {
+    const audio = document.getElementById("bgMusic");
+    if (!audio) return;
+    audio.pause();
+    isMusicPlaying = false;
+    localStorage.setItem("corDoMes_musicEnabled", "false");
+    updateMusicToggleButton();
+}
+
+function togglePlayMusic() {
+    if (isMusicPlaying) {
+        pauseMusic();
+    } else {
+        playMusic();
+    }
+}
+
+function updateMusicToggleButton() {
+    const btn = document.getElementById("musicToggle");
+    const icon = document.getElementById("musicIcon");
+    if (!btn || !icon) return;
+    
+    if (isMusicPlaying) {
+        btn.classList.add("music-spin");
+        icon.className = "fas fa-compact-disc text-lg";
+        btn.title = "Pausar música";
+    } else {
+        btn.classList.remove("music-spin");
+        icon.className = "fas fa-music text-lg";
+        btn.title = "Tocar música";
+    }
+}
+
+function hideSplashScreen() {
+    const splash = document.getElementById("splashScreen");
+    if (splash) {
+        splash.style.opacity = "0";
+        setTimeout(() => {
+            splash.classList.add("hidden");
+        }, 700);
+    }
+}
+
+async function loadCoupleConfig() {
+    try {
+        const doc = await db.collection("settings").doc("couple_config").get();
+        if (doc.exists) {
+            coupleConfig = { ...coupleConfig, ...doc.data() };
+        } else {
+            await db.collection("settings").doc("couple_config").set(coupleConfig);
+        }
+        
+        applySplashConfig();
+        applyCoupleCover();
+        updateDaysCounter();
+        updateRomanticQuote();
+        
+        // Configurar música de fundo
+        const audio = document.getElementById("bgMusic");
+        if (audio) {
+            const targetSrc = coupleConfig.musicUrl || "https://upload.wikimedia.org/wikipedia/commons/e/e5/Chopin_Nocturne_No._2_in_E_Flat_Major%2C_Op._9.ogg";
+            if (audio.src !== targetSrc) {
+                audio.src = targetSrc;
+                if (isMusicPlaying) {
+                    audio.play();
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.error("Erro ao carregar configurações do casal:", error);
+    }
+}
+
+function applySplashConfig() {
+    const defaultSvg = document.getElementById("defaultHeartSvg");
+    const customGif = document.getElementById("customSplashGif");
+    if (!defaultSvg || !customGif) return;
+    
+    if (coupleConfig.splashGifUrl) {
+        customGif.src = coupleConfig.splashGifUrl;
+        customGif.classList.remove("hidden");
+        defaultSvg.classList.add("hidden");
+    } else {
+        customGif.src = "";
+        customGif.classList.add("hidden");
+        defaultSvg.classList.remove("hidden");
+    }
+}
+
+function applyCoupleCover() {
+    const img = document.getElementById("coupleCoverImg");
+    const placeholder = document.getElementById("coupleCoverPlaceholder");
+    if (!img || !placeholder) return;
+    
+    if (coupleConfig.coverUrl) {
+        img.src = coupleConfig.coverUrl;
+        img.classList.remove("hidden");
+        placeholder.classList.add("hidden");
+    } else {
+        img.src = "";
+        img.classList.add("hidden");
+        placeholder.classList.remove("hidden");
+    }
+}
+
+function updateDaysCounter() {
+    const el = document.getElementById("daysCounterValue");
+    if (!el) return;
+    
+    const startDateStr = coupleConfig.anniversaryDate || "2025-07-21";
+    const startDate = new Date(startDateStr + "T00:00:00");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const diffTime = today - startDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (isNaN(diffDays)) {
+        el.textContent = "...";
+    } else if (diffDays < 0) {
+        el.textContent = "Faltam " + Math.abs(diffDays);
+        const textSpan = document.querySelector("#daysCounterContainer span:last-child");
+        if (textSpan) textSpan.textContent = "dias para o início do nosso namoro! 💖";
+    } else {
+        el.textContent = diffDays;
+        const textSpan = document.querySelector("#daysCounterContainer span:last-child");
+        if (textSpan) textSpan.textContent = "dias de puro amor! 🥰";
+    }
+}
+
+function updateRomanticQuote() {
+    const el = document.getElementById("romanticQuote");
+    if (!el) return;
+    
+    const today = new Date();
+    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 1)) / (1000 * 60 * 60 * 24));
+    const index = dayOfYear % ROMANTIC_QUOTES.length;
+    el.textContent = `"${ROMANTIC_QUOTES[index]}"`;
+}
+
+function openSettingsModal() {
+    document.getElementById("settingsForm").reset();
+    document.getElementById("settingsCoverFileName").textContent = "";
+    document.getElementById("settingsCoverImagePreview").innerHTML = "";
+    
+    document.getElementById("settingsAnniversaryDate").value = coupleConfig.anniversaryDate || "2025-07-21";
+    document.getElementById("settingsMusicUrl").value = coupleConfig.musicUrl || "";
+    document.getElementById("settingsSplashGifUrl").value = coupleConfig.splashGifUrl || "";
+    
+    if (coupleConfig.coverUrl) {
+        const preview = document.getElementById("settingsCoverImagePreview");
+        const img = document.createElement("img");
+        img.src = coupleConfig.coverUrl;
+        img.className = "w-20 h-20 object-cover rounded-lg border border-purple-200";
+        img.title = "Capa Atual";
+        preview.appendChild(img);
+    }
+    
+    document.getElementById("settingsModal").classList.add("active");
+}
+
+function previewSettingsCoverImage() {
+    const file = document.getElementById("settingsCoupleCoverImage").files[0];
+    const container = document.getElementById("settingsCoverImagePreview");
+    const fileName = document.getElementById("settingsCoverFileName");
+    
+    container.innerHTML = "";
+    
+    if (file) {
+        fileName.textContent = file.name;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement("img");
+            img.src = e.target.result;
+            img.className = "w-20 h-20 object-cover rounded-lg border-2 border-purple-400";
+            container.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+async function handleSaveSettings(event) {
+    event.preventDefault();
+    
+    const anniversaryDate = document.getElementById("settingsAnniversaryDate").value;
+    const musicUrl = document.getElementById("settingsMusicUrl").value.trim();
+    const splashGifUrl = document.getElementById("settingsSplashGifUrl").value.trim();
+    const file = document.getElementById("settingsCoupleCoverImage").files[0];
+    
+    document.getElementById("settingsFormSpinner").classList.add("active");
+    
+    try {
+        let coverUrl = coupleConfig.coverUrl || "";
+        
+        if (file) {
+            coverUrl = await uploadToImgBB(file);
+        }
+        
+        const updatedConfig = {
+            anniversaryDate: anniversaryDate,
+            musicUrl: musicUrl,
+            splashGifUrl: splashGifUrl,
+            coverUrl: coverUrl
+        };
+        
+        await db.collection("settings").doc("couple_config").set(updatedConfig);
+        
+        coupleConfig = updatedConfig;
+        
+        applySplashConfig();
+        applyCoupleCover();
+        updateDaysCounter();
+        
+        const audio = document.getElementById("bgMusic");
+        if (audio) {
+            const targetSrc = coupleConfig.musicUrl || "https://upload.wikimedia.org/wikipedia/commons/e/e5/Chopin_Nocturne_No._2_in_E_Flat_Major%2C_Op._9.ogg";
+            if (audio.src !== targetSrc) {
+                audio.src = targetSrc;
+                if (isMusicPlaying) {
+                    audio.play();
+                }
+            }
+        }
+        
+        showToast("Configurações do casal salvas! 💖", "success");
+        closeModal("settingsModal");
+        
+    } catch (error) {
+        console.error("Erro ao salvar configurações do casal:", error);
+        showToast("Erro ao salvar configurações", "error");
+    } finally {
+        document.getElementById("settingsFormSpinner").classList.remove("active");
     }
 }
 

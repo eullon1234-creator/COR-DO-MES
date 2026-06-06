@@ -614,9 +614,37 @@
             align-items: center;
             flex: 1;
         }
+
+        /* Animação do Vinil de Música */
+        .music-spin {
+            animation: spin 3s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+    <!-- Áudio de Fundo -->
+    <audio id="bgMusic" loop preload="auto"></audio>
+
+    <!-- Splash Screen -->
+    <div id="splashScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-br from-[#f3e5f5] via-[#fce4ec] to-[#fff8e1] transition-opacity duration-700">
+        <div class="text-center p-6">
+            <div id="splashMediaContainer" class="mb-6 flex justify-center items-center">
+                <!-- SVG do Coração Pulsante Padrão -->
+                <svg id="defaultHeartSvg" class="w-32 h-32 text-pink-500 heart-pulse" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                <!-- GIF Customizado (Injetado via JS se houver) -->
+                <img id="customSplashGif" class="hidden max-w-[200px] max-h-[200px] object-contain rounded-2xl shadow-md" src="" alt="Splash GIF">
+            </div>
+            <h2 class="text-3xl font-extrabold text-purple-800 mb-2 tracking-wide drop-shadow-sm">Eullon & Ana Clara</h2>
+            <p id="splashMessage" class="text-gray-600 font-medium animate-pulse">Carregando o nosso amor...</p>
+        </div>
+    </div>
+
     <!-- Tela de Login -->
     <div id="loginScreen" class="w-full h-screen flex items-center justify-center">
         <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-11/12 text-center text-gray-800">
@@ -720,6 +748,48 @@
                     <button id="logoutBtn" class="btn btn-secondary">
                         <i class="fas fa-sign-out-alt"></i> Sair
                     </button>
+                </div>
+            </div>
+
+            <!-- Painel do Casal ("Nosso Espaço") -->
+            <div id="coupleDashboard" class="mb-8 bg-white/20 backdrop-blur-md p-6 rounded-3xl border border-white/20 shadow-xl flex flex-col md:flex-row gap-6 items-center">
+                <!-- Polaroid de Foto do Casal -->
+                <div class="relative w-full md:w-64 flex-shrink-0 flex justify-center">
+                    <div class="bg-white p-3 pb-6 rounded-xl shadow-lg border border-gray-200 transform -rotate-2 hover:rotate-0 transition duration-300 cursor-pointer max-w-[240px] w-full" onclick="openSettingsModal()">
+                        <div class="relative overflow-hidden rounded bg-gray-100 flex items-center justify-center aspect-[4/3] w-full">
+                            <img id="coupleCoverImg" src="" class="hidden w-full h-full object-cover" alt="Foto do Casal">
+                            <div id="coupleCoverPlaceholder" class="flex flex-col items-center justify-center p-3 text-center text-gray-400">
+                                <i class="fas fa-camera text-3xl mb-1 text-purple-300"></i>
+                                <span class="text-xs font-semibold">Clique para colocar nossa foto 💝</span>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3 font-semibold text-gray-700 text-sm tracking-wide">
+                            Eullon & Ana Clara 💕
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informações e Contador -->
+                <div class="flex-1 text-center md:text-left flex flex-col justify-between h-full py-2">
+                    <div>
+                        <div class="flex items-center justify-center md:justify-start gap-3 flex-wrap">
+                            <h2 class="text-2xl font-bold text-white drop-shadow-md">Nosso Espaço 💙💗</h2>
+                            <button onclick="openSettingsModal()" class="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-1.5 px-3 rounded-full text-xs transition duration-300 flex items-center gap-1.5 border-none cursor-pointer">
+                                <i class="fas fa-cog"></i> Personalizar
+                            </button>
+                        </div>
+                        <!-- Contador de dias -->
+                        <div id="daysCounterContainer" class="mt-3 text-white">
+                            <span class="text-3xl font-extrabold tracking-tight drop-shadow" id="daysCounterValue">...</span>
+                            <span class="text-lg font-medium opacity-90 block md:inline md:ml-2">dias de puro amor! 🥰</span>
+                        </div>
+                    </div>
+                    <!-- Frase Romântica do Dia -->
+                    <div class="mt-4 p-3 bg-white/10 rounded-2xl border border-white/5 max-w-2xl">
+                        <p class="text-white italic text-xs md:text-sm" id="romanticQuote">
+                            "O amor não consiste em olhar um para o outro, mas sim em olhar juntos na mesma direção."
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -1124,6 +1194,91 @@
             <button onclick="event.stopPropagation();closeModal('fullscreenModal')" style="position:absolute;top:20px;right:20px;font-size:32px;color:white;background:none;border:none;cursor:pointer;z-index:10;">
                 ✕
             </button>
+        </div>
+    </div>
+
+    <!-- Botão Flutuante de Música -->
+    <button id="musicToggle" class="fixed bottom-6 right-6 z-40 bg-white/80 backdrop-blur-md hover:bg-white text-purple-600 hover:text-purple-800 w-12 h-12 rounded-full flex items-center justify-center shadow-lg border border-purple-100 transition duration-300 cursor-pointer border-none" onclick="togglePlayMusic()">
+        <i id="musicIcon" class="fas fa-music text-lg"></i>
+    </button>
+
+    <!-- Modal: Configurações do Casal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">⚙️ Configurações do Casal</h2>
+                <button onclick="closeModal('settingsModal')" class="text-gray-500 hover:text-gray-700 text-2xl">
+                    ✕
+                </button>
+            </div>
+
+            <form id="settingsForm" onsubmit="handleSaveSettings(event)">
+                <!-- Foto de Capa do Casal -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-image"></i> Foto de Capa do Casal
+                    </label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="settingsCoupleCoverImage" accept="image/*" onchange="previewSettingsCoverImage()">
+                        <label for="settingsCoupleCoverImage" class="file-input-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Escolher Foto do Casal</span>
+                        </label>
+                    </div>
+                    <div id="settingsCoverFileName" class="file-name"></div>
+                    <div id="settingsCoverImagePreview" class="flex flex-wrap gap-2 mt-2"></div>
+                </div>
+
+                <!-- Data de Início do Relacionamento -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-calendar-alt"></i> Data de Início (Namoro)
+                    </label>
+                    <input 
+                        type="date" 
+                        id="settingsAnniversaryDate" 
+                        required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                </div>
+
+                <!-- URL da Música de Fundo -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-music"></i> Link da Música de Fundo (MP3/OGG)
+                    </label>
+                    <input 
+                        type="url" 
+                        id="settingsMusicUrl" 
+                        placeholder="Deixe em branco para o padrão (Chopin Piano)"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                </div>
+
+                <!-- URL do GIF da Tela de Abertura -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-heart"></i> Link do GIF da Splash Screen
+                    </label>
+                    <input 
+                        type="url" 
+                        id="settingsSplashGifUrl" 
+                        placeholder="Deixe em branco para o padrão (Coração Pulsante)"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="submit" class="btn btn-primary flex-1 justify-center">
+                        <i class="fas fa-save"></i> Salvar Configurações
+                    </button>
+                    <button type="button" onclick="closeModal('settingsModal')" class="btn btn-secondary flex-1 justify-center">
+                        Cancelar
+                    </button>
+                </div>
+                
+                <div id="settingsFormSpinner" class="spinner flex justify-center mt-4"></div>
+            </form>
         </div>
     </div>
 

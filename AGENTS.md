@@ -4,18 +4,14 @@
 
 ---
 
-## 🧠 Sessão Anterior (05/06)
+## 🧠 Sessão Anterior (06/06)
 
 ### O que foi feito
-- Tema pastel (gradientes suaves, cores pastel nos meses e botões)
-- Emojis maiores nos cards de evento/presente
-- Animações bounce-in nos cards + confete ao liberar presente
-- Contador de dias nos cards do calendário (`getDaysUntilEvent`)
-- Editar presente (reaproveita modal com dados preenchidos, campo oculto `editingGiftId`)
-- Mural de Memórias (aba 📸 Memórias com timeline de fotos de recordação)
-- Foto de perfil (upload ImgBB, armazenada em `photo_url` no Firestore)
-- Fotos de perfil exibidas no header e na área de usuário
-- Botão de câmera no avatar para alterar foto
+- Música de fundo (Nocturne de Chopin em loop) com botão flutuante interativo (vinil que gira ao tocar) e controle de ativação salvo no localStorage.
+- Tela de abertura (Splash Screen) romântica com GIF/coração pulsante e mensagem de carregamento.
+- Painel do Casal ("Nosso Espaço") com foto do casal estilo polaroid, frase romântica do dia (que muda diariamente de forma sincronizada) e contador de dias de relacionamento.
+- Modal de Configurações do Casal para definir a música de fundo, GIF de abertura, foto de capa do casal e data de início do relacionamento, tudo sincronizado no Firestore na coleção `settings/couple_config`.
+- Atualização das rotinas de build e fluxo de versionamento PWA para v3.0.
 
 ### Bugs corrigidos durante a sessão
 - `previewImage()` limpava previews de fotos existentes no modo edição — corrigido com `data-existing="true"`
@@ -50,7 +46,7 @@ A partir de **06/06/2026**, todo ciclo de alteração segue este fluxo:
 7. Atualizar `AGENTS.md` com as novidades (se relevante)
 
 ### Versão atual
-- **v1** — Múltiplos presentes por evento + contagem nos cards + nome do evento nos cards
+- **v3** — Música de fundo + Tela de abertura (Splash Screen) com GIF + Painel do Casal (Polaroid, contador de dias, frase do dia) + Modal de Configurações do Casal
 
 ---
 
@@ -230,6 +226,10 @@ Foto de perfil: `uploadProfilePhoto(file, type)` — faz upload para ImgBB e sal
 - [x] Foto de perfil (upload ImgBB, armazenada em `photo_url` no Firestore)
 - [x] Fotos de perfil exibidas no header e na área de usuário
 - [x] Botão de câmera no avatar para alterar foto
+- [x] Música de fundo com loop e botão de vinil rotativo para pausar/tocar
+- [x] Tela de abertura (Splash Screen) romântica com GIF animado de carregamento
+- [x] Painel do Casal ("Nosso Espaço") com polaroid, dias de relacionamento e frase do dia
+- [x] Configurações do Casal para sincronização de data de namoro, capa e mídias no Firestore (`settings/couple_config`)
 
 ---
 

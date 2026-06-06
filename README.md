@@ -319,10 +319,19 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 
 ## 📜 Changelog
 
+### v3 — 06/06/2026
+- 🎵 **Música de fundo** — Adicionada música instrumental romântica (Nocturne de Chopin) em loop com botão flutuante interativo (vinil giratório) para ativar/desativar
+- ⏳ **Tela de abertura (Splash Screen)** — Nova tela de carregamento romântica com GIF/coração pulsante e mensagens especiais ao abrir o aplicativo
+- 🖼️ **Painel do Casal ("Nosso Espaço")** — Exibição de foto do casal estilo polaroid, contador de dias juntos e frase romântica que muda diariamente
+- ⚙️ **Configurações do Casal** — Modal exclusivo para personalizar a foto de capa, música, GIF da splash screen e data do aniversário de namoro com sincronização em tempo real no Firestore
+
+### v2 — 06/06/2026
+- ⚡ **Ajustes no Calendário** — Adicionado o botão para registrar novo presente no calendário mesmo quando já existe um presente cadastrado
+
 ### v1 — 06/06/2026
 - 🎁 **Múltiplos presentes por evento** — agora você pode adicionar quantos presentes quiser no mesmo evento
 - 🔢 **Contagem nos cards** — o calendário mostra quantos presentes cada um tem em cada evento
 - 🏷️ **Nome do evento nos cards** — presente exibe o nome do evento (ex: "💑 Dia dos Namorados") em vez de só o mês
 - ⚡ **Registrar Presente pré-selecionado** — clicar no botão no calendário já abre o modal com o evento correto
 
-*Versão 1.0 — Junho 2026*
+*Versão 3.0 — Junho 2026*
