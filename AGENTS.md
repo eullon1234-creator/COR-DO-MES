@@ -21,6 +21,7 @@
 - `getDaysUntilEvent()` comparava com horário, empurrando eventos do mesmo dia para o ano seguinte — corrigido com `today` à meia-noite
 - `currentUser.photo_url` não era carregado do Firestore — adicionado em `loadUserData()`
 - Bloco de código órfão após `updateProfilePhotos()` causava `Unexpected token '}'` — removido
+- Validação de URL nos inputs de configurações bloqueava caminhos locais (como ./eullon/entrada.mp4) — corrigido alterando `type="url"` para `type="text"`.
 
 ### Problemas conhecidos
 - `config.js` precisa existir com as chaves Firebase/ImgBB (se der 404, o app não carrega)
