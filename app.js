@@ -449,6 +449,8 @@ function openAddGiftModal(giftData = null) {
     document.getElementById("giftImagePreviews").innerHTML = "";
     document.getElementById("fetchStatus").textContent = "";
 
+    const fileInput = document.getElementById("giftImage");
+
     // Preencher select de eventos dinamicamente
     populateGiftEventSelect();
 
@@ -461,12 +463,13 @@ function openAddGiftModal(giftData = null) {
         editingIdInput.value = giftData.id;
         modalTitle.textContent = "✏️ Editar Presente";
         submitBtn.innerHTML = '<i class="fas fa-save"></i> Atualizar Presente';
+        fileInput.removeAttribute("required");
 
         document.getElementById("giftEvent").value = giftData.eventId || `month-${giftData.month}`;
         document.getElementById("giftName").value = giftData.product_name;
         document.getElementById("giftLink").value = giftData.gift_link || "";
 
-        // Fotos existentes: mostra previews mas não permite re-enviar
+        // Fotos existentes: mostra previews
         const existingImages = getGiftImages(giftData);
         if (existingImages.length > 0) {
             const previews = document.getElementById("giftImagePreviews");
@@ -475,16 +478,18 @@ function openAddGiftModal(giftData = null) {
                 img.src = url;
                 img.className = "w-20 h-20 object-cover rounded-lg border-2 border-green-300";
                 img.title = "Foto existente";
+                img.setAttribute("data-existing", "true");
                 img.onclick = () => openFullscreenImage(url);
                 previews.appendChild(img);
             });
-            document.getElementById("fetchStatus").textContent = `${existingImages.length} foto(s) existente(s) (faça novo upload se quiser trocar)`;
+            document.getElementById("fetchStatus").textContent = `${existingImages.length} foto(s) existente(s) (adicione mais se quiser trocar)`;
         }
     } else {
         // Modo criação
         editingIdInput.value = "";
         modalTitle.textContent = "📝 Registrar Novo Presente";
         submitBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Presente';
+        fileInput.setAttribute("required", "");
     }
 
     // Mostrar modal
@@ -865,7 +870,6 @@ function renderMemories() {
     const allMemories = [];
     allGifts.forEach(gift => {
         const memImages = getMemoryImages(gift);
-        const gifImages = getGiftImages(gift);
         if (memImages.length > 0) {
             memImages.forEach((url, idx) => {
                 const event = getAllEvents().find(e => e.id === gift.eventId)
@@ -913,15 +917,16 @@ function renderMemories() {
 }
 
 function getDaysUntilEvent(event) {
-    const now = new Date();
-    const currentYear = now.getFullYear();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const currentYear = today.getFullYear();
     let eventDate = new Date(currentYear, event.month - 1, event.day);
 
-    if (eventDate < now) {
+    if (eventDate < today) {
         eventDate = new Date(currentYear + 1, event.month - 1, event.day);
     }
 
-    const diff = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
+    const diff = Math.ceil((eventDate - today) / (1000 * 60 * 60 * 24));
     return diff;
 }
 
@@ -956,8 +961,6 @@ function renderCalendarGrid() {
             dayCounterText = `<span class="day-counter">🎉 É hoje!</span>`;
         } else if (daysUntil === 1) {
             dayCounterText = `<span class="day-counter">⏰ Amanhã!</span>`;
-        } else if (daysUntil <= 7) {
-            dayCounterText = `<span class="day-counter">📅 Em ${daysUntil} dias</span>`;
         } else if (daysUntil <= 30) {
             dayCounterText = `<span class="day-counter">📅 Em ${daysUntil} dias</span>`;
         } else {
@@ -1662,16 +1665,19 @@ function previewImage() {
     const container = document.getElementById("giftImagePreviews");
     const fileName = document.getElementById("fileName");
 
+    // Preservar imagens existentes (do modo edição)
+    const existingImgs = container.querySelectorAll('[data-existing="true"]');
     container.innerHTML = "";
+    existingImgs.forEach(img => container.appendChild(img));
 
     if (files.length > 0) {
-        fileName.textContent = files.length + " arquivo(s) selecionado(s)";
+        fileName.textContent = files.length + " novo(s) arquivo(s) selecionado(s)";
         Array.from(files).forEach(file => {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = document.createElement("img");
                 img.src = e.target.result;
-                img.className = "w-16 h-16 rounded object-cover border border-gray-300";
+                img.className = "w-16 h-16 rounded object-cover border-2 border-blue-300";
                 container.appendChild(img);
             };
             reader.readAsDataURL(file);
