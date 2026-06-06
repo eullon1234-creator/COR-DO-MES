@@ -1231,8 +1231,67 @@ async function loadWishlist() {
 function openAddWishlistModal() {
     document.getElementById("wishlistForm").reset();
     document.getElementById("wishlistFileName").textContent = "";
-    document.getElementById("wishlistImagePreview").classList.add("hidden");
+    document.getElementById("wishlistImagePreviews").innerHTML = "";
+    document.getElementById("wishlistFetchStatus").textContent = "";
     document.getElementById("addWishlistModal").classList.add("active");
+}
+
+async function handleFetchWishlistProduct() {
+    const url = document.getElementById("wishlistLink").value.trim();
+    if (!url) {
+        showToast("Cole o link do produto primeiro", "error");
+        return;
+    }
+
+    const status = document.getElementById("wishlistFetchStatus");
+    status.textContent = "⏳ Buscando informações do produto...";
+
+    try {
+        const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+        const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
+        const html = await resp.text();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+
+        const ogTitle = doc.querySelector('meta[property="og:title"]')?.content;
+        const pageTitle = doc.querySelector("title")?.textContent;
+        const name = ogTitle || pageTitle || "";
+
+        const ogImage = doc.querySelector('meta[property="og:image"]')?.content;
+        const imageUrl = ogImage || "";
+
+        if (name) {
+            document.getElementById("wishlistName").value = name.trim();
+            status.textContent = "✅ Nome preenchido!";
+        } else {
+            status.textContent = "⚠️ Não foi possível detectar o nome";
+        }
+
+        if (imageUrl) {
+            status.textContent += " Baixando imagem...";
+            try {
+                const imgResp = await fetch(imageUrl, { signal: AbortSignal.timeout(8000) });
+                const blob = await imgResp.blob();
+                const ext = blob.type.split("/")[1] || "jpg";
+                const file = new File([blob], "produto." + ext, { type: blob.type });
+
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                document.getElementById("wishlistImage").files = dataTransfer.files;
+
+                const event = new Event("change", { bubbles: true });
+                document.getElementById("wishlistImage").dispatchEvent(event);
+
+                status.textContent += " ✅ Foto adicionada!";
+            } catch (imgErr) {
+                status.textContent += " ⚠️ Não foi possível baixar a foto";
+            }
+        }
+    } catch (error) {
+        console.error("Erro ao buscar produto:", error);
+        status.textContent = "❌ Erro ao buscar. Verifique o link.";
+    }
 }
 
 async function handleAddWishlistItem(event) {
@@ -1240,9 +1299,9 @@ async function handleAddWishlistItem(event) {
 
     const name = document.getElementById("wishlistName").value.trim();
     const link = document.getElementById("wishlistLink").value.trim();
-    const imageFile = document.getElementById("wishlistImage").files[0];
+    const imageFiles = document.getElementById("wishlistImage").files;
 
-    if (!name || !imageFile) {
+    if (!name || imageFiles.length === 0) {
         showToast("Preencha o nome e selecione uma foto", "error");
         return;
     }
@@ -1250,11 +1309,11 @@ async function handleAddWishlistItem(event) {
     document.getElementById("wishlistFormSpinner").classList.add("active");
 
     try {
-        const imageUrl = await uploadToImgBB(imageFile);
+        const imageUrls = await uploadMultipleToImgBB(imageFiles);
 
         await db.collection("wishlist").add({
             name: name,
-            image_url: imageUrl,
+            image_urls: imageUrls,
             link: link || null,
             creatorUid: currentUser.id,
             createdAt: new Date()
@@ -1308,10 +1367,12 @@ function renderWishlist() {
         `;
     } else {
         myItems.forEach(item => {
+            const imgs = item.image_urls && Array.isArray(item.image_urls) ? item.image_urls : (item.image_url ? [item.image_url] : []);
             const div = document.createElement("div");
             div.className = "bg-white/20 backdrop-blur-sm rounded-xl p-3 border border-white/10";
             div.innerHTML = `
-                <img src="${item.image_url}" alt="${item.name}" class="w-full h-24 object-cover rounded-lg mb-2">
+                <img src="${imgs[0] || ''}" alt="${item.name}" class="w-full h-24 object-cover rounded-lg mb-2 cursor-pointer" onclick="openFullscreenImage('${imgs[0] || ''}')">
+                ${imgs.length > 1 ? `<span class="text-xs text-white/60">+${imgs.length - 1} fotos</span>` : ''}
                 <p class="text-white text-sm font-bold truncate">${item.name}</p>
                 ${item.link ? `<a href="${item.link}" target="_blank" class="text-blue-200 text-xs block truncate mt-1">🔗 Link</a>` : ''}
                 <button onclick="deleteWishlistItem('${item.id}')" class="text-red-300 text-xs mt-2 hover:text-red-100">
@@ -1331,10 +1392,12 @@ function renderWishlist() {
         `;
     } else {
         partnerItems.forEach(item => {
+            const imgs = item.image_urls && Array.isArray(item.image_urls) ? item.image_urls : (item.image_url ? [item.image_url] : []);
             const div = document.createElement("div");
             div.className = "bg-white/20 backdrop-blur-sm rounded-xl p-3 border border-white/10";
             div.innerHTML = `
-                <img src="${item.image_url}" alt="${item.name}" class="w-full h-24 object-cover rounded-lg mb-2">
+                <img src="${imgs[0] || ''}" alt="${item.name}" class="w-full h-24 object-cover rounded-lg mb-2 cursor-pointer" onclick="openFullscreenImage('${imgs[0] || ''}')">
+                ${imgs.length > 1 ? `<span class="text-xs text-white/60">+${imgs.length - 1} fotos</span>` : ''}
                 <p class="text-white text-sm font-bold truncate">${item.name}</p>
                 ${item.link ? `<a href="${item.link}" target="_blank" class="inline-block mt-2 btn btn-primary text-xs py-1 px-3"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}
             `;
@@ -1429,20 +1492,24 @@ function previewMemoryImage() {
 }
 
 function previewWishlistImage() {
-    const file = document.getElementById("wishlistImage").files[0];
-    const preview = document.getElementById("wishlistImagePreview");
+    const files = document.getElementById("wishlistImage").files;
+    const container = document.getElementById("wishlistImagePreviews");
     const fileName = document.getElementById("wishlistFileName");
 
-    if (file) {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.classList.remove("hidden");
-        };
-        
-        reader.readAsDataURL(file);
-        fileName.textContent = "Arquivo: " + file.name;
+    container.innerHTML = "";
+
+    if (files.length > 0) {
+        fileName.textContent = files.length + " arquivo(s) selecionado(s)";
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.className = "w-16 h-16 rounded object-cover border border-gray-300";
+                container.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
     }
 }
 
