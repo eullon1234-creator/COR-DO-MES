@@ -1060,11 +1060,17 @@ function renderCalendarGrid() {
             const g = myGifts[0];
             mySection = `<div class="flex items-center gap-2 mt-1">
                 <span class="text-sm">🎁 ${g.product_name}</span>
+                <button onclick="event.stopPropagation(); openAddGiftModalForEvent('${event.id}')" class="btn btn-secondary text-xs py-0.5 px-1.5 ml-auto" title="Adicionar outro presente">
+                    <i class="fas fa-plus"></i>
+                </button>
                </div>`;
         } else {
             mySection = `<div class="mt-1">
                 <span class="text-sm font-semibold">🎁 ${myGiftCount} presentes:</span>
                 ${myGifts.map(g => `<div class="text-xs ml-2">• ${g.product_name}</div>`).join('')}
+                <button onclick="event.stopPropagation(); openAddGiftModalForEvent('${event.id}')" class="btn btn-secondary text-xs py-0.5 px-1.5 mt-1">
+                    <i class="fas fa-plus"></i> Adicionar
+                </button>
                </div>`;
         }
 
