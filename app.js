@@ -447,12 +447,77 @@ function openAddGiftModal() {
     document.getElementById("giftForm").reset();
     document.getElementById("fileName").textContent = "";
     document.getElementById("giftImagePreviews").innerHTML = "";
+    document.getElementById("fetchStatus").textContent = "";
     
     // Preencher select de eventos dinamicamente
     populateGiftEventSelect();
     
     // Mostrar modal
     document.getElementById("addGiftModal").classList.add("active");
+}
+
+async function handleFetchProduct() {
+    const url = document.getElementById("giftLink").value.trim();
+    if (!url) {
+        showToast("Cole o link do produto primeiro", "error");
+        return;
+    }
+
+    const status = document.getElementById("fetchStatus");
+    status.textContent = "⏳ Buscando informações do produto...";
+    document.getElementById("fetchProductBtn").disabled = true;
+
+    try {
+        const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+        const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
+        const html = await resp.text();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+
+        const ogTitle = doc.querySelector('meta[property="og:title"]')?.content;
+        const twitterTitle = doc.querySelector('meta[name="twitter:title"]')?.content;
+        const pageTitle = doc.querySelector("title")?.textContent;
+        const name = ogTitle || twitterTitle || pageTitle || "";
+
+        const ogImage = doc.querySelector('meta[property="og:image"]')?.content;
+        const twitterImage = doc.querySelector('meta[name="twitter:image"]')?.content;
+        const imageUrl = ogImage || twitterImage || "";
+
+        if (name) {
+            document.getElementById("giftName").value = name.trim();
+            status.textContent = "✅ Nome preenchido automaticamente!";
+        } else {
+            status.textContent = "⚠️ Não foi possível detectar o nome do produto";
+        }
+
+        if (imageUrl) {
+            status.textContent += " Baixando imagem...";
+            try {
+                const imgResp = await fetch(imageUrl, { signal: AbortSignal.timeout(8000) });
+                const blob = await imgResp.blob();
+                const ext = blob.type.split("/")[1] || "jpg";
+                const file = new File([blob], "produto." + ext, { type: blob.type });
+
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                document.getElementById("giftImage").files = dataTransfer.files;
+
+                const event = new Event("change", { bubbles: true });
+                document.getElementById("giftImage").dispatchEvent(event);
+
+                status.textContent += " ✅ Foto adicionada!";
+            } catch (imgErr) {
+                console.error("Erro ao baixar imagem:", imgErr);
+                status.textContent += " ⚠️ Não foi possível baixar a foto (adicione manualmente)";
+            }
+        }
+    } catch (error) {
+        console.error("Erro ao buscar produto:", error);
+        status.textContent = "❌ Erro ao buscar. Verifique o link e tente novamente.";
+    } finally {
+        document.getElementById("fetchProductBtn").disabled = false;
+    }
 }
 
 async function handleAddGift(event) {
