@@ -4,6 +4,36 @@
 
 ---
 
+## 🧠 Sessão Anterior (05/06)
+
+### O que foi feito
+- Tema pastel (gradientes suaves, cores pastel nos meses e botões)
+- Emojis maiores nos cards de evento/presente
+- Animações bounce-in nos cards + confete ao liberar presente
+- Contador de dias nos cards do calendário (`getDaysUntilEvent`)
+- Editar presente (reaproveita modal com dados preenchidos, campo oculto `editingGiftId`)
+- Mural de Memórias (aba 📸 Memórias com timeline de fotos de recordação)
+- Foto de perfil (upload ImgBB, armazenada em `photo_url` no Firestore)
+- Fotos de perfil exibidas no header e na área de usuário
+- Botão de câmera no avatar para alterar foto
+
+### Bugs corrigidos durante a sessão
+- `previewImage()` limpava previews de fotos existentes no modo edição — corrigido com `data-existing="true"`
+- Input `required` no HTML impedia salvar edição sem nova foto — removido dinamicamente em modo edição
+- `getDaysUntilEvent()` comparava com horário, empurrando eventos do mesmo dia para o ano seguinte — corrigido com `today` à meia-noite
+- `currentUser.photo_url` não era carregado do Firestore — adicionado em `loadUserData()`
+- Bloco de código órfão após `updateProfilePhotos()` causava `Unexpected token '}'` — removido
+
+### Problemas conhecidos
+- `config.js` precisa existir com as chaves Firebase/ImgBB (se der 404, o app não carrega)
+- `crypto.subtle.digest('SHA-256', ...)` requer HTTPS ou localhost
+- Firestore precisa de regras públicas (`allow read, write: if true`)
+- Sessão salva em `localStorage` (`corDoMes_userId`) — se limpar cache, precisa logar de novo
+- Proxy `api.allorigins.win` pode ficar instável para busca de produtos por link
+- O header tem input file oculto (`myPhotoInput`, `partnerPhotoInput`) para upload de foto de perfil
+
+---
+
 ## 🎯 Propósito
 
 App de casal personalizado para gerenciar a dinâmica de presentes. Cada parceiro registra fotos de presentes associados a eventos (meses, datas especiais, eventos customizados). O presente do parceiro aparece **borrado** até ser "revelado".
@@ -30,6 +60,7 @@ App de casal personalizado para gerenciar a dinâmica de presentes. Cada parceir
 email (opcional), accountType ("husband"|"wife"), name, createdAt, partnerUid, passwordHash, photo_url
 ```
 - Nomes: `"💙 Eullon"` / `"💗 Ana Clara"`
+- `photo_url`: URL da foto de perfil (upload via ImgBB, atualizada em tempo real)
 
 ### `gifts` / `{docId}`
 ```
@@ -73,8 +104,6 @@ name, image_url, link, creatorUid, createdAt
 ```js
 currentUser       // Objeto com { id, name, accountType } - NÃO é mais Firebase Auth
 partnerUser       // { id, name, email, ... } do Firestore
-partnerUser       // { id, name, email, ... } do Firestore
-currentViewMode   // "my-profile" | "partner-profile"
 currentTabView    // "my-gifts" | "partner-gifts" | "calendar" | "wishlist" | "memories"
 allGifts          // Array de gifts do ano atual
 currentGiftBeingViewed  // Gift aberto no modal
@@ -146,11 +175,9 @@ Retorna URL pública da imagem.
 
 Para múltiplas fotos: `uploadMultipleToImgBB(files)` — faz upload paralelo de vários arquivos.
 
-Helper de compatibilidade:
-- `getGiftImages(gift)` — retorna array de URLs do presente (lida com `image_urls` e `image_url`)
-- `getMemoryImages(gift)` — retorna array de URLs de recordação (lida com `memory_photo_urls` e `memory_photo_url`)
-
-Visualização em tela cheia: `openFullscreenImage(url)` — abre modal escuro com a foto.
+Foto de perfil: `uploadProfilePhoto(file, type)` — faz upload para ImgBB e salva URL em `users/{id}.photo_url`.
+- `type = "my"` → altera foto do usuário logado
+- `type = "partner"` → altera foto do parceiro
 
 ---
 
