@@ -319,6 +319,12 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 
 ## 📜 Changelog
 
+### v9 — 06/06/2026
+- 🎨 **Contraste e Legibilidade Aprimorados** — Correção de múltiplos pontos com baixo contraste de cores no celular, garantindo leitura perfeita sob luz do dia.
+- 💬 **Ajustes de Cores na Wishlist** — Nova interface para sugestões de presentes com caixas em tom translúcido sólido e letras em roxo escuro, substituindo a combinação ilegível de letras brancas em fundo claro.
+- 🔍 **Melhoria no Painel de Usuários** — Ajuste do card superior de controle de perfil, adicionando fundo sólido e ícones com cores vibrantes para total visibilidade no celular.
+- 📌 **Custom Event Contrast** — Ajustado a cor do texto de eventos customizados no calendário de branco para roxo escuro (`#4c1d95`), garantindo ótima legibilidade sobre o fundo lilás.
+
 ### v8 — 06/06/2026
 - 🚫 **Remoção de Spinner** — Remoção dos spinners de carregamento circular ("bolinhas giratórias") dos formulários de cadastro e configurações, substituindo por estados desabilitados e textos de feedback ("Salvando...") diretamente nos botões de envio.
 
@@ -352,4 +358,4 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 - 🏷️ **Nome do evento nos cards** — presente exibe o nome do evento (ex: "💑 Dia dos Namorados") em vez de só o mês
 - ⚡ **Registrar Presente pré-selecionado** — clicar no botão no calendário já abre o modal com o evento correto
 
-*Versão 8.0 — Junho 2026*
+*Versão 9.0 — Junho 2026*

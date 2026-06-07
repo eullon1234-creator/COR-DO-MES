@@ -316,9 +316,13 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(179, 157, 219, 0.3);
+            border-radius: 20px;
+            margin-bottom: 25px;
+            color: #4c1d95;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .user-profile {
@@ -327,12 +331,13 @@
             gap: 10px;
             cursor: pointer;
             padding: 8px 15px;
-            border-radius: 8px;
-            transition: background-color 0.3s ease;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            color: #4c1d95;
         }
 
         .user-profile:hover {
-            background-color: rgba(0, 0, 0, 0.2);
+            background-color: rgba(179, 157, 219, 0.15);
         }
 
         .status-indicator {
@@ -348,7 +353,7 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 2px solid #e2d9f3;
             overflow-x: auto;
         }
 
@@ -358,17 +363,20 @@
             border: none;
             cursor: pointer;
             font-weight: 700;
-            color: #6b7280;
+            color: #5b21b6;
+            opacity: 0.65;
             border-bottom: 3px solid transparent;
             transition: all 0.3s ease;
             white-space: nowrap;
         }
 
         .tab-btn:hover {
-            color: #4b5563;
+            opacity: 0.9;
+            color: #4c1d95;
         }
 
         .tab-btn.active {
+            opacity: 1;
             color: #7c3aed;
             border-bottom-color: #7c3aed;
         }
@@ -730,7 +738,7 @@
                             <div class="text-sm">Você está em</div>
                             <div class="font-bold flex items-center gap-2">
                                 <span id="currentUserName">Meu Perfil</span>
-                                <button id="changeMyPhotoBtn" class="text-xs text-purple-300 hover:text-white transition cursor-pointer bg-transparent border-none" onclick="document.getElementById('myPhotoInput').click()">
+                                <button id="changeMyPhotoBtn" class="text-xs text-purple-700 hover:text-purple-950 transition cursor-pointer bg-transparent border-none" onclick="document.getElementById('myPhotoInput').click()">
                                     <i class="fas fa-camera"></i>
                                 </button>
                             </div>
@@ -738,7 +746,7 @@
                     </div>
                     <div class="user-profile" onclick="toggleViewMode('partner-profile')">
                         <img id="partnerProfileAvatar" src="" class="profile-avatar hidden" alt="Foto do parceiro">
-                        <i id="partnerProfileIcon" class="fas fa-heart text-2xl text-red-300"></i>
+                        <i id="partnerProfileIcon" class="fas fa-heart text-2xl text-pink-500"></i>
                         <div>
                             <div class="text-sm">Ver o(a)</div>
                             <div id="partnerUserName" class="font-bold">Perfil do(a) Parceiro(a)</div>
@@ -857,9 +865,9 @@
                 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <!-- Meus Desejos -->
-                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20 shadow-xl">
-                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                            <i class="fas fa-star text-yellow-300"></i> Quero Ganhar
+                    <div class="bg-white/60 backdrop-blur-md p-6 rounded-3xl border border-purple-200/50 shadow-xl">
+                        <h3 class="text-xl font-bold text-purple-900 mb-4 flex items-center gap-2">
+                            <i class="fas fa-star text-yellow-500"></i> Quero Ganhar
                         </h3>
                         <div id="myWishlistGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <!-- Preenchido por JS -->
@@ -867,9 +875,9 @@
                     </div>
 
                     <!-- Desejos do Parceiro -->
-                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20 shadow-xl">
-                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                            <i class="fas fa-heart text-pink-300"></i> Meu Amor Quer Ganhar
+                    <div class="bg-white/60 backdrop-blur-md p-6 rounded-3xl border border-purple-200/50 shadow-xl">
+                        <h3 class="text-xl font-bold text-purple-900 mb-4 flex items-center gap-2">
+                            <i class="fas fa-heart text-pink-500"></i> Meu Amor Quer Ganhar
                         </h3>
                         <div id="partnerWishlistGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <!-- Preenchido por JS -->

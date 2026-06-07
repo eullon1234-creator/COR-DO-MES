@@ -1278,7 +1278,7 @@ function getAllEvents() {
             type: 'custom',
             emoji: '📌',
             color: '#b39ddb',
-            textColor: '#fff'
+            textColor: '#4c1d95'
         });
     });
 
@@ -1455,7 +1455,7 @@ function renderCalendarGrid() {
                     <span class="text-sm">${g.revealed_at ? g.product_name : '*****'}</span>
                     ${partnerImages.length > 1 ? `<span class="text-xs opacity-70">+${partnerImages.length - 1} fotos</span>` : ''}
                 </div>
-                ${!g.revealed_at ? `<span class="text-xs text-gray-500">⏳ Aguardando liberação</span>` : ''}
+                ${!g.revealed_at ? `<span class="text-xs opacity-75 font-semibold">⏳ Aguardando liberação</span>` : ''}
                </div>`;
         } else {
             const allRevealed = partnerGifts.every(g => g.revealed_at);
@@ -1470,7 +1470,7 @@ function renderCalendarGrid() {
                     <span class="text-sm">${allRevealed ? partnerGifts.map(g => g.product_name).join(', ') : '*****'}</span>
                     <span class="text-xs opacity-70 block">🎁 ${partnerGiftCount} presentes</span>
                 </div>
-                ${!allRevealed ? `<span class="text-xs text-gray-500">⏳ Aguardando liberação</span>` : ''}
+                ${!allRevealed ? `<span class="text-xs opacity-75 font-semibold">⏳ Aguardando liberação</span>` : ''}
                </div>`;
         }
 
@@ -2075,7 +2075,7 @@ function renderWishlist() {
 
     if (myItems.length === 0) {
         myGrid.innerHTML = `
-            <div class="col-span-full text-center py-6 text-white/70">
+            <div class="col-span-full text-center py-6 text-purple-900/60">
                 <i class="fas fa-star text-3xl mb-2"></i>
                 <p class="text-sm">Nenhum desejo ainda</p>
             </div>
@@ -2084,13 +2084,13 @@ function renderWishlist() {
         myItems.forEach(item => {
             const imgs = item.image_urls && Array.isArray(item.image_urls) ? item.image_urls : (item.image_url ? [item.image_url] : []);
             const div = document.createElement("div");
-            div.className = "bg-white/20 backdrop-blur-sm rounded-xl p-3 border border-white/10";
+            div.className = "bg-white/80 rounded-xl p-3 border border-purple-100 shadow-sm";
             div.innerHTML = `
-                <img src="${imgs[0] || ''}" alt="${item.name}" class="w-full h-24 object-cover rounded-lg mb-2 cursor-pointer" onclick="openFullscreenImage('${imgs[0] || ''}')">
-                ${imgs.length > 1 ? `<span class="text-xs text-white/60">+${imgs.length - 1} fotos</span>` : ''}
-                <p class="text-white text-sm font-bold truncate">${item.name}</p>
-                ${item.link ? `<a href="${item.link}" target="_blank" class="text-blue-200 text-xs block truncate mt-1">🔗 Link</a>` : ''}
-                <button onclick="deleteWishlistItem('${item.id}')" class="text-red-300 text-xs mt-2 hover:text-red-100">
+                <img src="${imgs[0] || ''}" alt="${item.name}" class="w-full h-24 object-cover rounded-lg mb-2 cursor-pointer shadow-sm" onclick="openFullscreenImage('${imgs[0] || ''}')">
+                ${imgs.length > 1 ? `<span class="text-xs text-purple-700/60 block mt-1">+${imgs.length - 1} fotos</span>` : ''}
+                <p class="text-purple-950 text-sm font-bold truncate mt-1">${item.name}</p>
+                ${item.link ? `<a href="${item.link}" target="_blank" class="text-purple-700 hover:text-purple-950 text-xs font-semibold block truncate mt-1 hover:underline">🔗 Link de compra</a>` : ''}
+                <button onclick="deleteWishlistItem('${item.id}')" class="text-red-500 text-xs mt-2 hover:text-red-700 font-bold bg-transparent border-none cursor-pointer flex items-center gap-1">
                     <i class="fas fa-trash"></i> Remover
                 </button>
             `;
@@ -2100,7 +2100,7 @@ function renderWishlist() {
 
     if (!partnerUser || partnerItems.length === 0) {
         partnerGrid.innerHTML = `
-            <div class="col-span-full text-center py-6 text-white/70">
+            <div class="col-span-full text-center py-6 text-purple-900/60">
                 <i class="fas fa-heart text-3xl mb-2"></i>
                 <p class="text-sm">${partnerUser ? 'Nenhum desejo ainda 💭' : 'Vincule seu parceiro para ver 💕'}</p>
             </div>
@@ -2109,12 +2109,12 @@ function renderWishlist() {
         partnerItems.forEach(item => {
             const imgs = item.image_urls && Array.isArray(item.image_urls) ? item.image_urls : (item.image_url ? [item.image_url] : []);
             const div = document.createElement("div");
-            div.className = "bg-white/20 backdrop-blur-sm rounded-xl p-3 border border-white/10";
+            div.className = "bg-white/80 rounded-xl p-3 border border-purple-100 shadow-sm";
             div.innerHTML = `
-                <img src="${imgs[0] || ''}" alt="${item.name}" class="w-full h-24 object-cover rounded-lg mb-2 cursor-pointer" onclick="openFullscreenImage('${imgs[0] || ''}')">
-                ${imgs.length > 1 ? `<span class="text-xs text-white/60">+${imgs.length - 1} fotos</span>` : ''}
-                <p class="text-white text-sm font-bold truncate">${item.name}</p>
-                ${item.link ? `<a href="${item.link}" target="_blank" class="inline-block mt-2 btn btn-primary text-xs py-1 px-3"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}
+                <img src="${imgs[0] || ''}" alt="${item.name}" class="w-full h-24 object-cover rounded-lg mb-2 cursor-pointer shadow-sm" onclick="openFullscreenImage('${imgs[0] || ''}')">
+                ${imgs.length > 1 ? `<span class="text-xs text-purple-700/60 block mt-1">+${imgs.length - 1} fotos</span>` : ''}
+                <p class="text-purple-950 text-sm font-bold truncate mt-1">${item.name}</p>
+                ${item.link ? `<a href="${item.link}" target="_blank" class="inline-block mt-2 btn btn-primary text-xs py-1.5 px-3"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}
             `;
             partnerGrid.appendChild(div);
         });

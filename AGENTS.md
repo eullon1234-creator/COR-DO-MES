@@ -7,6 +7,7 @@
 ## 🧠 Sessão Anterior (06/06)
 
 ### O que foi feito
+- Melhorias de contraste e legibilidade de textos por todo o aplicativo, especialmente no celular, ajustando cores de texto claras em fundos pastéis claros, cores de sugestões na Wishlist, painel superior de perfil do usuário, e cor de eventos customizados.
 - Remoção completa dos spinners circulares de carregamento dos formulários de cadastro e configurações ("bolinhas giratórias"), substituindo por estados desabilitados e textos de feedback nos botões ("Salvando...").
 - Música de fundo (Nocturne de Chopin em loop) com botão flutuante interativo (vinil que gira ao tocar) e controle de ativação salvo no localStorage.
 - Tela de abertura (Splash Screen) romântica com GIF/coração pulsante e mensagem de carregamento.
@@ -16,7 +17,7 @@
 - Suporte a vídeo na Splash Screen (ex: MP4 do casal na entrada) e suporte a arquivos locais (referências relativas como ./eullon/entrada.mp4).
 - Suporte a múltiplas fotos rotativas/alternadas na Splash Screen (caminhos separados por vírgula).
 - Aumento do tempo mínimo de splash screen para 5 segundos para contemplação das mídias de abertura.
-- Atualização das rotinas de build e fluxo de versionamento PWA para v8.0.
+- Atualização das rotinas de build e fluxo de versionamento PWA para v9.0.
 
 ### Bugs corrigidos durante a sessão
 - `previewImage()` limpava previews de fotos existentes no modo edição — corrigido com `data-existing="true"`
@@ -52,7 +53,7 @@ A partir de **06/06/2026**, todo ciclo de alteração segue este fluxo:
 7. Atualizar `AGENTS.md` com as novidades (se relevante)
 
 ### Versão atual
-- **v8** — Remoção de spinners circulares nos formulários + Botões com status "Salvando..." + Tempo de exibição de Splash ampliado para 5s + Fotos rotativas e alternadas + Suporte a vídeo MP4/WebM + Arquivos locais por caminho relativo + Melhorias de contraste e visual (Google Fonts) + Música + Painel do Casal + Configurações Compartilhadas
+- **v9** — Contraste e Legibilidade Aprimorados (Wishlist, Painel do Usuário, Eventos Customizados, Calendário) + Remoção de spinners circulares nos formulários + Botões com status "Salvando..." + Tempo de exibição de Splash ampliado para 5s + Fotos rotativas e alternadas + Suporte a vídeo MP4/WebM + Arquivos locais por caminho relativo + Música + Painel do Casal + Configurações Compartilhadas
 
 ---
 
