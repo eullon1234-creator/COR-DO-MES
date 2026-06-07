@@ -319,6 +319,10 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 
 ## 📜 Changelog
 
+### v10 — 07/06/2026
+- ⚡ **Sincronização em Tempo Real** — Implementação de ouvintes Firestore em tempo real (`onSnapshot`) para presentes, desejos (wishlist), eventos customizados, informações de usuários e configurações do casal. Não é mais necessário atualizar a página manualmente para ver as alterações do parceiro.
+- 🧹 **Otimização de Mutação** — Remoção de requisições de recarregamento manual redundantes nas operações de inserção, edição e remoção.
+
 ### v9 — 06/06/2026
 - 🎨 **Contraste e Legibilidade Aprimorados** — Correção de múltiplos pontos com baixo contraste de cores no celular, garantindo leitura perfeita sob luz do dia.
 - 💬 **Ajustes de Cores na Wishlist** — Nova interface para sugestões de presentes com caixas em tom translúcido sólido e letras em roxo escuro, substituindo a combinação ilegível de letras brancas em fundo claro.
@@ -358,4 +362,4 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 - 🏷️ **Nome do evento nos cards** — presente exibe o nome do evento (ex: "💑 Dia dos Namorados") em vez de só o mês
 - ⚡ **Registrar Presente pré-selecionado** — clicar no botão no calendário já abre o modal com o evento correto
 
-*Versão 9.0 — Junho 2026*
+*Versão 10.0 — Junho 2026*

@@ -4,28 +4,25 @@
 
 ---
 
-## 🧠 Sessão Anterior (06/06)
+## 🧠 Sessão Anterior (07/06)
 
 ### O que foi feito
-- Melhorias de contraste e legibilidade de textos por todo o aplicativo, especialmente no celular, ajustando cores de texto claras em fundos pastéis claros, cores de sugestões na Wishlist, painel superior de perfil do usuário, e cor de eventos customizados.
-- Remoção completa dos spinners circulares de carregamento dos formulários de cadastro e configurações ("bolinhas giratórias"), substituindo por estados desabilitados e textos de feedback nos botões ("Salvando...").
+- Sincronização em tempo real via ouvintes do Firestore (`onSnapshot`) para todas as coleções e documentos dinâmicos (`gifts`, `events`, `wishlist`, `users` e `settings/couple_config`).
+- Remoção completa de recarregamentos manuais e re-renderizações imperativas redundantes nas funções de mutação (criação, edição, exclusão, adição de memória).
+- Controle de listeners ativos com armazenamento de referências `unsubscribe` globais e desinscrição completa no logout para prevenir vazamento de memória.
+- Melhorias de contraste e legibilidade de textos por todo o aplicativo, especialmente no celular, ajustando cores de texto claras em fundos pastéis claros, cores de sugestões na Wishlist, painel superior de perfil do usuário, e cor de eventos customizados (v9).
+- Remoção completa dos spinners circulares de carregamento dos formulários de cadastro e configurações ("bolinhas giratórias"), substituindo por estados desabilitados e textos de feedback nos botões ("Salvando...") (v8).
 - Música de fundo (Nocturne de Chopin em loop) com botão flutuante interativo (vinil que gira ao tocar) e controle de ativação salvo no localStorage.
 - Tela de abertura (Splash Screen) romântica com GIF/coração pulsante e mensagem de carregamento.
-- Painel do Casal ("Nosso Espaço") com foto do casal estilo polaroid, frase romântica do dia (que muda diariamente de forma sincronizada) e contador de dias de relacionamento.
+- Painel do Casal ("Nosso Espaço") com foto do casal estilo polaroid, frase romântica do dia e contador de dias de relacionamento.
 - Modal de Configurações do Casal para definir a música de fundo, GIF de abertura, foto de capa do casal e data de início do relacionamento, tudo sincronizado no Firestore na coleção `settings/couple_config`.
-- Melhorias de visual e legibilidade: adição de Google Fonts (Outfit e Playfair Display) e aumento de contraste (letras escuras em títulos e cards do calendário).
 - Suporte a vídeo na Splash Screen (ex: MP4 do casal na entrada) e suporte a arquivos locais (referências relativas como ./eullon/entrada.mp4).
-- Suporte a múltiplas fotos rotativas/alternadas na Splash Screen (caminhos separados por vírgula).
+- Suporte a múltiplas fotos rotativas/alternadas na Splash Screen.
 - Aumento do tempo mínimo de splash screen para 5 segundos para contemplação das mídias de abertura.
-- Atualização das rotinas de build e fluxo de versionamento PWA para v9.0.
+- Atualização das rotinas de build e fluxo de versionamento PWA para v10.0.
 
 ### Bugs corrigidos durante a sessão
-- `previewImage()` limpava previews de fotos existentes no modo edição — corrigido com `data-existing="true"`
-- Input `required` no HTML impedia salvar edição sem nova foto — removido dinamicamente em modo edição
-- `getDaysUntilEvent()` comparava com horário, empurrando eventos do mesmo dia para o ano seguinte — corrigido com `today` à meia-noite
-- `currentUser.photo_url` não era carregado do Firestore — adicionado em `loadUserData()`
-- Bloco de código órfão após `updateProfilePhotos()` causava `Unexpected token '}'` — removido
-- Validação de URL nos inputs de configurações bloqueava caminhos locais (como ./eullon/entrada.mp4) — corrigido alterando `type="url"` para `type="text"`.
+- Evitada re-renderização redundante e duplicações visuais mantendo o controle total via snapshots e removendo invocações manuais de `renderGrid()`.
 
 ### Problemas conhecidos
 - `config.js` precisa existir com as chaves Firebase/ImgBB (se der 404, o app não carrega)
@@ -53,7 +50,7 @@ A partir de **06/06/2026**, todo ciclo de alteração segue este fluxo:
 7. Atualizar `AGENTS.md` com as novidades (se relevante)
 
 ### Versão atual
-- **v9** — Contraste e Legibilidade Aprimorados (Wishlist, Painel do Usuário, Eventos Customizados, Calendário) + Remoção de spinners circulares nos formulários + Botões com status "Salvando..." + Tempo de exibição de Splash ampliado para 5s + Fotos rotativas e alternadas + Suporte a vídeo MP4/WebM + Arquivos locais por caminho relativo + Música + Painel do Casal + Configurações Compartilhadas
+- **v10** — Sincronização em Tempo Real (onSnapshot) para Presentes, Desejos (Wishlist), Configurações do Casal e Eventos + Remoção de recarregamentos manuais redundantes + Limpeza de listeners ativos no logout.
 
 ---
 

@@ -88,6 +88,15 @@ let deferredPrompt = null; // Para instalação do PWA
 let loadedEvents = [];
 let loadedWishlist = [];
 
+// Firestore Unsubscribe Listeners
+let giftsUnsubscribe = null;
+let eventsUnsubscribe = null;
+let wishlistUnsubscribe = null;
+let coupleConfigUnsubscribe = null;
+let currentUserUnsubscribe = null;
+let partnerUserUnsubscribe = null;
+
+
 // Configurações do Casal (Música, GIF, Capa e Data de Início)
 let coupleConfig = {
     anniversaryDate: "2025-07-21",
@@ -332,6 +341,21 @@ document.addEventListener("DOMContentLoaded", () => {
 // ============================================================================
 
 function handleLogout() {
+    // Cancelar listeners ativos
+    if (giftsUnsubscribe) giftsUnsubscribe();
+    if (eventsUnsubscribe) eventsUnsubscribe();
+    if (wishlistUnsubscribe) wishlistUnsubscribe();
+    if (coupleConfigUnsubscribe) coupleConfigUnsubscribe();
+    if (currentUserUnsubscribe) currentUserUnsubscribe();
+    if (partnerUserUnsubscribe) partnerUserUnsubscribe();
+    
+    giftsUnsubscribe = null;
+    eventsUnsubscribe = null;
+    wishlistUnsubscribe = null;
+    coupleConfigUnsubscribe = null;
+    currentUserUnsubscribe = null;
+    partnerUserUnsubscribe = null;
+
     localStorage.removeItem("corDoMes_userId");
     currentUser = null;
     partnerUser = null;
@@ -346,6 +370,35 @@ function handleLogout() {
 // 👥 CARREGAR DADOS DO USUÁRIO
 // ============================================================================
 
+function setupGiftsListener() {
+    if (giftsUnsubscribe) giftsUnsubscribe();
+    
+    const year = new Date().getFullYear();
+    giftsUnsubscribe = db.collection("gifts")
+        .where("year", "==", year)
+        .onSnapshot(snapshot => {
+            const giftsMap = new Map();
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.giver_uid === currentUser.id || (partnerUser && data.giver_uid === partnerUser.id)) {
+                    giftsMap.set(doc.id, {
+                        id: doc.id,
+                        ...data
+                    });
+                }
+            });
+            allGifts = Array.from(giftsMap.values());
+            renderMyGiftsGrid();
+            renderPartnerGiftsGrid();
+            renderCalendarGrid();
+            if (currentTabView === "memories") {
+                renderMemories();
+            }
+        }, error => {
+            console.error("Erro ao carregar presentes em tempo real:", error);
+        });
+}
+
 async function loadUserData() {
     try {
         if (!currentUser || !currentUser.id) {
@@ -353,58 +406,118 @@ async function loadUserData() {
             return;
         }
 
-        const userDoc = await db.collection("users").doc(currentUser.id).get();
+        // Cancelar listeners antigos se houver
+        if (giftsUnsubscribe) giftsUnsubscribe();
+        if (eventsUnsubscribe) eventsUnsubscribe();
+        if (wishlistUnsubscribe) wishlistUnsubscribe();
+        if (coupleConfigUnsubscribe) coupleConfigUnsubscribe();
+        if (currentUserUnsubscribe) currentUserUnsubscribe();
+        if (partnerUserUnsubscribe) partnerUserUnsubscribe();
 
-        if (!userDoc.exists) {
-            showLoginScreen();
-            return;
-        }
+        // 1. Sincronizar presentes órfãos (roda uma vez no login)
+        await syncOrphanGifts();
 
-        let userData = userDoc.data();
-        document.getElementById("currentUserName").textContent = userData.name;
-        currentUser.photo_url = userData.photo_url || null;
-
-        // Descobrir parceiro pelo ID fixo
+        // 2. Iniciar todos os listeners em tempo real
         const partnerId = currentUser.id === "eullon" ? "ana_clara" : "eullon";
-        try {
-            const partnerDoc = await db.collection("users").doc(partnerId).get();
-            if (partnerDoc.exists) {
-                let partnerData = partnerDoc.data();
-                partnerUser = { id: partnerDoc.id, ...partnerData };
-                document.getElementById("partnerUserName").textContent = partnerUser.name;
-
+        
+        // Listener do usuário atual
+        currentUserUnsubscribe = db.collection("users").doc(currentUser.id).onSnapshot(async doc => {
+            if (doc.exists) {
+                const userData = doc.data();
+                currentUser = { ...currentUser, ...userData };
+                document.getElementById("currentUserName").textContent = userData.name;
+                
                 // Auto-vincular se necessário
                 if (!userData.partnerUid) {
                     await db.collection("users").doc(currentUser.id).update({ partnerUid: partnerId });
                 }
+                
+                updateProfilePhotos();
+                renderCalendarGrid();
+            }
+        });
+
+        // Listener do parceiro
+        partnerUserUnsubscribe = db.collection("users").doc(partnerId).onSnapshot(async doc => {
+            const wasNull = !partnerUser;
+            if (doc.exists) {
+                const partnerData = doc.data();
+                partnerUser = { id: doc.id, ...partnerData };
+                document.getElementById("partnerUserName").textContent = partnerUser.name;
+                
+                // Auto-vincular se necessário
                 if (!partnerData.partnerUid) {
                     await db.collection("users").doc(partnerId).update({ partnerUid: currentUser.id });
+                }
+
+                updateProfilePhotos();
+                renderCalendarGrid();
+                renderPartnerGiftsGrid();
+                renderWishlist();
+
+                if (wasNull) {
+                    setupGiftsListener();
                 }
             } else {
                 partnerUser = null;
                 document.getElementById("partnerUserName").textContent = "Parceiro ainda não criou conta";
+                updateProfilePhotos();
+                renderCalendarGrid();
+                renderPartnerGiftsGrid();
+                renderWishlist();
             }
-        } catch (error) {
-            console.error("Erro ao carregar dados do parceiro:", error);
-            partnerUser = null;
-            document.getElementById("partnerUserName").textContent = "Erro ao carregar";
-        }
+        });
 
-        await syncOrphanGifts();
-        await loadAllGifts();
+        // Configurar listener de presentes
+        setupGiftsListener();
 
-        await Promise.all([
-            loadEvents(),
-            loadWishlist(),
-            loadCoupleConfig()
-        ]);
+        // Listener de eventos
+        eventsUnsubscribe = db.collection("events").onSnapshot(snapshot => {
+            loadedEvents = [];
+            snapshot.forEach(doc => {
+                loadedEvents.push({ id: doc.id, ...doc.data() });
+            });
+            renderCalendarGrid();
+        }, error => {
+            console.error("Erro no listener de eventos:", error);
+        });
 
-        updateProfilePhotos();
-        renderMyGiftsGrid();
-        renderPartnerGiftsGrid();
-        renderCalendarGrid();
-        renderWishlist();
-        
+        // Listener da Wishlist
+        wishlistUnsubscribe = db.collection("wishlist").onSnapshot(snapshot => {
+            loadedWishlist = [];
+            snapshot.forEach(doc => {
+                loadedWishlist.push({ id: doc.id, ...doc.data() });
+            });
+            renderWishlist();
+        }, error => {
+            console.error("Erro no listener de wishlist:", error);
+        });
+
+        // Listener de configurações do casal
+        coupleConfigUnsubscribe = db.collection("settings").doc("couple_config").onSnapshot(doc => {
+            if (doc.exists) {
+                coupleConfig = { ...coupleConfig, ...doc.data() };
+            }
+            applySplashConfig();
+            applyCoupleCover();
+            updateDaysCounter();
+            updateRomanticQuote();
+            
+            const audio = document.getElementById("bgMusic");
+            if (audio) {
+                const targetSrc = coupleConfig.musicUrl || "https://upload.wikimedia.org/wikipedia/commons/e/e5/Chopin_Nocturne_No._2_in_E_Flat_Major%2C_Op._9.ogg";
+                if (audio.src !== targetSrc) {
+                    audio.src = targetSrc;
+                    if (isMusicPlaying) {
+                        audio.play().catch(e => console.log("Autoplay bloqueado pelo navegador", e));
+                    }
+                }
+            }
+        }, error => {
+            console.error("Erro no listener de configurações do casal:", error);
+        });
+
+        // Ocultar a splash screen após o tempo mínimo
         hideSplashScreen();
 
     } catch (error) {
@@ -1070,12 +1183,8 @@ async function handleAddGift(event) {
             showToast("Presente registrado com sucesso! 🎁", "success");
         }
 
-        // Fechar modal e recarregar dados
+        // Fechar modal
         closeModal("addGiftModal");
-        await loadAllGifts();
-        renderMyGiftsGrid();
-        renderCalendarGrid();
-        renderPartnerGiftsGrid();
 
     } catch (error) {
         console.error("Erro ao salvar presente:", error);
@@ -1122,7 +1231,7 @@ async function handleAddMemory(event) {
 
         showToast("Fotos de recordação salvas! 📸💕", "success");
         
-        // 3. Fechar modals e recarregar
+        // 3. Fechar modals
         closeModal("addMemoryModal");
         if (document.getElementById("viewMyGiftModal").classList.contains("active")) {
             closeModal("viewMyGiftModal");
@@ -1130,9 +1239,6 @@ async function handleAddMemory(event) {
         if (document.getElementById("viewPartnerGiftModal").classList.contains("active")) {
             closeModal("viewPartnerGiftModal");
         }
-        await loadAllGifts();
-        renderMyGiftsGrid();
-        renderCalendarGrid();
 
     } catch (error) {
         console.error("Erro ao adicionar recordação:", error);
@@ -1795,10 +1901,6 @@ async function revealGift(giftId) {
         launchConfetti();
         showToast("Presente liberado! Agora seu amor pode ver 🎉", "success");
         
-        await loadAllGifts();
-        renderMyGiftsGrid();
-        renderPartnerGiftsGrid();
-        renderCalendarGrid();
         closeModal("viewMyGiftModal");
         closeModal("viewPartnerGiftModal");
 
@@ -1833,9 +1935,6 @@ async function deleteGift(giftId) {
         
         showToast("Presente excluído", "success");
         closeModal("viewMyGiftModal");
-        await loadAllGifts();
-        renderMyGiftsGrid();
-        renderCalendarGrid();
 
     } catch (error) {
         console.error("Erro ao excluir presente:", error);
@@ -1905,8 +2004,6 @@ async function handleAddEvent(event) {
 
         showToast("Evento criado com sucesso! 📅", "success");
         closeModal("addEventModal");
-        await loadEvents();
-        renderCalendarGrid();
     } catch (error) {
         console.error("Erro ao criar evento:", error);
         showToast("Erro ao criar evento: " + error.message, "error");
@@ -2033,8 +2130,6 @@ async function handleAddWishlistItem(event) {
 
         showToast("Sugestão adicionada! ✨", "success");
         closeModal("addWishlistModal");
-        await loadWishlist();
-        renderWishlist();
     } catch (error) {
         console.error("Erro ao adicionar sugestão:", error);
         showToast("Erro: " + error.message, "error");
@@ -2052,8 +2147,6 @@ async function deleteWishlistItem(itemId) {
     try {
         await db.collection("wishlist").doc(itemId).delete();
         showToast("Sugestão removida", "success");
-        await loadWishlist();
-        renderWishlist();
     } catch (error) {
         console.error("Erro ao remover sugestão:", error);
         showToast("Erro ao remover", "error");
