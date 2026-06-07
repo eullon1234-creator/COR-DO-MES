@@ -2459,11 +2459,11 @@ function renderHouseShopping() {
         neededItems.forEach(item => {
             const imgs = item.image_urls || [];
             const photoHtml = imgs.length > 0 
-                ? `<img src="${imgs[0]}" alt="${item.name}" class="w-full h-32 object-cover rounded-lg mb-2 cursor-pointer shadow-sm" onclick="openFullscreenImage('${imgs[0]}')">`
+                ? `<img src="${imgs[0]}" alt="${item.name}" class="w-full h-32 object-cover rounded-lg mb-2 shadow-sm">`
                 : `<div class="w-full h-32 bg-purple-50 rounded-lg mb-2 flex items-center justify-center text-purple-200"><i class="fas fa-home text-4xl"></i></div>`;
             
             const card = document.createElement("div");
-            card.className = "bg-white/80 rounded-xl p-3 border border-purple-100 shadow-sm flex flex-col justify-between";
+            card.className = "bg-white/80 rounded-xl p-3 border border-purple-100 shadow-sm flex flex-col justify-between cursor-pointer hover:shadow-md transition-shadow";
             card.innerHTML = `
                 <div>
                     ${photoHtml}
@@ -2474,19 +2474,26 @@ function renderHouseShopping() {
                     ${item.link ? `<a href="${item.link}" target="_blank" class="text-purple-700 hover:text-purple-950 text-xs font-semibold block truncate mt-1 hover:underline">🔗 Link de compra</a>` : ''}
                 </div>
                 <div class="flex gap-2 mt-3 flex-wrap justify-between items-center">
-                    <button onclick="toggleHouseItemBought('${item.id}', true)" class="btn btn-success text-xs py-1.5 px-3">
+                    <button onclick="event.stopPropagation(); toggleHouseItemBought('${item.id}', true)" class="btn btn-success text-xs py-1.5 px-3">
                         <i class="fas fa-check"></i> Comprado!
                     </button>
                     <div class="flex gap-1.5">
-                        <button onclick="openAddHouseItemModal(${JSON.stringify(item).replace(/"/g, '&quot;')})" class="text-purple-700 hover:text-purple-900 text-xs font-bold" title="Editar">
+                        <button onclick="event.stopPropagation(); openAddHouseItemModal(${JSON.stringify(item).replace(/"/g, '&quot;')})" class="text-purple-700 hover:text-purple-900 text-xs font-bold" title="Editar">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button onclick="deleteHouseItem('${item.id}')" class="text-red-500 hover:text-red-700 text-xs font-bold" title="Remover">
+                        <button onclick="event.stopPropagation(); deleteHouseItem('${item.id}')" class="text-red-500 hover:text-red-700 text-xs font-bold" title="Remover">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </div>
             `;
+
+            card.addEventListener("click", (e) => {
+                if (!e.target.closest("button") && !e.target.closest("a")) {
+                    viewHouseItem(item.id);
+                }
+            });
+
             neededGrid.appendChild(card);
         });
     }
@@ -2502,11 +2509,11 @@ function renderHouseShopping() {
         boughtItems.forEach(item => {
             const imgs = item.image_urls || [];
             const photoHtml = imgs.length > 0 
-                ? `<img src="${imgs[0]}" alt="${item.name}" class="w-full h-32 object-cover rounded-lg mb-2 cursor-pointer shadow-sm opacity-75" onclick="openFullscreenImage('${imgs[0]}')">`
+                ? `<img src="${imgs[0]}" alt="${item.name}" class="w-full h-32 object-cover rounded-lg mb-2 shadow-sm opacity-75">`
                 : `<div class="w-full h-32 bg-gray-100 rounded-lg mb-2 flex items-center justify-center text-gray-300"><i class="fas fa-check text-4xl"></i></div>`;
             
             const card = document.createElement("div");
-            card.className = "bg-gray-50/90 rounded-xl p-3 border border-gray-200 shadow-sm flex flex-col justify-between opacity-85";
+            card.className = "bg-gray-50/90 rounded-xl p-3 border border-gray-200 shadow-sm flex flex-col justify-between opacity-85 cursor-pointer hover:shadow-md transition-shadow";
             card.innerHTML = `
                 <div>
                     ${photoHtml}
@@ -2514,17 +2521,103 @@ function renderHouseShopping() {
                     ${item.description ? `<p class="text-xs text-gray-500 mt-1 line-through truncate">${item.description}</p>` : ''}
                 </div>
                 <div class="flex gap-2 mt-3 justify-between items-center">
-                    <button onclick="toggleHouseItemBought('${item.id}', false)" class="btn btn-secondary text-xs py-1.5 px-3">
+                    <button onclick="event.stopPropagation(); toggleHouseItemBought('${item.id}', false)" class="btn btn-secondary text-xs py-1.5 px-3">
                         <i class="fas fa-undo"></i> Desfazer
                     </button>
-                    <button onclick="deleteHouseItem('${item.id}')" class="text-red-400 hover:text-red-600 text-xs font-bold" title="Remover">
+                    <button onclick="event.stopPropagation(); deleteHouseItem('${item.id}')" class="text-red-400 hover:text-red-600 text-xs font-bold" title="Remover">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             `;
+
+            card.addEventListener("click", (e) => {
+                if (!e.target.closest("button") && !e.target.closest("a")) {
+                    viewHouseItem(item.id);
+                }
+            });
+
             boughtGrid.appendChild(card);
         });
     }
+}
+
+function viewHouseItem(itemId) {
+    const item = loadedHouseShopping.find(i => i.id === itemId);
+    if (!item) return;
+
+    const content = document.getElementById("viewHouseItemContent");
+    const imgs = item.image_urls || [];
+    const imagesHtml = imgs.map(url =>
+        `<img src="${url}" alt="Item" class="image-preview cursor-pointer" onclick="openFullscreenImage('${url}')">`
+    ).join("");
+
+    const isBought = item.is_bought;
+    const badgeText = isBought ? "Já Comprado! ✅" : "Precisando ⏳";
+    const badgeClass = isBought ? "badge-revealed" : "badge-unrevealed";
+
+    let html = `
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-1">Item:</label>
+            <p class="text-xl font-extrabold text-purple-950">${item.name}</p>
+        </div>
+
+        ${item.description ? `
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-1">Descrição:</label>
+            <p class="text-gray-700 text-sm whitespace-pre-wrap">${item.description}</p>
+        </div>
+        ` : ''}
+
+        ${item.observation ? `
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-1">Observação:</label>
+            <p class="text-purple-900 text-sm italic font-medium bg-purple-50 p-3 rounded-lg border border-purple-100">${item.observation}</p>
+        </div>
+        ` : ''}
+
+        ${item.link ? `
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-1">Link de Compra:</label>
+            <a href="${item.link}" target="_blank" class="text-blue-600 underline text-sm break-all">${item.link}</a>
+        </div>
+        ` : ''}
+
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-1">Fotos (${imgs.length}):</label>
+            <div class="flex flex-wrap gap-2 mt-1">
+                ${imgs.length > 0 ? imagesHtml : '<p class="text-sm text-gray-400">Sem fotos</p>'}
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <span class="gift-badge ${badgeClass}">${badgeText}</span>
+        </div>
+
+        <div class="flex gap-3 flex-wrap">
+            <button onclick="toggleHouseItemBought('${item.id}', ${!isBought}); closeModal('viewHouseItemModal')" class="btn ${isBought ? 'btn-secondary' : 'btn-success'} flex-1 justify-center">
+                <i class="fas ${isBought ? 'fa-undo' : 'fa-check'}"></i> ${isBought ? 'Desfazer Compra' : 'Marcar como Comprado'}
+            </button>
+            <button onclick="editHouseItem('${item.id}'); closeModal('viewHouseItemModal')" class="btn btn-primary flex-1 justify-center">
+                <i class="fas fa-edit"></i> Editar
+            </button>
+            <button onclick="deleteHouseItem('${item.id}'); closeModal('viewHouseItemModal')" class="btn btn-danger flex-1 justify-center">
+                <i class="fas fa-trash"></i> Excluir
+            </button>
+            <button onclick="closeModal('viewHouseItemModal')" class="btn btn-secondary flex-1 justify-center">
+                Fechar
+            </button>
+        </div>
+    `;
+
+    content.innerHTML = html;
+    document.getElementById("viewHouseItemTitle").textContent = item.name;
+    document.getElementById("viewHouseItemModal").classList.add("active");
+}
+
+function editHouseItem(itemId) {
+    const item = loadedHouseShopping.find(i => i.id === itemId);
+    if (!item) return;
+    openAddHouseItemModal(item);
 }
 
 function previewHouseItemImage() {
