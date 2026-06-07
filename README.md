@@ -319,6 +319,9 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 
 ## 📜 Changelog
 
+### v7 — 06/06/2026
+- ⏱️ **Tempo de Splash Ampliado** — Aumentado o tempo mínimo de permanência da Splash Screen na tela para pelo menos 5 segundos, garantindo tempo suficiente para ver as fotos e vídeos da entrada com calma.
+
 ### v6 — 06/06/2026
 - 📸 **Fotos Rotativas na Entrada** — Adicionado suporte para múltiplas imagens/GIFs na Splash Screen. É possível digitar caminhos separados por vírgula nas configurações (ex: `./eullon/foto1.jpg, ./eullon/foto2.jpg`) e o app escolherá uma aleatoriamente a cada abertura.
 
@@ -346,4 +349,4 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 - 🏷️ **Nome do evento nos cards** — presente exibe o nome do evento (ex: "💑 Dia dos Namorados") em vez de só o mês
 - ⚡ **Registrar Presente pré-selecionado** — clicar no botão no calendário já abre o modal com o evento correto
 
-*Versão 6.0 — Junho 2026*
+*Versão 7.0 — Junho 2026*

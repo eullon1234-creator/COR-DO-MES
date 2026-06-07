@@ -14,7 +14,8 @@
 - Melhorias de visual e legibilidade: adição de Google Fonts (Outfit e Playfair Display) e aumento de contraste (letras escuras em títulos e cards do calendário).
 - Suporte a vídeo na Splash Screen (ex: MP4 do casal na entrada) e suporte a arquivos locais (referências relativas como ./eullon/entrada.mp4).
 - Suporte a múltiplas fotos rotativas/alternadas na Splash Screen (caminhos separados por vírgula).
-- Atualização das rotinas de build e fluxo de versionamento PWA para v6.0.
+- Aumento do tempo mínimo de splash screen para 5 segundos para contemplação das mídias de abertura.
+- Atualização das rotinas de build e fluxo de versionamento PWA para v7.0.
 
 ### Bugs corrigidos durante a sessão
 - `previewImage()` limpava previews de fotos existentes no modo edição — corrigido com `data-existing="true"`
@@ -50,7 +51,7 @@ A partir de **06/06/2026**, todo ciclo de alteração segue este fluxo:
 7. Atualizar `AGENTS.md` com as novidades (se relevante)
 
 ### Versão atual
-- **v6** — Fotos rotativas e alternadas na Splash Screen + Suporte a vídeo MP4/WebM + Arquivos locais por caminho relativo + Melhorias de contraste e visual (Google Fonts) + Música + Painel do Casal + Configurações Compartilhadas
+- **v7** — Tempo de exibição de Splash ampliado para 5s + Fotos rotativas e alternadas + Suporte a vídeo MP4/WebM + Arquivos locais por caminho relativo + Melhorias de contraste e visual (Google Fonts) + Música + Painel do Casal + Configurações Compartilhadas
 
 ---
 

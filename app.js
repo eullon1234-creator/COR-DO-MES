@@ -4,6 +4,8 @@
  * Stack: Firebase + ImgBB API
  */
 
+const appStartTime = Date.now();
+
 // ============================================================================
 // ⚙️ CONFIGURAÇÃO DO FIREBASE
 // ============================================================================
@@ -553,12 +555,18 @@ function updateMusicToggleButton() {
 
 function hideSplashScreen() {
     const splash = document.getElementById("splashScreen");
-    if (splash) {
+    if (!splash) return;
+    
+    const elapsed = Date.now() - appStartTime;
+    const minDuration = 5000; // 5 segundos
+    const remainingDelay = Math.max(0, minDuration - elapsed);
+    
+    setTimeout(() => {
         splash.style.opacity = "0";
         setTimeout(() => {
             splash.classList.add("hidden");
         }, 700);
-    }
+    }, remainingDelay);
 }
 
 async function loadCoupleConfig() {
