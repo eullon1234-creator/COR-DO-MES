@@ -15,9 +15,11 @@
 - Remoção completa de recarregamentos manuais e re-renderizações imperativas redundantes nas funções de mutação (criação, edição, exclusão, adição de memória).
 - Controle de listeners ativos com armazenamento de referências `unsubscribe` globais e desinscrição completa no logout para prevenir vazamento de memória.
 - Música de fundo (Nocturne de Chopin em loop) com botão flutuante interativo (vinil que gira ao tocar) e controle de ativação salvo no localStorage.
+- Upgrade do botão de música flutuante para um painel Pill completo: `[ ⏮️ ]  ( 💿 )  [ ⏭️ ]`, permitindo avançar e retroceder músicas.
+- Criação de playlist de músicas padrão (4 faixas) e suporte para lista de links MP3 separados por vírgula nas configurações, com auto-avanço das faixas ao término.
 - Tela de abertura (Splash Screen) romântica com GIF/coração pulsante e mensagem de carregamento.
 - Painel do Casal ("Nosso Espaço") com polaroid, dias de relacionamento e frase romântica.
-- Atualização das rotinas de build e fluxo de versionamento PWA para v12.0.
+- Atualização das rotinas de build e fluxo de versionamento PWA para v13.0.
 
 ### Bugs corrigidos durante a sessão
 - Evitada re-renderização redundante e duplicações visuais mantendo o controle total via snapshots e removendo invocações manuais de `renderGrid()`.
@@ -48,7 +50,7 @@ A partir de **06/06/2026**, todo ciclo de alteração segue este fluxo:
 7. Atualizar `AGENTS.md` com as novidades (se relevante)
 
 ### Versão atual
-- **v12** — Campos de descrição/observação para Presentes e Wishlist + Modal de Detalhes completo na Wishlist + Cards da Wishlist clicáveis para abrir modal + Atualização em tempo real sem re-renderizações imperativas.
+- **v13** — Controle de música com botões de passar/voltar no estilo Pill + Playlist de 4 músicas clássicas + Auto-avanço de faixa + Links de música separados por vírgula nas Configurações.
 
 ---
 

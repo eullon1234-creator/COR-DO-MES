@@ -106,6 +106,14 @@ let coupleConfig = {
     splashGifUrl: "",
     coverUrl: ""
 };
+const DEFAULT_PLAYLIST = [
+    "https://upload.wikimedia.org/wikipedia/commons/e/e5/Chopin_Nocturne_No._2_in_E_Flat_Major%2C_Op._9.ogg",
+    "https://upload.wikimedia.org/wikipedia/commons/2/28/Debussy_Clair_de_Lune.ogg",
+    "https://upload.wikimedia.org/wikipedia/commons/e/ea/Beethoven_Moonlight_Sonata_1st_movement.ogg",
+    "https://upload.wikimedia.org/wikipedia/commons/2/2d/Erik_Satie_Gymnopedie_No_1.ogg"
+];
+let musicPlaylist = [...DEFAULT_PLAYLIST];
+let currentMusicIndex = 0;
 let isMusicPlaying = false;
 let hasInteractedForMusic = false;
 
@@ -335,6 +343,13 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("click", initAutoplayMusic);
     document.addEventListener("touchstart", initAutoplayMusic);
     
+    const audio = document.getElementById("bgMusic");
+    if (audio) {
+        audio.addEventListener("ended", () => {
+            nextMusic();
+        });
+    }
+    
     // Atualizar estado inicial do botão de música se o localStorage já indicar habilitado
     updateMusicToggleButton();
 });
@@ -515,6 +530,7 @@ async function loadUserData() {
             if (doc.exists) {
                 coupleConfig = { ...coupleConfig, ...doc.data() };
             }
+            setupMusicPlaylist();
             applySplashConfig();
             applyCoupleCover();
             updateDaysCounter();
@@ -522,8 +538,8 @@ async function loadUserData() {
             
             const audio = document.getElementById("bgMusic");
             if (audio) {
-                const targetSrc = coupleConfig.musicUrl || "https://upload.wikimedia.org/wikipedia/commons/e/e5/Chopin_Nocturne_No._2_in_E_Flat_Major%2C_Op._9.ogg";
-                if (audio.src !== targetSrc) {
+                const targetSrc = musicPlaylist[currentMusicIndex] || musicPlaylist[0] || "";
+                if (!audio.src || !musicPlaylist.includes(audio.src)) {
                     audio.src = targetSrc;
                     if (isMusicPlaying) {
                         audio.play().catch(e => console.log("Autoplay bloqueado pelo navegador", e));
@@ -620,6 +636,16 @@ async function uploadProfilePhoto(file, type) {
 // 🎵 MÚSICA, SPLASH SCREEN E CONFIGURAÇÕES DO CASAL
 // ============================================================================
 
+function setupMusicPlaylist() {
+    const raw = coupleConfig.musicUrl || "";
+    const customUrls = raw.split(",").map(url => url.trim()).filter(url => url.length > 0);
+    if (customUrls.length > 0) {
+        musicPlaylist = customUrls;
+    } else {
+        musicPlaylist = [...DEFAULT_PLAYLIST];
+    }
+}
+
 function initAutoplayMusic() {
     if (hasInteractedForMusic) return;
     const musicEnabled = localStorage.getItem("corDoMes_musicEnabled") !== "false";
@@ -635,9 +661,13 @@ function playMusic() {
     const audio = document.getElementById("bgMusic");
     if (!audio) return;
     
-    const currentSrc = audio.src;
-    const targetSrc = coupleConfig.musicUrl || "https://upload.wikimedia.org/wikipedia/commons/e/e5/Chopin_Nocturne_No._2_in_E_Flat_Major%2C_Op._9.ogg";
-    if (!currentSrc || currentSrc !== targetSrc) {
+    setupMusicPlaylist();
+    if (currentMusicIndex >= musicPlaylist.length) {
+        currentMusicIndex = 0;
+    }
+    
+    const targetSrc = musicPlaylist[currentMusicIndex] || "";
+    if (audio.src !== targetSrc) {
         audio.src = targetSrc;
     }
     
@@ -665,6 +695,22 @@ function togglePlayMusic() {
     } else {
         playMusic();
     }
+}
+
+function nextMusic() {
+    setupMusicPlaylist();
+    currentMusicIndex = (currentMusicIndex + 1) % musicPlaylist.length;
+    isMusicPlaying = true;
+    playMusic();
+    showToast("Próxima música... ⏭️", "success");
+}
+
+function prevMusic() {
+    setupMusicPlaylist();
+    currentMusicIndex = (currentMusicIndex - 1 + musicPlaylist.length) % musicPlaylist.length;
+    isMusicPlaying = true;
+    playMusic();
+    showToast("Música anterior... ⏮️", "success");
 }
 
 function updateMusicToggleButton() {

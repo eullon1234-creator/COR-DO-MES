@@ -319,6 +319,11 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 
 ## 📜 Changelog
 
+### v13 — 07/06/2026
+- 🎵 **Controle e Playlist de Músicas** — Transformação do botão de música flutuante em um controlador completo no estilo Pill: `[ ⏮️ ]  ( 💿 )  [ ⏭️ ]`.
+- 🔁 **Playlist Padrão e Customizada** — Adicionada playlist padrão com 4 músicas clássicas/românticas e suporte para links customizados separados por vírgula no formulário de Configurações do Casal.
+- ⚡ **Auto-avanço** — A música passa automaticamente para a próxima faixa quando a atual termina de tocar.
+
 ### v12 — 07/06/2026
 - 💬 **Campos de Descrição & Observação** — Implementação dos campos de "Descrição" e "Observação" para as seções de Presentes (Gifts) e Sugestões (Wishlist), completando a padronização do app.
 - 🔍 **Modal de Detalhes na Wishlist** — Criação de um modal de detalhes (`viewWishlistItemModal`) ao clicar nos cards de sugestão da Wishlist, permitindo visualizar todas as fotos do item, descrição completa, observação de preferência, link direto de compra e ações rápidas.
@@ -359,7 +364,7 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 - 🎵 **Música de fundo** — Adicionada música instrumental romântica (Nocturne de Chopin) em loop com botão flutuante interativo (vinil giratório) para ativar/desativar
 - ⏳ **Tela de abertura (Splash Screen)** — Nova tela de carregamento romântica com GIF/coração pulsante e mensagens especiais ao abrir o aplicativo
 - 🖼️ **Painel do Casal ("Nosso Espaço")** — Exibição de foto do casal estilo polaroid, contador de dias juntos e frase romântica que muda diariamente
-- ⚙️ **Configurações do Casal** — Modal exclusivo para personalizar a foto de capa, música, GIF da splash screen e data do aniversário de namoro com sincronização em tempo real no Firestore
+- ⚙️ **Configurações do Casal** — Modal exclusivo para personalizar a foto de capa, música, GIF da splash screen and data do aniversário de namoro com sincronização em tempo real no Firestore
 
 ### v2 — 06/06/2026
 - ⚡ **Ajustes no Calendário** — Adicionado o botão para registrar novo presente no calendário mesmo quando já existe um presente cadastrado
@@ -370,4 +375,4 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 - 🏷️ **Nome do evento nos cards** — presente exibe o nome do evento (ex: "💑 Dia dos Namorados") em vez de só o mês
 - ⚡ **Registrar Presente pré-selecionado** — clicar no botão no calendário já abre o modal com o evento correto
 
-*Versão 12.0 — Junho 2026*
+*Versão 13.0 — Junho 2026*
