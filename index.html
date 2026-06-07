@@ -819,6 +819,9 @@
                 <button class="tab-btn" onclick="switchTab('memories', this)">
                     <i class="fas fa-images"></i> 📸 Memórias
                 </button>
+                <button class="tab-btn" onclick="switchTab('house-shopping', this)">
+                    <i class="fas fa-home"></i> Casa do Eullon Filho
+                </button>
             </div>
 
             <!-- Conteúdo das Abas -->
@@ -898,6 +901,40 @@
                     <i class="fas fa-images text-5xl mb-4"></i>
                     <p class="text-xl">Nenhuma recordação ainda...</p>
                     <p class="text-sm mt-2">Quando vocês revelarem um presente e adicionarem fotos, elas aparecerão aqui 💕</p>
+                </div>
+            </div>
+
+            <!-- Aba: Casa do Eullon Filho -->
+            <div id="house-shopping" class="tab-content hidden">
+                <div class="mb-6 flex justify-between items-center flex-wrap gap-3">
+                    <h2 class="text-2xl font-extrabold text-purple-900 tracking-tight flex items-center gap-2">
+                        <i class="fas fa-home text-purple-600"></i> Casa do Eullon Filho
+                    </h2>
+                    <button class="btn btn-success" onclick="openAddHouseItemModal()">
+                        <i class="fas fa-plus-circle"></i> Adicionar Item
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- O que estamos precisando -->
+                    <div class="bg-white/60 backdrop-blur-md p-6 rounded-3xl border border-purple-200/50 shadow-xl">
+                        <h3 class="text-xl font-bold text-purple-900 mb-4 flex items-center gap-2">
+                            <i class="fas fa-shopping-basket text-yellow-600"></i> O que estamos precisando ⏳
+                        </h3>
+                        <div id="houseNeededGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Preenchido por JS -->
+                        </div>
+                    </div>
+
+                    <!-- O que já foi comprado -->
+                    <div class="bg-white/60 backdrop-blur-md p-6 rounded-3xl border border-purple-200/50 shadow-xl">
+                        <h3 class="text-xl font-bold text-purple-900 mb-4 flex items-center gap-2">
+                            <i class="fas fa-check-circle text-green-600"></i> Já comprado! ✅
+                        </h3>
+                        <div id="houseBoughtGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Preenchido por JS -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1192,6 +1229,100 @@
                 </div>
                 
                 <div id="wishlistFormSpinner" class="spinner flex justify-center mt-4"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar/Editar Item para Casa -->
+    <div id="addHouseItemModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold" id="houseItemModalTitle">🏠 Adicionar Item para Casa</h2>
+                <button onclick="closeModal('addHouseItemModal')" class="text-gray-500 hover:text-gray-700 text-2xl">
+                    ✕
+                </button>
+            </div>
+
+            <form id="houseItemForm" onsubmit="handleSaveHouseItem(event)">
+                <input type="hidden" id="editingHouseItemId" value="">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-tag"></i> Nome / Item
+                    </label>
+                    <input 
+                        type="text" 
+                        id="houseItemName" 
+                        placeholder="Ex: Micro-ondas, Jogo de pratos..." 
+                        required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-align-left"></i> Descrição
+                    </label>
+                    <textarea 
+                        id="houseItemDescription" 
+                        placeholder="Ex: Cor preta, inox, tamanho médio..." 
+                        rows="2"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    ></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-info-circle"></i> Observação
+                    </label>
+                    <input 
+                        type="text" 
+                        id="houseItemObservation" 
+                        placeholder="Ex: Comprar preferencialmente na loja X..." 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-link"></i> Link do Item (Opcional)
+                    </label>
+                    <div class="flex gap-2">
+                        <input 
+                            type="url" 
+                            id="houseItemLink" 
+                            placeholder="https://loja.com/produto" 
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        >
+                        <button type="button" class="btn btn-primary whitespace-nowrap" onclick="handleFetchHouseItemProduct()">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                    <div id="houseItemFetchStatus" class="text-xs text-gray-500 mt-1"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-image"></i> Foto do Item (Opcional)
+                    </label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="houseItemImage" accept="image/*">
+                        <label for="houseItemImage" class="file-input-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Clique para selecionar a foto</span>
+                        </label>
+                    </div>
+                    <div id="houseItemFileName" class="file-name"></div>
+                    <div id="houseItemImagePreviews" class="flex flex-wrap gap-2 mt-2"></div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="submit" class="btn btn-primary flex-1 justify-center">
+                        <i class="fas fa-save"></i> Salvar Item
+                    </button>
+                    <button type="button" onclick="closeModal('addHouseItemModal')" class="btn btn-secondary flex-1 justify-center">
+                        Cancelar
+                    </button>
+                </div>
             </form>
         </div>
     </div>

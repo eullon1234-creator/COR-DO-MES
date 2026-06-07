@@ -319,6 +319,10 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 
 ## 📜 Changelog
 
+### v11 — 07/06/2026
+- 🏠 **Aba "Casa do Eullon Filho"** — Criação de uma seção dedicada a compras para a casa nova. Permite listar itens necessários, marcar itens como comprados, enviar fotos, descrições, observações e links de compras.
+- ⚡ **Sincronização em Tempo Real (onSnapshot)** — A nova lista de compras da casa se atualiza automaticamente em ambos os dispositivos assim que alterações são efetuadas.
+
 ### v10 — 07/06/2026
 - ⚡ **Sincronização em Tempo Real** — Implementação de ouvintes Firestore em tempo real (`onSnapshot`) para presentes, desejos (wishlist), eventos customizados, informações de usuários e configurações do casal. Não é mais necessário atualizar a página manualmente para ver as alterações do parceiro.
 - 🧹 **Otimização de Mutação** — Remoção de requisições de recarregamento manual redundantes nas operações de inserção, edição e remoção.
@@ -362,4 +366,4 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 - 🏷️ **Nome do evento nos cards** — presente exibe o nome do evento (ex: "💑 Dia dos Namorados") em vez de só o mês
 - ⚡ **Registrar Presente pré-selecionado** — clicar no botão no calendário já abre o modal com o evento correto
 
-*Versão 10.0 — Junho 2026*
+*Versão 11.0 — Junho 2026*

@@ -87,6 +87,7 @@ let currentGiftBeingViewed = null;
 let deferredPrompt = null; // Para instalação do PWA
 let loadedEvents = [];
 let loadedWishlist = [];
+let loadedHouseShopping = [];
 
 // Firestore Unsubscribe Listeners
 let giftsUnsubscribe = null;
@@ -95,6 +96,7 @@ let wishlistUnsubscribe = null;
 let coupleConfigUnsubscribe = null;
 let currentUserUnsubscribe = null;
 let partnerUserUnsubscribe = null;
+let houseShoppingUnsubscribe = null;
 
 
 // Configurações do Casal (Música, GIF, Capa e Data de Início)
@@ -323,6 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("giftImage").addEventListener("change", previewImage);
     document.getElementById("memoryImage").addEventListener("change", previewMemoryImage);
     document.getElementById("wishlistImage").addEventListener("change", previewWishlistImage);
+    document.getElementById("houseItemImage").addEventListener("change", previewHouseItemImage);
 
     populateMonthSelects();
     populateEventDaySelect();
@@ -348,6 +351,7 @@ function handleLogout() {
     if (coupleConfigUnsubscribe) coupleConfigUnsubscribe();
     if (currentUserUnsubscribe) currentUserUnsubscribe();
     if (partnerUserUnsubscribe) partnerUserUnsubscribe();
+    if (houseShoppingUnsubscribe) houseShoppingUnsubscribe();
     
     giftsUnsubscribe = null;
     eventsUnsubscribe = null;
@@ -355,6 +359,7 @@ function handleLogout() {
     coupleConfigUnsubscribe = null;
     currentUserUnsubscribe = null;
     partnerUserUnsubscribe = null;
+    houseShoppingUnsubscribe = null;
 
     localStorage.removeItem("corDoMes_userId");
     currentUser = null;
@@ -413,6 +418,7 @@ async function loadUserData() {
         if (coupleConfigUnsubscribe) coupleConfigUnsubscribe();
         if (currentUserUnsubscribe) currentUserUnsubscribe();
         if (partnerUserUnsubscribe) partnerUserUnsubscribe();
+        if (houseShoppingUnsubscribe) houseShoppingUnsubscribe();
 
         // 1. Sincronizar presentes órfãos (roda uma vez no login)
         await syncOrphanGifts();
@@ -491,6 +497,17 @@ async function loadUserData() {
             renderWishlist();
         }, error => {
             console.error("Erro no listener de wishlist:", error);
+        });
+
+        // Listener da Casa (Compras)
+        houseShoppingUnsubscribe = db.collection("house_shopping").onSnapshot(snapshot => {
+            loadedHouseShopping = [];
+            snapshot.forEach(doc => {
+                loadedHouseShopping.push({ id: doc.id, ...doc.data() });
+            });
+            renderHouseShopping();
+        }, error => {
+            console.error("Erro no listener de compras da casa:", error);
         });
 
         // Listener de configurações do casal
@@ -2210,6 +2227,324 @@ function renderWishlist() {
                 ${item.link ? `<a href="${item.link}" target="_blank" class="inline-block mt-2 btn btn-primary text-xs py-1.5 px-3"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}
             `;
             partnerGrid.appendChild(div);
+        });
+    }
+}
+
+// ============================================================================
+// 🏠 CASA DO EULLON FILHO - COMPRAS
+// ============================================================================
+
+function openAddHouseItemModal(itemData = null) {
+    document.getElementById("houseItemForm").reset();
+    document.getElementById("houseItemFileName").textContent = "";
+    document.getElementById("houseItemImagePreviews").innerHTML = "";
+    document.getElementById("houseItemFetchStatus").textContent = "";
+
+    const fileInput = document.getElementById("houseItemImage");
+    const modalTitle = document.getElementById("houseItemModalTitle");
+    const submitBtn = document.querySelector("#houseItemForm button[type='submit']");
+    const editingIdInput = document.getElementById("editingHouseItemId");
+
+    if (itemData) {
+        editingIdInput.value = itemData.id;
+        modalTitle.textContent = "✏️ Editar Item para Casa";
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Atualizar Item';
+        fileInput.removeAttribute("required");
+
+        document.getElementById("houseItemName").value = itemData.name;
+        document.getElementById("houseItemDescription").value = itemData.description || "";
+        document.getElementById("houseItemObservation").value = itemData.observation || "";
+        document.getElementById("houseItemLink").value = itemData.link || "";
+
+        const existingImages = itemData.image_urls || [];
+        if (existingImages.length > 0) {
+            const previews = document.getElementById("houseItemImagePreviews");
+            existingImages.forEach(url => {
+                const img = document.createElement("img");
+                img.src = url;
+                img.className = "w-20 h-20 object-cover rounded-lg border-2 border-purple-300";
+                img.title = "Foto existente";
+                img.setAttribute("data-existing", "true");
+                img.onclick = () => openFullscreenImage(url);
+                previews.appendChild(img);
+            });
+            document.getElementById("houseItemFetchStatus").textContent = `${existingImages.length} foto(s) existente(s)`;
+        }
+    } else {
+        editingIdInput.value = "";
+        modalTitle.textContent = "🏠 Adicionar Item para Casa";
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Item';
+        fileInput.removeAttribute("required");
+    }
+
+    document.getElementById("addHouseItemModal").classList.add("active");
+}
+
+async function handleFetchHouseItemProduct() {
+    const url = document.getElementById("houseItemLink").value.trim();
+    if (!url) {
+        showToast("Cole o link do produto primeiro", "error");
+        return;
+    }
+
+    const status = document.getElementById("houseItemFetchStatus");
+    status.textContent = "⏳ Buscando informações do produto...";
+
+    try {
+        const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+        const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
+        const html = await resp.text();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+
+        const ogTitle = doc.querySelector('meta[property="og:title"]')?.content;
+        const pageTitle = doc.querySelector("title")?.textContent;
+        const name = ogTitle || pageTitle || "";
+
+        const ogImage = doc.querySelector('meta[property="og:image"]')?.content;
+        const imageUrl = ogImage || "";
+
+        if (name) {
+            document.getElementById("houseItemName").value = name.trim();
+            status.textContent = "✅ Nome preenchido!";
+        } else {
+            status.textContent = "⚠️ Não foi possível detectar o nome";
+        }
+
+        if (imageUrl) {
+            status.textContent += " Baixando imagem...";
+            try {
+                const imgResp = await fetch(imageUrl, { signal: AbortSignal.timeout(8000) });
+                const blob = await imgResp.blob();
+                const ext = blob.type.split("/")[1] || "jpg";
+                const file = new File([blob], "produto." + ext, { type: blob.type });
+
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                document.getElementById("houseItemImage").files = dataTransfer.files;
+
+                const event = new Event("change", { bubbles: true });
+                document.getElementById("houseItemImage").dispatchEvent(event);
+
+                status.textContent += " ✅ Foto adicionada!";
+            } catch (imgErr) {
+                status.textContent += " ⚠️ Não foi possível baixar a foto";
+            }
+        }
+    } catch (error) {
+        console.error("Erro ao buscar produto:", error);
+        status.textContent = "❌ Erro ao buscar. Verifique o link.";
+    }
+}
+
+async function handleSaveHouseItem(event) {
+    event.preventDefault();
+
+    const editingId = document.getElementById("editingHouseItemId").value;
+    const name = document.getElementById("houseItemName").value.trim();
+    const description = document.getElementById("houseItemDescription").value.trim();
+    const observation = document.getElementById("houseItemObservation").value.trim();
+    const link = document.getElementById("houseItemLink").value.trim();
+    const imageFiles = document.getElementById("houseItemImage").files;
+
+    if (!name) {
+        showToast("Preencha o nome do item", "error");
+        return;
+    }
+
+    const submitBtn = event.target.querySelector("button[type='submit']");
+    let originalBtnText = "";
+    if (submitBtn) {
+        originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "Salvando...";
+    }
+
+    try {
+        let imageUrls = [];
+
+        if (editingId) {
+            const existingItem = loadedHouseShopping.find(item => item.id === editingId);
+            if (existingItem && existingItem.image_urls) {
+                imageUrls = [...existingItem.image_urls];
+            }
+        }
+
+        if (imageFiles.length > 0) {
+            const newUrls = await uploadMultipleToImgBB(imageFiles);
+            imageUrls = [...imageUrls, ...newUrls];
+        }
+
+        if (editingId) {
+            await db.collection("house_shopping").doc(editingId).update({
+                name: name,
+                description: description,
+                observation: observation,
+                link: link || null,
+                image_urls: imageUrls
+            });
+            showToast("Item atualizado! 🏠", "success");
+        } else {
+            await db.collection("house_shopping").add({
+                name: name,
+                description: description,
+                observation: observation,
+                link: link || null,
+                image_urls: imageUrls,
+                is_bought: false,
+                creatorUid: currentUser.id,
+                createdAt: new Date()
+            });
+            showToast("Item adicionado! 🏠", "success");
+        }
+
+        closeModal("addHouseItemModal");
+    } catch (error) {
+        console.error("Erro ao salvar item para casa:", error);
+        showToast("Erro ao salvar: " + error.message, "error");
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
+    }
+}
+
+async function toggleHouseItemBought(itemId, isBought) {
+    try {
+        await db.collection("house_shopping").doc(itemId).update({
+            is_bought: isBought,
+            boughtAt: isBought ? new Date() : null
+        });
+        showToast(isBought ? "Marcado como comprado! 🎉" : "Item voltou para a lista ⏳", "success");
+    } catch (error) {
+        console.error("Erro ao alterar status do item:", error);
+        showToast("Erro ao alterar status", "error");
+    }
+}
+
+async function deleteHouseItem(itemId) {
+    if (!confirm("Remover este item?")) return;
+
+    try {
+        await db.collection("house_shopping").doc(itemId).delete();
+        showToast("Item removido", "success");
+    } catch (error) {
+        console.error("Erro ao remover item:", error);
+        showToast("Erro ao remover", "error");
+    }
+}
+
+function renderHouseShopping() {
+    const neededGrid = document.getElementById("houseNeededGrid");
+    const boughtGrid = document.getElementById("houseBoughtGrid");
+    if (!neededGrid || !boughtGrid) return;
+
+    neededGrid.innerHTML = "";
+    boughtGrid.innerHTML = "";
+
+    const neededItems = loadedHouseShopping.filter(item => !item.is_bought);
+    const boughtItems = loadedHouseShopping.filter(item => item.is_bought);
+
+    if (neededItems.length === 0) {
+        neededGrid.innerHTML = `
+            <div class="col-span-full text-center py-6 text-purple-900/60">
+                <i class="fas fa-clipboard-list text-3xl mb-2"></i>
+                <p class="text-sm">Nada precisando no momento</p>
+            </div>
+        `;
+    } else {
+        neededItems.forEach(item => {
+            const imgs = item.image_urls || [];
+            const photoHtml = imgs.length > 0 
+                ? `<img src="${imgs[0]}" alt="${item.name}" class="w-full h-32 object-cover rounded-lg mb-2 cursor-pointer shadow-sm" onclick="openFullscreenImage('${imgs[0]}')">`
+                : `<div class="w-full h-32 bg-purple-50 rounded-lg mb-2 flex items-center justify-center text-purple-200"><i class="fas fa-home text-4xl"></i></div>`;
+            
+            const card = document.createElement("div");
+            card.className = "bg-white/80 rounded-xl p-3 border border-purple-100 shadow-sm flex flex-col justify-between";
+            card.innerHTML = `
+                <div>
+                    ${photoHtml}
+                    ${imgs.length > 1 ? `<span class="text-xs text-purple-700/60 block mt-1">+${imgs.length - 1} fotos</span>` : ''}
+                    <p class="text-purple-950 text-sm font-bold truncate mt-1">${item.name}</p>
+                    ${item.description ? `<p class="text-xs text-gray-600 mt-1 line-clamp-2" title="${item.description}">${item.description}</p>` : ''}
+                    ${item.observation ? `<p class="text-xs text-purple-800/70 italic mt-1 font-semibold truncate" title="Obs: ${item.observation}">Obs: ${item.observation}</p>` : ''}
+                    ${item.link ? `<a href="${item.link}" target="_blank" class="text-purple-700 hover:text-purple-950 text-xs font-semibold block truncate mt-1 hover:underline">🔗 Link de compra</a>` : ''}
+                </div>
+                <div class="flex gap-2 mt-3 flex-wrap justify-between items-center">
+                    <button onclick="toggleHouseItemBought('${item.id}', true)" class="btn btn-success text-xs py-1.5 px-3">
+                        <i class="fas fa-check"></i> Comprado!
+                    </button>
+                    <div class="flex gap-1.5">
+                        <button onclick="openAddHouseItemModal(${JSON.stringify(item).replace(/"/g, '&quot;')})" class="text-purple-700 hover:text-purple-900 text-xs font-bold" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteHouseItem('${item.id}')" class="text-red-500 hover:text-red-700 text-xs font-bold" title="Remover">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            neededGrid.appendChild(card);
+        });
+    }
+
+    if (boughtItems.length === 0) {
+        boughtGrid.innerHTML = `
+            <div class="col-span-full text-center py-6 text-purple-900/60">
+                <i class="fas fa-shopping-cart text-3xl mb-2"></i>
+                <p class="text-sm">Nenhum item comprado ainda</p>
+            </div>
+        `;
+    } else {
+        boughtItems.forEach(item => {
+            const imgs = item.image_urls || [];
+            const photoHtml = imgs.length > 0 
+                ? `<img src="${imgs[0]}" alt="${item.name}" class="w-full h-32 object-cover rounded-lg mb-2 cursor-pointer shadow-sm opacity-75" onclick="openFullscreenImage('${imgs[0]}')">`
+                : `<div class="w-full h-32 bg-gray-100 rounded-lg mb-2 flex items-center justify-center text-gray-300"><i class="fas fa-check text-4xl"></i></div>`;
+            
+            const card = document.createElement("div");
+            card.className = "bg-gray-50/90 rounded-xl p-3 border border-gray-200 shadow-sm flex flex-col justify-between opacity-85";
+            card.innerHTML = `
+                <div>
+                    ${photoHtml}
+                    <p class="text-gray-500 text-sm font-bold line-through truncate mt-1">${item.name}</p>
+                    ${item.description ? `<p class="text-xs text-gray-500 mt-1 line-through truncate">${item.description}</p>` : ''}
+                </div>
+                <div class="flex gap-2 mt-3 justify-between items-center">
+                    <button onclick="toggleHouseItemBought('${item.id}', false)" class="btn btn-secondary text-xs py-1.5 px-3">
+                        <i class="fas fa-undo"></i> Desfazer
+                    </button>
+                    <button onclick="deleteHouseItem('${item.id}')" class="text-red-400 hover:text-red-600 text-xs font-bold" title="Remover">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            boughtGrid.appendChild(card);
+        });
+    }
+}
+
+function previewHouseItemImage() {
+    const files = document.getElementById("houseItemImage").files;
+    const container = document.getElementById("houseItemImagePreviews");
+    const fileName = document.getElementById("houseItemFileName");
+
+    container.innerHTML = "";
+
+    if (files.length > 0) {
+        fileName.textContent = files.length + " arquivo(s) selecionado(s)";
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.className = "w-16 h-16 rounded object-cover border border-gray-300";
+                container.appendChild(img);
+            };
+            reader.readAsDataURL(file);
         });
     }
 }
