@@ -323,6 +323,7 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 - 💾 **Cache Completo de Mídias (Fotos, Áudios e Vídeos)** — Atualização do Service Worker para interceptar e salvar em cache local do celular fotos do ImgBB, músicas de fundo e vídeos de abertura.
 - 🧹 **Auto-limpeza (trimCache)** — Adicionado controle automático de tamanho de cache limitando a 50 itens de mídias dinâmicas para evitar consumo exagerado de espaço.
 - 📱 **Compatibilidade iOS (Safari)** — Ignora Range requests nas escutas do Service Worker, garantindo reprodução contínua de áudio/vídeo em aparelhos Apple.
+- 📅 **Correção do Contador de Dias** — Correção da rotina de cálculo de dias juntos substituindo a formatação de data com hífen por barra, resolvendo o erro de carregamento (exibição de "...") no Safari e em iPhones.
 
 ### v13 — 07/06/2026
 - 🎵 **Controle e Playlist de Músicas** — Transformação do botão de música flutuante em um controlador completo no estilo Pill: `[ ⏮️ ]  ( 💿 )  [ ⏭️ ]`.

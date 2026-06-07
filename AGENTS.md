@@ -52,7 +52,7 @@ A partir de **06/06/2026**, todo ciclo de alteração segue este fluxo:
 7. Atualizar `AGENTS.md` com as novidades (se relevante)
 
 ### Versão atual
-- **v14** — Cache dinâmico de fotos, áudios e vídeos no Service Worker (sw.js) com limite de 50 itens de mídia + suporte a Range requests bypass no iOS Safari.
+- **v14** — Cache dinâmico de fotos, áudios e vídeos no Service Worker (sw.js) com limite de 50 itens de mídia + suporte a Range requests bypass no iOS Safari + Correção do parser do contador de dias de namoro para iPhones.
 
 ---
 

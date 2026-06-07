@@ -754,6 +754,7 @@ async function loadCoupleConfig() {
             await db.collection("settings").doc("couple_config").set(coupleConfig);
         }
         
+        setupMusicPlaylist();
         applySplashConfig();
         applyCoupleCover();
         updateDaysCounter();
@@ -762,11 +763,11 @@ async function loadCoupleConfig() {
         // Configurar música de fundo
         const audio = document.getElementById("bgMusic");
         if (audio) {
-            const targetSrc = coupleConfig.musicUrl || "https://upload.wikimedia.org/wikipedia/commons/e/e5/Chopin_Nocturne_No._2_in_E_Flat_Major%2C_Op._9.ogg";
+            const targetSrc = musicPlaylist[currentMusicIndex] || musicPlaylist[0] || "";
             if (audio.src !== targetSrc) {
                 audio.src = targetSrc;
                 if (isMusicPlaying) {
-                    audio.play();
+                    audio.play().catch(e => console.log("Autoplay bloqueado", e));
                 }
             }
         }
@@ -838,7 +839,9 @@ function updateDaysCounter() {
     if (!el) return;
     
     const startDateStr = coupleConfig.anniversaryDate || "2025-07-21";
-    const startDate = new Date(startDateStr + "T00:00:00");
+    // Substituir traços por barras para compatibilidade total com iOS/Safari
+    const cleanDateStr = startDateStr.replace(/-/g, "/");
+    const startDate = new Date(cleanDateStr + " 00:00:00");
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
