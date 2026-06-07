@@ -17,9 +17,11 @@
 - Música de fundo (Nocturne de Chopin em loop) com botão flutuante interativo (vinil que gira ao tocar) e controle de ativação salvo no localStorage.
 - Upgrade do botão de música flutuante para um painel Pill completo: `[ ⏮️ ]  ( 💿 )  [ ⏭️ ]`, permitindo avançar e retroceder músicas.
 - Criação de playlist de músicas padrão (4 faixas) e suporte para lista de links MP3 separados por vírgula nas configurações, com auto-avanço das faixas ao término.
+- Implementação de cache local no Service Worker (`sw.js`) de mídias dinâmicas e estáticas: fotos do ImgBB, músicas e vídeos/GIFs de abertura.
+- Adicionado limite máximo de 50 mídias no cache dinâmico (auto-pruning FIFO) e ignorador de Range requests para compatibilidade iOS Safari.
 - Tela de abertura (Splash Screen) romântica com GIF/coração pulsante e mensagem de carregamento.
 - Painel do Casal ("Nosso Espaço") com polaroid, dias de relacionamento e frase romântica.
-- Atualização das rotinas de build e fluxo de versionamento PWA para v13.0.
+- Atualização das rotinas de build e fluxo de versionamento PWA para v14.0.
 
 ### Bugs corrigidos durante a sessão
 - Evitada re-renderização redundante e duplicações visuais mantendo o controle total via snapshots e removendo invocações manuais de `renderGrid()`.
@@ -50,7 +52,7 @@ A partir de **06/06/2026**, todo ciclo de alteração segue este fluxo:
 7. Atualizar `AGENTS.md` com as novidades (se relevante)
 
 ### Versão atual
-- **v13** — Controle de música com botões de passar/voltar no estilo Pill + Playlist de 4 músicas clássicas + Auto-avanço de faixa + Links de música separados por vírgula nas Configurações.
+- **v14** — Cache dinâmico de fotos, áudios e vídeos no Service Worker (sw.js) com limite de 50 itens de mídia + suporte a Range requests bypass no iOS Safari.
 
 ---
 

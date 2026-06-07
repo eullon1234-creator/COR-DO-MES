@@ -319,6 +319,11 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 
 ## 📜 Changelog
 
+### v14 — 07/06/2026
+- 💾 **Cache Completo de Mídias (Fotos, Áudios e Vídeos)** — Atualização do Service Worker para interceptar e salvar em cache local do celular fotos do ImgBB, músicas de fundo e vídeos de abertura.
+- 🧹 **Auto-limpeza (trimCache)** — Adicionado controle automático de tamanho de cache limitando a 50 itens de mídias dinâmicas para evitar consumo exagerado de espaço.
+- 📱 **Compatibilidade iOS (Safari)** — Ignora Range requests nas escutas do Service Worker, garantindo reprodução contínua de áudio/vídeo em aparelhos Apple.
+
 ### v13 — 07/06/2026
 - 🎵 **Controle e Playlist de Músicas** — Transformação do botão de música flutuante em um controlador completo no estilo Pill: `[ ⏮️ ]  ( 💿 )  [ ⏭️ ]`.
 - 🔁 **Playlist Padrão e Customizada** — Adicionada playlist padrão com 4 músicas clássicas/românticas e suporte para links customizados separados por vírgula no formulário de Configurações do Casal.
@@ -375,4 +380,4 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 - 🏷️ **Nome do evento nos cards** — presente exibe o nome do evento (ex: "💑 Dia dos Namorados") em vez de só o mês
 - ⚡ **Registrar Presente pré-selecionado** — clicar no botão no calendário já abre o modal com o evento correto
 
-*Versão 13.0 — Junho 2026*
+*Versão 14.0 — Junho 2026*
