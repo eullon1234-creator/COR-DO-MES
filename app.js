@@ -741,7 +741,13 @@ async function handleSaveSettings(event) {
     const splashGifUrl = document.getElementById("settingsSplashGifUrl").value.trim();
     const file = document.getElementById("settingsCoupleCoverImage").files[0];
     
-    document.getElementById("settingsFormSpinner").classList.add("active");
+    const submitBtn = event.target.querySelector("button[type='submit']");
+    let originalBtnText = "";
+    if (submitBtn) {
+        originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "Salvando...";
+    }
     
     try {
         let coverUrl = coupleConfig.coverUrl || "";
@@ -783,7 +789,10 @@ async function handleSaveSettings(event) {
         console.error("Erro ao salvar configurações do casal:", error);
         showToast("Erro ao salvar configurações", "error");
     } finally {
-        document.getElementById("settingsFormSpinner").classList.remove("active");
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
     }
 }
 
@@ -1009,8 +1018,13 @@ async function handleAddGift(event) {
         }
     }
 
-    // Mostrar spinner
-    document.getElementById("giftFormSpinner").classList.add("active");
+    const submitBtn = event.target.querySelector("button[type='submit']");
+    let originalBtnText = "";
+    if (submitBtn) {
+        originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "Salvando...";
+    }
 
     try {
         let imageUrls = [];
@@ -1067,7 +1081,10 @@ async function handleAddGift(event) {
         console.error("Erro ao salvar presente:", error);
         showToast("Erro ao salvar presente: " + error.message, "error");
     } finally {
-        document.getElementById("giftFormSpinner").classList.remove("active");
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
     }
 }
 
@@ -1081,8 +1098,13 @@ async function handleAddMemory(event) {
         return;
     }
 
-    // Mostrar spinner
-    document.getElementById("memoryFormSpinner").classList.add("active");
+    const submitBtn = event.target.querySelector("button[type='submit']");
+    let originalBtnText = "";
+    if (submitBtn) {
+        originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "Salvando...";
+    }
 
     try {
         // 1. Enviar imagens para ImgBB (paralelo)
@@ -1116,7 +1138,10 @@ async function handleAddMemory(event) {
         console.error("Erro ao adicionar recordação:", error);
         showToast("Erro ao enviar foto: " + error.message, "error");
     } finally {
-        document.getElementById("memoryFormSpinner").classList.remove("active");
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
     }
 }
 
@@ -1862,7 +1887,13 @@ async function handleAddEvent(event) {
 
     const dateStr = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}`;
 
-    document.getElementById("eventFormSpinner").classList.add("active");
+    const submitBtn = event.target.querySelector("button[type='submit']");
+    let originalBtnText = "";
+    if (submitBtn) {
+        originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "Salvando...";
+    }
 
     try {
         await db.collection("events").add({
@@ -1880,7 +1911,10 @@ async function handleAddEvent(event) {
         console.error("Erro ao criar evento:", error);
         showToast("Erro ao criar evento: " + error.message, "error");
     } finally {
-        document.getElementById("eventFormSpinner").classList.remove("active");
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
     }
 }
 
@@ -1978,7 +2012,13 @@ async function handleAddWishlistItem(event) {
         return;
     }
 
-    document.getElementById("wishlistFormSpinner").classList.add("active");
+    const submitBtn = event.target.querySelector("button[type='submit']");
+    let originalBtnText = "";
+    if (submitBtn) {
+        originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "Salvando...";
+    }
 
     try {
         const imageUrls = await uploadMultipleToImgBB(imageFiles);
@@ -1999,7 +2039,10 @@ async function handleAddWishlistItem(event) {
         console.error("Erro ao adicionar sugestão:", error);
         showToast("Erro: " + error.message, "error");
     } finally {
-        document.getElementById("wishlistFormSpinner").classList.remove("active");
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
     }
 }
 

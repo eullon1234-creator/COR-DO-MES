@@ -319,6 +319,9 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 
 ## 📜 Changelog
 
+### v8 — 06/06/2026
+- 🚫 **Remoção de Spinner** — Remoção dos spinners de carregamento circular ("bolinhas giratórias") dos formulários de cadastro e configurações, substituindo por estados desabilitados e textos de feedback ("Salvando...") diretamente nos botões de envio.
+
 ### v7 — 06/06/2026
 - ⏱️ **Tempo de Splash Ampliado** — Aumentado o tempo mínimo de permanência da Splash Screen na tela para pelo menos 5 segundos, garantindo tempo suficiente para ver as fotos e vídeos da entrada com calma.
 
@@ -349,4 +352,4 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 - 🏷️ **Nome do evento nos cards** — presente exibe o nome do evento (ex: "💑 Dia dos Namorados") em vez de só o mês
 - ⚡ **Registrar Presente pré-selecionado** — clicar no botão no calendário já abre o modal com o evento correto
 
-*Versão 7.0 — Junho 2026*
+*Versão 8.0 — Junho 2026*
