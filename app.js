@@ -1021,6 +1021,8 @@ function openAddGiftModal(giftData = null, preSelectEventId = null) {
         document.getElementById("giftEvent").value = giftData.eventId || `month-${giftData.month}`;
         document.getElementById("giftName").value = giftData.product_name;
         document.getElementById("giftLink").value = giftData.gift_link || "";
+        document.getElementById("giftDescription").value = giftData.description || "";
+        document.getElementById("giftObservation").value = giftData.observation || "";
 
         // Fotos existentes: mostra previews
         const existingImages = getGiftImages(giftData);
@@ -1128,6 +1130,8 @@ async function handleAddGift(event) {
     const eventId = document.getElementById("giftEvent").value;
     const name = document.getElementById("giftName").value;
     const link = document.getElementById("giftLink").value.trim();
+    const description = document.getElementById("giftDescription").value.trim();
+    const observation = document.getElementById("giftObservation").value.trim();
     const imageFiles = document.getElementById("giftImage").files;
 
     if (!eventId || !name) {
@@ -1179,6 +1183,8 @@ async function handleAddGift(event) {
                 month: month,
                 product_name: name,
                 gift_link: link || null,
+                description: description || null,
+                observation: observation || null,
                 image_urls: imageUrls
             });
             showToast("Presente atualizado com sucesso! ✏️", "success");
@@ -1192,6 +1198,8 @@ async function handleAddGift(event) {
                 year: new Date().getFullYear(),
                 product_name: name,
                 gift_link: link || null,
+                description: description || null,
+                observation: observation || null,
                 image_urls: imageUrls,
                 created_at: new Date(),
                 revealed_at: null,
@@ -1737,6 +1745,20 @@ function viewMyGift(giftId) {
             <p class="text-xl">${gift.product_name}</p>
         </div>
 
+        ${gift.description ? `
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2"><i class="fas fa-align-left text-purple-400"></i> Descrição:</label>
+            <p class="text-gray-700 bg-purple-50/50 p-3 rounded-lg border border-purple-100/50 text-sm whitespace-pre-line">${gift.description}</p>
+        </div>
+        ` : ''}
+
+        ${gift.observation ? `
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2"><i class="fas fa-info-circle text-amber-400"></i> Observação:</label>
+            <p class="text-gray-700 bg-amber-50/50 p-3 rounded-lg border border-amber-100/50 text-sm">${gift.observation}</p>
+        </div>
+        ` : ''}
+
         ${gift.gift_link ? `
         <div class="mb-4">
             <label class="block text-gray-700 font-bold mb-2">Link:</label>
@@ -1829,6 +1851,20 @@ function viewPartnerGift(giftId) {
             <label class="block text-gray-700 font-bold mb-2">Produto:</label>
             <p class="text-xl ${!isRevealed ? 'gift-name-hidden' : ''}">${isRevealed ? gift.product_name : "*****"}</p>
         </div>
+
+        ${gift.description ? `
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2"><i class="fas fa-align-left text-purple-400"></i> Descrição:</label>
+            <p class="text-gray-700 bg-purple-50/50 p-3 rounded-lg border border-purple-100/50 text-sm whitespace-pre-line ${!isRevealed ? 'gift-blur' : ''}">${isRevealed ? gift.description : "************************"}</p>
+        </div>
+        ` : ''}
+
+        ${gift.observation ? `
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2"><i class="fas fa-info-circle text-amber-400"></i> Observação:</label>
+            <p class="text-gray-700 bg-amber-50/50 p-3 rounded-lg border border-amber-100/50 text-sm ${!isRevealed ? 'gift-blur' : ''}">${isRevealed ? gift.observation : "************************"}</p>
+        </div>
+        ` : ''}
 
         ${gift.gift_link && isRevealed ? `
         <div class="mb-4">
@@ -2048,11 +2084,49 @@ async function loadWishlist() {
     }
 }
 
-function openAddWishlistModal() {
+function openAddWishlistModal(itemData = null) {
     document.getElementById("wishlistForm").reset();
     document.getElementById("wishlistFileName").textContent = "";
     document.getElementById("wishlistImagePreviews").innerHTML = "";
     document.getElementById("wishlistFetchStatus").textContent = "";
+
+    const fileInput = document.getElementById("wishlistImage");
+    const modalTitle = document.querySelector("#addWishlistModal h2");
+    const submitBtn = document.querySelector("#wishlistForm button[type='submit']");
+    const editingIdInput = document.getElementById("editingWishlistId");
+
+    if (itemData) {
+        editingIdInput.value = itemData.id;
+        modalTitle.textContent = "✏️ Editar Sugestão";
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Atualizar Sugestão';
+        fileInput.removeAttribute("required");
+
+        document.getElementById("wishlistName").value = itemData.name;
+        document.getElementById("wishlistDescription").value = itemData.description || "";
+        document.getElementById("wishlistObservation").value = itemData.observation || "";
+        document.getElementById("wishlistLink").value = itemData.link || "";
+
+        const existingImages = itemData.image_urls && Array.isArray(itemData.image_urls) ? itemData.image_urls : (itemData.image_url ? [itemData.image_url] : []);
+        if (existingImages.length > 0) {
+            const previews = document.getElementById("wishlistImagePreviews");
+            existingImages.forEach(url => {
+                const img = document.createElement("img");
+                img.src = url;
+                img.className = "w-20 h-20 object-cover rounded-lg border-2 border-green-300";
+                img.title = "Foto existente";
+                img.setAttribute("data-existing", "true");
+                img.onclick = () => openFullscreenImage(url);
+                previews.appendChild(img);
+            });
+            document.getElementById("wishlistFetchStatus").textContent = `${existingImages.length} foto(s) existente(s) (adicione mais se quiser trocar)`;
+        }
+    } else {
+        editingIdInput.value = "";
+        modalTitle.textContent = "✨ Nova Sugestão";
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Sugestão';
+        fileInput.setAttribute("required", "");
+    }
+
     document.getElementById("addWishlistModal").classList.add("active");
 }
 
@@ -2117,12 +2191,20 @@ async function handleFetchWishlistProduct() {
 async function handleAddWishlistItem(event) {
     event.preventDefault();
 
+    const editingId = document.getElementById("editingWishlistId").value;
     const name = document.getElementById("wishlistName").value.trim();
     const link = document.getElementById("wishlistLink").value.trim();
+    const description = document.getElementById("wishlistDescription").value.trim();
+    const observation = document.getElementById("wishlistObservation").value.trim();
     const imageFiles = document.getElementById("wishlistImage").files;
 
-    if (!name || imageFiles.length === 0) {
-        showToast("Preencha o nome e selecione uma foto", "error");
+    if (!name) {
+        showToast("Preencha o nome do presente", "error");
+        return;
+    }
+
+    if (!editingId && imageFiles.length === 0) {
+        showToast("Selecione ao menos uma foto", "error");
         return;
     }
 
@@ -2135,20 +2217,46 @@ async function handleAddWishlistItem(event) {
     }
 
     try {
-        const imageUrls = await uploadMultipleToImgBB(imageFiles);
+        let imageUrls = [];
 
-        await db.collection("wishlist").add({
-            name: name,
-            image_urls: imageUrls,
-            link: link || null,
-            creatorUid: currentUser.id,
-            createdAt: new Date()
-        });
+        if (editingId) {
+            const existingItem = loadedWishlist.find(i => i.id === editingId);
+            if (existingItem) {
+                imageUrls = existingItem.image_urls && Array.isArray(existingItem.image_urls)
+                    ? [...existingItem.image_urls]
+                    : (existingItem.image_url ? [existingItem.image_url] : []);
+            }
+        }
 
-        showToast("Sugestão adicionada! ✨", "success");
+        if (imageFiles.length > 0) {
+            const newUrls = await uploadMultipleToImgBB(imageFiles);
+            imageUrls = [...imageUrls, ...newUrls];
+        }
+
+        if (editingId) {
+            await db.collection("wishlist").doc(editingId).update({
+                name: name,
+                image_urls: imageUrls,
+                link: link || null,
+                description: description || null,
+                observation: observation || null
+            });
+            showToast("Sugestão atualizada! ✏️", "success");
+        } else {
+            await db.collection("wishlist").add({
+                name: name,
+                image_urls: imageUrls,
+                link: link || null,
+                description: description || null,
+                observation: observation || null,
+                creatorUid: currentUser.id,
+                createdAt: new Date()
+            });
+            showToast("Sugestão adicionada! ✨", "success");
+        }
         closeModal("addWishlistModal");
     } catch (error) {
-        console.error("Erro ao adicionar sugestão:", error);
+        console.error("Erro ao salvar sugestão:", error);
         showToast("Erro: " + error.message, "error");
     } finally {
         if (submitBtn) {
@@ -2168,6 +2276,84 @@ async function deleteWishlistItem(itemId) {
         console.error("Erro ao remover sugestão:", error);
         showToast("Erro ao remover", "error");
     }
+}
+
+function viewWishlistItem(itemId) {
+    const item = loadedWishlist.find(i => i.id === itemId);
+    if (!item) return;
+
+    const content = document.getElementById("viewWishlistItemContent");
+    const imgs = item.image_urls && Array.isArray(item.image_urls) ? item.image_urls : (item.image_url ? [item.image_url] : []);
+    const imagesHtml = imgs.map(url =>
+        `<img src="${url}" alt="Item" class="image-preview cursor-pointer" onclick="openFullscreenImage('${url}')">`
+    ).join("");
+
+    const isMine = item.creatorUid === currentUser.id;
+
+    let html = `
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-1">Item:</label>
+            <p class="text-xl font-extrabold text-purple-950">${item.name}</p>
+        </div>
+
+        ${item.description ? `
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-1"><i class="fas fa-align-left text-purple-400"></i> Descrição:</label>
+            <p class="text-gray-700 text-sm whitespace-pre-wrap">${item.description}</p>
+        </div>
+        ` : ''}
+
+        ${item.observation ? `
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-1"><i class="fas fa-info-circle text-amber-400"></i> Observação:</label>
+            <p class="text-purple-900 text-sm italic font-medium bg-purple-50 p-3 rounded-lg border border-purple-100">${item.observation}</p>
+        </div>
+        ` : ''}
+
+        ${item.link ? `
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-1">Link de Compra:</label>
+            <a href="${item.link}" target="_blank" class="text-blue-600 underline text-sm break-all">${item.link}</a>
+        </div>
+        ` : ''}
+
+        <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-1">Fotos (${imgs.length}):</label>
+            <div class="flex flex-wrap gap-2 mt-1">
+                ${imgs.length > 0 ? imagesHtml : '<p class="text-sm text-gray-400">Sem fotos</p>'}
+            </div>
+        </div>
+
+        <div class="flex gap-3 flex-wrap mt-6">
+            ${isMine ? `
+                <button onclick="editWishlistItem('${item.id}'); closeModal('viewWishlistItemModal')" class="btn btn-primary flex-1 justify-center">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button onclick="deleteWishlistItem('${item.id}'); closeModal('viewWishlistItemModal')" class="btn btn-danger flex-1 justify-center">
+                    <i class="fas fa-trash"></i> Excluir
+                </button>
+            ` : `
+                ${item.link ? `
+                    <a href="${item.link}" target="_blank" class="btn btn-primary flex-1 justify-center text-center items-center flex gap-1">
+                        <i class="fas fa-shopping-cart"></i> Comprar
+                    </a>
+                ` : ''}
+            `}
+            <button onclick="closeModal('viewWishlistItemModal')" class="btn btn-secondary flex-1 justify-center">
+                Fechar
+            </button>
+        </div>
+    `;
+
+    content.innerHTML = html;
+    document.getElementById("viewWishlistItemTitle").textContent = item.name;
+    document.getElementById("viewWishlistItemModal").classList.add("active");
+}
+
+function editWishlistItem(itemId) {
+    const item = loadedWishlist.find(i => i.id === itemId);
+    if (!item) return;
+    openAddWishlistModal(item);
 }
 
 function renderWishlist() {
@@ -2194,13 +2380,14 @@ function renderWishlist() {
         myItems.forEach(item => {
             const imgs = item.image_urls && Array.isArray(item.image_urls) ? item.image_urls : (item.image_url ? [item.image_url] : []);
             const div = document.createElement("div");
-            div.className = "bg-white/80 rounded-xl p-3 border border-purple-100 shadow-sm";
+            div.className = "bg-white/80 rounded-xl p-3 border border-purple-100 shadow-sm cursor-pointer hover:shadow-md transition-shadow";
+            div.onclick = () => viewWishlistItem(item.id);
             div.innerHTML = `
-                <img src="${imgs[0] || ''}" alt="${item.name}" class="w-full h-24 object-cover rounded-lg mb-2 cursor-pointer shadow-sm" onclick="openFullscreenImage('${imgs[0] || ''}')">
+                <img src="${imgs[0] || ''}" alt="${item.name}" class="w-full h-24 object-cover rounded-lg mb-2 shadow-sm" onclick="event.stopPropagation(); openFullscreenImage('${imgs[0] || ''}')">
                 ${imgs.length > 1 ? `<span class="text-xs text-purple-700/60 block mt-1">+${imgs.length - 1} fotos</span>` : ''}
                 <p class="text-purple-950 text-sm font-bold truncate mt-1">${item.name}</p>
-                ${item.link ? `<a href="${item.link}" target="_blank" class="text-purple-700 hover:text-purple-950 text-xs font-semibold block truncate mt-1 hover:underline">🔗 Link de compra</a>` : ''}
-                <button onclick="deleteWishlistItem('${item.id}')" class="text-red-500 text-xs mt-2 hover:text-red-700 font-bold bg-transparent border-none cursor-pointer flex items-center gap-1">
+                ${item.link ? `<span class="text-purple-700 hover:text-purple-950 text-xs font-semibold block truncate mt-1 hover:underline">🔗 Link de compra</span>` : ''}
+                <button onclick="event.stopPropagation(); deleteWishlistItem('${item.id}')" class="text-red-500 text-xs mt-2 hover:text-red-700 font-bold bg-transparent border-none cursor-pointer flex items-center gap-1">
                     <i class="fas fa-trash"></i> Remover
                 </button>
             `;
@@ -2219,12 +2406,13 @@ function renderWishlist() {
         partnerItems.forEach(item => {
             const imgs = item.image_urls && Array.isArray(item.image_urls) ? item.image_urls : (item.image_url ? [item.image_url] : []);
             const div = document.createElement("div");
-            div.className = "bg-white/80 rounded-xl p-3 border border-purple-100 shadow-sm";
+            div.className = "bg-white/80 rounded-xl p-3 border border-purple-100 shadow-sm cursor-pointer hover:shadow-md transition-shadow";
+            div.onclick = () => viewWishlistItem(item.id);
             div.innerHTML = `
-                <img src="${imgs[0] || ''}" alt="${item.name}" class="w-full h-24 object-cover rounded-lg mb-2 cursor-pointer shadow-sm" onclick="openFullscreenImage('${imgs[0] || ''}')">
+                <img src="${imgs[0] || ''}" alt="${item.name}" class="w-full h-24 object-cover rounded-lg mb-2 shadow-sm" onclick="event.stopPropagation(); openFullscreenImage('${imgs[0] || ''}')">
                 ${imgs.length > 1 ? `<span class="text-xs text-purple-700/60 block mt-1">+${imgs.length - 1} fotos</span>` : ''}
                 <p class="text-purple-950 text-sm font-bold truncate mt-1">${item.name}</p>
-                ${item.link ? `<a href="${item.link}" target="_blank" class="inline-block mt-2 btn btn-primary text-xs py-1.5 px-3"><i class="fas fa-shopping-cart"></i> Comprar</a>` : ''}
+                ${item.link ? `<span class="inline-block mt-2 btn btn-primary text-xs py-1.5 px-3"><i class="fas fa-shopping-cart"></i> Ver Detalhes</span>` : ''}
             `;
             partnerGrid.appendChild(div);
         });

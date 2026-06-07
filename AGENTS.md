@@ -8,13 +8,16 @@
 
 ### O que foi feito
 - Criação da aba "Casa do Eullon Filho" (lista de compras da casa nova) com colunas para itens necessários ("O que estamos precisando") e comprados ("Já comprado!"), suportando foto, link de compras, descrição e observação.
-- Sincronização em tempo real via ouvintes do Firestore (`onSnapshot`) para todas as coleções, incluindo a nova coleção de compras da casa (`house_shopping`).
+- Sincronização em tempo real via ouvintes do Firestore (`onSnapshot`) para todas as coleções, incluindo a nova coleção de compras da casa (`house_shopping`), wishlist (`wishlist`) e presentes (`gifts`).
+- Adição dos campos de "Descrição" e "Observação" para as seções de Presentes (Gifts) e Sugestões (Wishlist), completando a padronização e o detalhamento do app.
+- Implementação de um modal completo de visualização de detalhes para a Wishlist (`viewWishlistItemModal`), exibindo as fotos do desejo, descrição, observação, link de compra e ações de edição/remoção/compra.
+- Atualização do comportamento da Wishlist: clicar nos cards do grid da Wishlist agora abre o novo modal de detalhes em vez de abrir apenas a imagem em tela cheia.
 - Remoção completa de recarregamentos manuais e re-renderizações imperativas redundantes nas funções de mutação (criação, edição, exclusão, adição de memória).
 - Controle de listeners ativos com armazenamento de referências `unsubscribe` globais e desinscrição completa no logout para prevenir vazamento de memória.
 - Música de fundo (Nocturne de Chopin em loop) com botão flutuante interativo (vinil que gira ao tocar) e controle de ativação salvo no localStorage.
 - Tela de abertura (Splash Screen) romântica com GIF/coração pulsante e mensagem de carregamento.
 - Painel do Casal ("Nosso Espaço") com polaroid, dias de relacionamento e frase romântica.
-- Atualização das rotinas de build e fluxo de versionamento PWA para v11.0.
+- Atualização das rotinas de build e fluxo de versionamento PWA para v12.0.
 
 ### Bugs corrigidos durante a sessão
 - Evitada re-renderização redundante e duplicações visuais mantendo o controle total via snapshots e removendo invocações manuais de `renderGrid()`.
@@ -45,7 +48,7 @@ A partir de **06/06/2026**, todo ciclo de alteração segue este fluxo:
 7. Atualizar `AGENTS.md` com as novidades (se relevante)
 
 ### Versão atual
-- **v11** — Aba "Casa do Eullon Filho" (lista de compras da casa com foto, link, desc e obs) + Sincronização em Tempo Real (onSnapshot) de presentes, eventos, wishlist e compras da casa + Remoção de recarregamentos manuais redundantes + Limpeza de listeners ativos no logout.
+- **v12** — Campos de descrição/observação para Presentes e Wishlist + Modal de Detalhes completo na Wishlist + Cards da Wishlist clicáveis para abrir modal + Atualização em tempo real sem re-renderizações imperativas.
 
 ---
 

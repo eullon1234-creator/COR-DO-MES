@@ -319,6 +319,10 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 
 ## 📜 Changelog
 
+### v12 — 07/06/2026
+- 💬 **Campos de Descrição & Observação** — Implementação dos campos de "Descrição" e "Observação" para as seções de Presentes (Gifts) e Sugestões (Wishlist), completando a padronização do app.
+- 🔍 **Modal de Detalhes na Wishlist** — Criação de um modal de detalhes (`viewWishlistItemModal`) ao clicar nos cards de sugestão da Wishlist, permitindo visualizar todas as fotos do item, descrição completa, observação de preferência, link direto de compra e ações rápidas.
+
 ### v11 — 07/06/2026
 - 🏠 **Aba "Casa do Eullon Filho"** — Criação de uma seção dedicada a compras para a casa nova. Permite listar itens necessários, marcar itens como comprados, enviar fotos, descrições, observações e links de compras.
 - ⚡ **Sincronização em Tempo Real (onSnapshot)** — A nova lista de compras da casa se atualiza automaticamente em ambos os dispositivos assim que alterações são efetuadas.
@@ -366,4 +370,4 @@ Este é um presente especial para vocês! Aproveitem cada mês com suspense e ro
 - 🏷️ **Nome do evento nos cards** — presente exibe o nome do evento (ex: "💑 Dia dos Namorados") em vez de só o mês
 - ⚡ **Registrar Presente pré-selecionado** — clicar no botão no calendário já abre o modal com o evento correto
 
-*Versão 11.0 — Junho 2026*
+*Versão 12.0 — Junho 2026*
